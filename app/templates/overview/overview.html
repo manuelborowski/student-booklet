@@ -1,0 +1,38 @@
+<!-- app/templates/auth/user.html -->
+<!-- this form is used for adding a user as well for editing a user, hence the if-clause -->
+
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "bootstrap/utils.html" as utils %}
+{% extends "base.html" %}
+
+{% block content2 %}
+<div class="content-section">
+  {{ utils.flashed_messages() }}
+    <div class="center">
+        <h1>Instellingen</h1>
+        <br/>
+        <form action="{{ url_for('overview.overview')}}" method="post" class="form" role="form"  enctype=multipart/form-data>
+        <div class="checkbox">
+            <label><input type="checkbox" name="inc_index_asset_name" value="1" {{'checked' if inc_index_asset_name else ''}}>
+                Bij het kopiëren van een activa zal de nieuwe activa dezelfde naam hebben, <br/>
+                maar zal de index in de naam met 1 zijn verhoogd.</label>
+        </div>
+        <div class="checkbox">
+            <label><input type="checkbox" name="copy_from_last_add" value="1" {{'checked' if copy_from_last_add else ''}}>
+                Als een niet bestaande QR code wordt gescand, dan wordt er automatisch een kopie genomen van <br/>
+                de laatst toegevoegde activa.  Of, als die niet bestaat, een lege activa wordt aangemaakt.</label>
+        </div>
+        <input class="btn btn-default" id="submit" name="button" type="submit" value="Bewaar">
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+
+
+{% block scripts %}
+{{ super() }}
+<script>
+</script>
+
+{% endblock %}
