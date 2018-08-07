@@ -1,60 +1,67 @@
-2018-08-06 10:36:04,193 - SB - INFO - NONE - start SB
-2018-08-06 10:38:07,374 - SB - INFO - NONE - start SB
-2018-08-06 10:39:47,766 - SB - INFO - NONE - start SB
-2018-08-06 10:42:02,664 - SB - INFO - NONE - start SB
-2018-08-06 10:49:16,326 - SB - INFO - NONE - start SB
-2018-08-06 10:53:03,523 - SB - INFO - NONE - start SB
-2018-08-06 11:00:44,537 - SB - INFO - NONE - start SB
-2018-08-06 11:00:52,916 - SB - INFO - NONE - start SB
-2018-08-06 11:02:37,755 - SB - INFO - NONE - start SB
-2018-08-06 11:02:45,633 - SB - INFO - NONE - start SB
-2018-08-06 11:03:52,126 - SB - INFO - NONE - start SB
-2018-08-06 11:04:01,540 - SB - INFO - admin - User logged in
-2018-08-06 11:04:41,835 - SB - INFO - admin - User logged in
-2018-08-06 11:04:54,166 - SB - INFO - NONE - start SB
-2018-08-06 11:04:55,979 - SB - INFO - admin - User logged in
-2018-08-06 11:05:12,130 - SB - INFO - admin - User logged in
-2018-08-06 11:07:22,770 - SB - INFO - admin - User logged out
-2018-08-06 11:08:28,268 - SB - INFO - NONE - start SB
-2018-08-06 11:08:43,719 - SB - INFO - admin - User logged in
-2018-08-06 13:01:45,653 - SB - INFO - NONE - start SB
-2018-08-06 13:03:06,835 - SB - INFO - NONE - start SB
-2018-08-06 13:03:13,215 - SB - INFO - NONE - start SB
-2018-08-06 13:03:45,206 - SB - INFO - NONE - start SB
-2018-08-06 13:05:09,412 - SB - INFO - NONE - start SB
-2018-08-06 13:06:05,489 - SB - INFO - NONE - start SB
-2018-08-06 13:06:10,129 - SB - INFO - admin - add : <Setting: 1/inc_index_asset_name/True/BOOL>
-2018-08-06 13:06:10,145 - SB - INFO - admin - add : <Setting: 2/copy_from_last_add/True/BOOL>
-2018-08-06 13:06:13,494 - SB - INFO - admin - User logged out
-2018-08-06 13:06:18,035 - SB - INFO - admin - User logged in
-2018-08-06 13:56:53,864 - SB - INFO - NONE - start SB
-2018-08-06 13:57:19,650 - SB - INFO - admin - Import from : <FileStorage: u'studentenkaart1718.csv' ('application/vnd.ms-excel')>
-2018-08-06 13:57:44,977 - SB - INFO - admin - Import from : <FileStorage: u'studentenkaart1718.csv' ('application/vnd.ms-excel')>
-2018-08-06 14:18:23,002 - SB - INFO - NONE - start SB
-2018-08-06 14:18:28,101 - SB - INFO - NONE - start SB
-2018-08-06 14:18:41,183 - SB - INFO - admin - Import from : <FileStorage: u'studentenkaart1718.csv' ('application/vnd.ms-excel')>
-2018-08-06 14:19:01,576 - SB - INFO - admin - Import from : <FileStorage: u'studentenkaart1718.csv' ('application/vnd.ms-excel')>
-2018-08-06 14:20:25,676 - SB - INFO - admin - Import from : <FileStorage: u'studentenkaart1718.csv' ('application/vnd.ms-excel')>
-2018-08-06 15:32:13,774 - SB - INFO - admin - Import from : <FileStorage: u'studentenkaart1718.csv' ('application/vnd.ms-excel')>
-2018-08-06 15:32:16,730 - SB - INFO - NONE - start SB
-2018-08-06 15:45:31,052 - SB - INFO - admin - Import from : <FileStorage: u'studentenkaart1718.csv' ('application/vnd.ms-excel')>
-2018-08-06 15:48:01,349 - SB - INFO - admin - Import from : <FileStorage: u'studentenkaart1718.csv' ('application/vnd.ms-excel')>
-2018-08-06 15:50:52,579 - SB - INFO - admin - Import from : <FileStorage: u'studentenkaart1718.csv' ('application/vnd.ms-excel')>
-2018-08-06 15:51:50,510 - SB - INFO - admin - Import from : <FileStorage: u'studentenkaart1718.csv' ('application/vnd.ms-excel')>
-2018-08-06 15:53:05,941 - SB - INFO - admin - Import from : <FileStorage: u'studentenkaart1718.csv' ('application/vnd.ms-excel')>
-2018-08-07 08:38:38,920 - SB - INFO - NONE - start SB
-2018-08-07 08:38:56,328 - SB - INFO - admin - User logged in
-2018-08-07 08:39:04,206 - SB - INFO - admin - Import from : <FileStorage: u'studentenkaart1718.csv' ('application/vnd.ms-excel')>
-2018-08-07 08:41:16,177 - SB - INFO - NONE - start SB
-2018-08-07 08:41:32,737 - SB - INFO - admin - Import from : <FileStorage: u'studentenkaart1718.csv' ('application/vnd.ms-excel')>
-2018-08-07 08:43:35,851 - SB - INFO - NONE - start SB
-2018-08-07 08:43:49,931 - SB - INFO - admin - Import from : <FileStorage: u'studentenkaart1718.csv' ('application/vnd.ms-excel')>
-2018-08-07 08:50:51,944 - SB - INFO - admin - Import from : <FileStorage: u'studentenkaart1718.csv' ('application/vnd.ms-excel')>
-2018-08-07 08:50:57,678 - SB - INFO - NONE - start SB
-2018-08-07 08:51:29,767 - SB - INFO - admin - Import from : <FileStorage: u'studentenkaart1718.csv' ('application/vnd.ms-excel')>
-2018-08-07 08:51:44,245 - SB - INFO - admin - import: added 1284 students and 79 classgroups
-2018-08-07 08:57:39,562 - SB - INFO - NONE - start SB
-2018-08-07 08:58:07,607 - SB - INFO - NONE - start SB
-2018-08-07 09:10:02,952 - SB - INFO - NONE - start SB
-2018-08-07 09:11:01,640 - SB - INFO - NONE - start SB
-2018-08-07 09:12:58,880 - SB - INFO - NONE - start SB
+2018-08-07 12:54:23,756 - SB - INFO - admin - Import timetable from : <FileStorage: u'lesrooster.csv' ('application/vnd.ms-excel')>
+2018-08-07 12:55:16,126 - SB - INFO - admin - Import timetable from : <FileStorage: u'lesrooster.csv' ('application/vnd.ms-excel')>
+2018-08-07 12:55:18,889 - SB - INFO - NONE - start SB
+2018-08-07 12:55:34,544 - SB - INFO - admin - Import timetable from : <FileStorage: u'lesrooster.csv' ('application/vnd.ms-excel')>
+2018-08-07 12:56:19,091 - SB - INFO - NONE - start SB
+2018-08-07 12:56:28,345 - SB - INFO - admin - Import timetable from : <FileStorage: u'lesrooster.csv' ('application/vnd.ms-excel')>
+2018-08-07 12:57:03,621 - SB - INFO - admin - import: added 3 classmoments and 1 lessons
+2018-08-07 13:21:04,309 - SB - INFO - admin - Import timetable from : <FileStorage: u'lesrooster.csv' ('application/vnd.ms-excel')>
+2018-08-07 13:21:47,206 - SB - INFO - admin - import: added 0 classmoments and 0 lessons
+2018-08-07 13:23:23,368 - SB - INFO - admin - Import timetable from : <FileStorage: u'lesrooster.csv' ('application/vnd.ms-excel')>
+2018-08-07 13:23:23,444 - SB - INFO - admin - import: added 2 classmoments and 1 lessons
+2018-08-07 13:43:27,023 - SB - INFO - NONE - start SB
+2018-08-07 13:49:20,319 - SB - INFO - NONE - start SB
+2018-08-07 13:49:43,985 - SB - INFO - NONE - start SB
+2018-08-07 13:59:33,875 - SB - INFO - NONE - start SB
+2018-08-07 13:59:48,287 - SB - INFO - admin - Import students from : <FileStorage: u'studenten.csv' ('application/vnd.ms-excel')>
+2018-08-07 13:59:49,951 - SB - INFO - admin - import: added 169 students and 0 classgroups
+2018-08-07 13:59:57,386 - SB - INFO - admin - Import students from : <FileStorage: u'studenten.csv' ('application/vnd.ms-excel')>
+2018-08-07 13:59:58,378 - SB - INFO - admin - import: added 0 students and 0 classgroups
+2018-08-07 14:01:23,899 - SB - INFO - admin - Import students from : <FileStorage: u'studenten.csv' ('application/vnd.ms-excel')>
+2018-08-07 14:01:24,862 - SB - INFO - admin - import: added 0 students and 0 classgroups
+2018-08-07 15:46:54,829 - SB - INFO - NONE - start SB
+2018-08-07 15:47:01,280 - SB - INFO - admin - User logged in
+2018-08-07 16:02:50,762 - SB - INFO - NONE - start SB
+2018-08-07 16:31:56,728 - SB - INFO - NONE - start SB
+2018-08-07 16:42:24,106 - SB - INFO - NONE - start SB
+2018-08-07 16:43:34,682 - SB - INFO - NONE - start SB
+2018-08-07 16:43:42,922 - SB - INFO - NONE - start SB
+2018-08-07 16:44:25,370 - SB - INFO - admin - imported photos
+2018-08-07 17:53:23,982 - SB - INFO - NONE - start SB
+2018-08-07 17:54:06,291 - SB - INFO - NONE - start SB
+2018-08-07 17:59:21,393 - SB - INFO - admin - Import students from : <FileStorage: u'studenten.csv' ('application/vnd.ms-excel')>
+2018-08-07 17:59:22,371 - SB - INFO - admin - import: added 0 students and 0 classgroups
+2018-08-07 18:00:42,418 - SB - INFO - admin - Import students from : <FileStorage: u'studenten.csv' ('application/vnd.ms-excel')>
+2018-08-07 18:00:43,384 - SB - INFO - admin - import: added 0 students and 0 classgroups
+2018-08-07 18:01:41,372 - SB - INFO - NONE - start SB
+2018-08-07 18:01:45,417 - SB - INFO - NONE - start SB
+2018-08-07 19:15:11,030 - SB - INFO - NONE - start SB
+2018-08-07 19:15:18,744 - SB - INFO - admin - User logged in
+2018-08-07 19:18:22,919 - SB - INFO - NONE - start SB
+2018-08-07 19:20:50,012 - SB - INFO - NONE - start SB
+2018-08-07 19:22:14,253 - SB - INFO - NONE - start SB
+2018-08-07 19:22:42,024 - SB - INFO - NONE - start SB
+2018-08-07 19:25:43,007 - SB - INFO - admin - Upload photos from : <FileStorage: u'studenten.csv' ('application/vnd.ms-excel')>
+2018-08-07 19:25:43,010 - SB - INFO - admin - Uploaded photos
+2018-08-07 19:28:29,603 - SB - INFO - admin - Upload photos from : <FileStorage: u'studenten.csv' ('application/vnd.ms-excel')>
+2018-08-07 19:28:29,603 - SB - INFO - admin - Uploaded photos
+2018-08-07 19:28:32,922 - SB - INFO - NONE - start SB
+2018-08-07 19:29:26,785 - SB - INFO - admin - Upload photos from : <FileStorage: u'1718.zip' ('application/x-zip-compressed')>
+2018-08-07 19:29:30,450 - SB - INFO - admin - Uploaded photos
+2018-08-07 19:31:30,684 - SB - INFO - NONE - start SB
+2018-08-07 19:33:08,853 - SB - INFO - NONE - start SB
+2018-08-07 19:41:02,170 - SB - INFO - NONE - start SB
+2018-08-07 19:42:45,444 - SB - INFO - NONE - start SB
+2018-08-07 19:45:27,382 - SB - INFO - NONE - start SB
+2018-08-07 19:53:20,482 - SB - INFO - NONE - start SB
+2018-08-07 19:55:19,098 - SB - INFO - NONE - start SB
+2018-08-07 19:58:08,082 - SB - INFO - NONE - start SB
+2018-08-07 19:58:17,022 - SB - INFO - admin - User logged in
+2018-08-07 20:01:02,700 - SB - INFO - NONE - start SB
+2018-08-07 20:01:28,360 - SB - INFO - admin - Import students from : <FileStorage: u'studenten.csv' ('application/vnd.ms-excel')>
+2018-08-07 20:01:36,714 - SB - INFO - admin - import: added 0 students and 0 classgroups
+2018-08-07 20:03:31,538 - SB - INFO - NONE - start SB
+2018-08-07 20:03:38,837 - SB - INFO - admin - Upload photos from : <FileStorage: u'1718.zip' ('application/x-zip-compressed')>
+2018-08-07 20:03:38,844 - SB - INFO - admin - Uploaded photos
+2018-08-07 20:04:11,537 - SB - INFO - admin - Upload photos from : <FileStorage: u'1718.zip' ('application/x-zip-compressed')>
+2018-08-07 20:04:11,544 - SB - INFO - admin - Uploaded photos

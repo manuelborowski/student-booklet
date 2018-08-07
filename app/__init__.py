@@ -101,6 +101,9 @@ def create_app(config_name):
         from .user import user as user_blueprint
         app.register_blueprint(user_blueprint)
 
+        from .documents import init_documents
+        init_documents(app, 'photo')
+
         @app.errorhandler(403)
         def forbidden(error):
             return render_template('errors/403.html', title='Forbidden'), 403
