@@ -218,9 +218,9 @@ from . import db
 #return : found, value
 # found : if True, setting was found else not
 # value ; if setting was found, returns the value
-def get_setting(name):
+def get_setting(name, id=-1):
     try:
-        setting = Settings.query.filter_by(name=name, user_id=current_user.id).first()
+        setting = Settings.query.filter_by(name=name, user_id=id if id > -1 else current_user.id).first()
         if setting.type== Settings.SETTING_TYPE.E_INT:
             value = int(setting.value)
         elif setting.type == Settings.SETTING_TYPE.E_FLOAT:
@@ -233,16 +233,16 @@ def get_setting(name):
         return False, ''
     return True, value
 
-def add_setting(name, value, type):
-    setting = Settings(name=name, value=str(value), type=type, user_id=current_user.id)
+def add_setting(name, value, type, id=-1):
+    setting = Settings(name=name, value=str(value), type=type, user_id=id if id >-1 else current_user.id)
     db.session.add(setting)
     db.session.commit()
     log.info('add : {}'.format(setting.log()))
     return True
 
-def set_setting(name, value):
+def set_setting(name, value, id=-1):
     try:
-        setting = Settings.query.filter_by(name=name, user_id=current_user.id).first()
+        setting = Settings.query.filter_by(name=name, user_id=id if id > -1 else current_user.id).first()
         setting.value = value
         db.session.commit()
     except:
@@ -267,3 +267,11 @@ def get_setting_copy_from_last_add():
 def set_setting_copy_from_last_add(value):
     return set_setting('copy_from_last_add', str(value))
 
+def get_global_setting_current_schoolyear():
+    found, value = get_setting('current_schoolyear', 1)
+    if found: return value
+    add_setting('current_schoolyear', '1718', Settings.SETTING_TYPE.E_STRING, 1)
+    return '1718'
+
+def set_global_setting_current_schoolyear(value):
+    return set_setting('current_schoolyear', str(value), 1)

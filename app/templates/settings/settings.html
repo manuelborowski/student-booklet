@@ -10,25 +10,42 @@
   {{ utils.flashed_messages() }}
     <div class="center">
         <h1>Instellingen</h1>
-        <form method="post" enctype=multipart/form-data >
+        <form method="post" enctype=multipart/form-data>
+            {% if current_user.is_admin %}
+                <input id="upload_trigger" type="submit" value="Import" style="display:none" formaction="{{ url_for('settings.upload_file') }}">
 
-            <input id="upload_trigger" type="submit" value="Import" style="display:none" formaction="{{ url_for('settings.upload_file') }}">
-
-            <input class="btn btn-default" type="button" id="import" value="1) Importeer studenten"  onclick="$('#import_fileid').click();">
-            <input id='import_fileid' type='file' name='upload_students' style="display:none" accept=".csv" onchange="$('#upload_trigger').click();">
-
-            <input class="btn btn-default" type="button" id="import2" value="2) Importeer leerkrachten"  onclick="$('#import_fileid2').click();">
-            <input id='import_fileid2' type='file' name='upload_teachers' style="display:none" accept=".csv" onchange="$('#upload_trigger').click();">
-
-            <input class="btn btn-default" type="button" id="import3" value="3) Importeer lesrooster"  onclick="$('#import_fileid3').click();">
-            <input id='import_fileid3' type='file' name='upload_timetable' style="display:none" accept=".csv" onchange="$('#upload_trigger').click();">
-
-            <input class="btn btn-default" type="button" id="import4" value="4) Importeer fotos"  onclick="$('#import_fileid4').click();">
-            <input id='import_fileid4' type='file' name='upload_photos' style="display:none" accept=".zip" onchange="$('#upload_trigger').click();">
+                <input class="btn btn-default" type="button" id="import" value="1) Importeer studenten"  onclick="$('#import_fileid').click();">
+                <input id='import_fileid' type='file' name='upload_students' style="display:none" accept=".csv" onchange="$('#upload_trigger').click();">
+                <br/>
+                <input class="btn btn-default" type="button" id="import2" value="2) Importeer leerkrachten"  onclick="$('#import_fileid2').click();">
+                <input id='import_fileid2' type='file' name='upload_teachers' style="display:none" accept=".csv" onchange="$('#upload_trigger').click();">
+                <br/>
+                <input class="btn btn-default" type="button" id="import3" value="3) Importeer lesrooster"  onclick="$('#import_fileid3').click();">
+                <input id='import_fileid3' type='file' name='upload_timetable' style="display:none" accept=".csv" onchange="$('#upload_trigger').click();">
+                <br/>
+                <input class="btn btn-default" type="button" id="import4" value="4) Importeer fotos"  onclick="$('#import_fileid4').click();">
+                <input id='import_fileid4' type='file' name='upload_photos' style="display:none" accept=".zip" onchange="$('#upload_trigger').click();">
+            {% endif %}
+        </form>
+        <br/>
+        <br/>
+        <br/>
+        <form action="{{ url_for('settings.save')}}" method="post" class="form" role="form"  enctype=multipart/form-data>
+            {% if current_user.is_admin %}
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-sm-1">
+                            <input type="text" class="form-control" id="schoolyear" name="schoolyear" value="{{ schoolyear }}">
+                        </div>
+                        <label for="schoolyear" class="col-sm-2 control-label">: Huidig schooljaar </label>
+                    </div>
+                </div>
+            {% endif %}
 
 <!--
              <input id='purge_database' type="submit" name='purge_database' style="display:none"  formaction="{{ url_for('settings.purge_database') }}"/>
--->
+-->        <input class="btn btn-default" id="submit" name="button" type="submit" value="Bewaar">
+
 
         </form>
     </div>

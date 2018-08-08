@@ -86,6 +86,7 @@ class Student(db.Model):
     last_name = db.Column(db.String(256))
     number = db.Column(db.Integer)
     photo = db.Column(db.String(256))
+    schoolyear = db.Column(db.String(256))  #e.g. 1718, 1819
     offences = db.relationship('Offence', cascade='all, delete', backref='student', lazy='dynamic')
     classgroup_id = db.Column(db.Integer, db.ForeignKey('classgroups.id', ondelete='CASCADE'))
 
@@ -103,6 +104,11 @@ class Student(db.Model):
 
 class Classgroup(db.Model):
     __tablename__= 'classgroups'
+
+    @staticmethod
+    def get_list():
+        l = [i.name for i in db.session.query(Classgroup.name).distinct(Classgroup.name).order_by(Classgroup.name).all()]
+        return l
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(256))
@@ -122,9 +128,22 @@ class Classgroup(db.Model):
 class Classmoment(db.Model):
     __tablename__ = 'classmoments'
 
+    @staticmethod
+    def get_day_hour():
+        days = ['maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag']
+        l = []
+        for d in days:
+            lh = 6 if d == 'woensdag' else 10
+            for h in range(1,lh):
+                l.append('{} : {}'.format(d, h))
+        return l
+
+
+
     id = db.Column(db.Integer, primary_key=True)
     day = db.Column(db.Integer)
     hour = db.Column(db.Integer)
+    schoolyear = db.Column(db.String(256))  #e.g. 1718, 1819
     classgroup_id = db.Column(db.Integer, db.ForeignKey('classgroups.id', ondelete='CASCADE'))
     teacher_id = db.Column(db.Integer, db.ForeignKey('teachers.id', ondelete='CASCADE'))
     lesson_id = db.Column(db.Integer, db.ForeignKey('lessons.id', ondelete='CASCADE'))
@@ -160,6 +179,11 @@ class Lesson(db.Model):
 class Teacher(db.Model):
     __tablename__ = 'teachers'
 
+    @staticmethod
+    def get_list():
+        l = [i.code for i in db.session.query(Teacher.code).distinct(Teacher.code).order_by(Teacher.code).all()]
+        return l
+
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(256))
     last_name = db.Column(db.String(256))
@@ -171,11 +195,9 @@ class Offence(db.Model):
     __tablename__ = 'offences'
 
     id = db.Column(db.Integer, primary_key=True)
-    type = db.Column(db.String(256))
-    measure = db.Column(db.String(256))
-    week = db.Column(db.Integer)
-    day = db.Column(db.Integer)
-    hour = db.Column(db.Integer)
+    type = db.Column(db.String(1024))
+    measure = db.Column(db.String(1024))
+    timestamp = db.Column(db.Date)
     student_id = db.Column(db.Integer, db.ForeignKey('students.id', ondelete='CASCADE'))
     lesson_id = db.Column(db.Integer, db.ForeignKey('lessons.id', ondelete='CASCADE'))
     teacher_id = db.Column(db.Integer, db.ForeignKey('teachers.id', ondelete='CASCADE'))

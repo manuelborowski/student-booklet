@@ -8,31 +8,39 @@
 {% block content2 %}
 <div class="content-section">
   {{ utils.flashed_messages() }}
-    <div class="center">
-        <h1>Instellingen</h1>
+    <div>
+        <h1>Overzicht</h1>
         <br/>
-        <form action="{{ url_for('overview.overview')}}" method="post" class="form" role="form"  enctype=multipart/form-data>
-        <div class="checkbox">
-            <label><input type="checkbox" name="inc_index_asset_name" value="1" {{'checked' if inc_index_asset_name else ''}}>
-                Bij het kopiëren van een activa zal de nieuwe activa dezelfde naam hebben, <br/>
-                maar zal de index in de naam met 1 zijn verhoogd.</label>
-        </div>
-        <div class="checkbox">
-            <label><input type="checkbox" name="copy_from_last_add" value="1" {{'checked' if copy_from_last_add else ''}}>
-                Als een niet bestaande QR code wordt gescand, dan wordt er automatisch een kopie genomen van <br/>
-                de laatst toegevoegde activa.  Of, als die niet bestaat, een lege activa wordt aangemaakt.</label>
-        </div>
-        <input class="btn btn-default" id="submit" name="button" type="submit" value="Bewaar">
+        <form action="{{ url_for('overview.overview')}}" method="post" class="form" role="form" id="select_form" enctype=multipart/form-data>
+            <div id="select_group">
+                {{ wtf.form_field(form.teacher, form_type="horizontal", horizontal_columns=("sm", 1, 1)) }}
+                {{ wtf.form_field(form.classgroup, form_type="horizontal", horizontal_columns=("sm", 1, 1)) }}
+                {{ wtf.form_field(form.dayhour, form_type="horizontal", horizontal_columns=("sm", 1, 2)) }}
+                <br/>
+                <br/>
+                <br/>
+            </div>
         </form>
+        {% for s in students %}
+        <div class="imagecaption">
+            <figure>
+                <img src="../../static/photo/{{ s.photo }}" height="120">
+                <figcaption>{{ s.first_name + ' ' + s.last_name }}</figcaption>
+            </figure>
+        </div>
+        {% endfor %}
     </div>
 </div>
 {% endblock %}
 
-
-
 {% block scripts %}
 {{ super() }}
 <script>
+$(document).ready(function(){
+    $("#select_group").change(function(){
+        $("#select_form").submit();
+    });
+});
 </script>
 
 {% endblock %}

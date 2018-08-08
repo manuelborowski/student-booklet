@@ -3,7 +3,8 @@
 
 from flask import render_template, redirect, url_for, request, flash, send_file, abort
 from flask_login import login_required, current_user
-from ..base import get_setting_inc_index_asset_name, set_setting_inc_index_asset_name, get_setting_copy_from_last_add, set_setting_copy_from_last_add
+from ..base import get_setting_inc_index_asset_name, set_setting_inc_index_asset_name, get_setting_copy_from_last_add, set_setting_copy_from_last_add,  \
+    get_global_setting_current_schoolyear, set_global_setting_current_schoolyear
 from . import settings
 from .. import db, app, log
 from ..models import Settings, Classgroup, Student, Teacher, Lesson, Classmoment
@@ -19,15 +20,8 @@ def check_admin():
         abort(403)
 
 def get_settings_and_show():
-    #inc_index_asset_name : if true and this asset is used as base to copy from, then the index of the asset name
-    #will be incremented by one
-    inc_index_asset_name = get_setting_inc_index_asset_name()
-    #copy_from_last_add : if a url-shortcut with qr code is uses, and the qr code is not found, then a new asset is
-    #added which is a copy from the previous added asset.
-    copy_from_last_add = get_setting_copy_from_last_add()
     return render_template('settings/settings.html',
-                           inc_index_asset_name=inc_index_asset_name,
-                           copy_from_last_add=copy_from_last_add,
+                           schoolyear = get_global_setting_current_schoolyear(),
                            title='settings')
 
 @settings.route('/settings', methods=['GET', 'POST'])
@@ -39,9 +33,8 @@ def show():
 @login_required
 def save():
     if request.form['button'] == 'Bewaar':
-        set_setting_inc_index_asset_name(True if 'inc_index_asset_name' in request.form else False)
-        set_setting_copy_from_last_add(True if 'copy_from_last_add' in request.form else False)
-
+        if 'schoolyear' in request.form:
+           set_global_setting_current_schoolyear(request.form['schoolyear'])
     return get_settings_and_show()
 
 @settings.route('/settings/purge_database', methods=['GET', 'POST'])
@@ -75,7 +68,10 @@ def upload_photos(rfile):
         log.info('Upload photos from : {}'.format(rfile))
         #students_file = csv.DictReader(request.files['import_filename'],  delimiter=';', encoding='utf-8-sig')
         filename = get_doc_reference('photo').save(rfile, name=rfile.filename)
-
+        zip_file = os.path.join(get_doc_path('photo'), filename)
+        zip_ref = zipfile.ZipFile(zip_file, 'r')
+        zip_ref.extractall(get_doc_path('photo'))
+        zip_ref.close()
         log.info('Uploaded photos')
         flash('Fotos zijn geimporteerd')
 
@@ -98,6 +94,7 @@ def import_students(rfile):
 
         nbr_students = 0
         nbr_classgroups = 0
+        schoolyear = get_global_setting_current_schoolyear()
 
         for s in students_file:
             #skip empy records
@@ -110,10 +107,11 @@ def import_students(rfile):
                     nbr_classgroups += 1
                 #add student, if not already present
                 find_student=Student.query.filter(Student.first_name==s['VOORNAAM'], Student.last_name==s['NAAM'],
-                                                          Student.number==int(s['LEERLINGNUMMER']),
-                                                          Student.photo==s['FOTO'], Student.classgroup==classgroup).first()
+                                                        Student.number==int(s['LEERLINGNUMMER']),
+                                                        Student.photo==s['FOTO'], Student.classgroup==classgroup,
+                                                        Student.schoolyear==schoolyear).first()
                 if not find_student:
-                    student = Student(first_name=s['VOORNAAM'], last_name=s['NAAM'], number=int(s['LEERLINGNUMMER']), photo=s['FOTO'], classgroup=classgroup)
+                    student = Student(first_name=s['VOORNAAM'], last_name=s['NAAM'], number=int(s['LEERLINGNUMMER']), photo=s['FOTO'], classgroup=classgroup, schoolyear=schoolyear)
                     db.session.add(student)
                     nbr_students += 1
 
@@ -172,6 +170,7 @@ def import_timetable(rfile):
 
         nbr_classmoments = 0
         nbr_lessons = 0
+        schoolyear = get_global_setting_current_schoolyear()
 
         for t in timetable_file:
             #skip empy records
@@ -188,10 +187,10 @@ def import_timetable(rfile):
                             nbr_lessons += 1
                         find_classmoment = Classmoment.query.filter(Classmoment.day == int(t['DAG']), Classmoment.hour == int(t['UUR']),
                                                                     Classmoment.classgroup == find_classgroup, Classmoment.teacher == find_teacher,
-                                                                    Classmoment.lesson == lesson).first()
+                                                                    Classmoment.lesson == lesson, Classmoment.schoolyear == schoolyear).first()
                         if not find_classmoment:
                             classmoment = Classmoment(day = int(t['DAG']), hour = int(t['UUR']),
-                                                    classgroup = find_classgroup, teacher = find_teacher, lesson = lesson)
+                                                    classgroup = find_classgroup, teacher = find_teacher, lesson = lesson, schoolyear = schoolyear)
                             db.session.add(classmoment)
                             nbr_classmoments += 1
 

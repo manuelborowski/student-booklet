@@ -65,3 +65,68 @@
 2018-08-07 20:03:38,844 - SB - INFO - admin - Uploaded photos
 2018-08-07 20:04:11,537 - SB - INFO - admin - Upload photos from : <FileStorage: u'1718.zip' ('application/x-zip-compressed')>
 2018-08-07 20:04:11,544 - SB - INFO - admin - Uploaded photos
+2018-08-08 07:54:54,036 - SB - INFO - NONE - start SB
+2018-08-08 07:55:27,667 - SB - INFO - NONE - start SB
+2018-08-08 07:55:42,241 - SB - INFO - admin - User logged in
+2018-08-08 07:55:49,075 - SB - INFO - admin - Upload photos from : <FileStorage: u'1718.zip' ('application/x-zip-compressed')>
+2018-08-08 08:06:48,465 - SB - INFO - admin - Upload photos from : <FileStorage: u'1718.zip' ('application/x-zip-compressed')>
+2018-08-08 08:06:48,480 - SB - INFO - admin - Uploaded photos
+2018-08-08 08:06:52,612 - SB - INFO - NONE - start SB
+2018-08-08 08:07:00,313 - SB - INFO - admin - Upload photos from : <FileStorage: u'1718.zip' ('application/x-zip-compressed')>
+2018-08-08 08:07:46,640 - SB - INFO - NONE - start SB
+2018-08-08 08:07:55,300 - SB - INFO - admin - Upload photos from : <FileStorage: u'1718.zip' ('application/x-zip-compressed')>
+2018-08-08 08:38:18,522 - SB - INFO - NONE - start SB
+2018-08-08 08:39:22,705 - SB - INFO - NONE - start SB
+2018-08-08 10:32:51,674 - SB - INFO - NONE - start SB
+2018-08-08 10:33:00,016 - SB - INFO - admin - Import students from : <FileStorage: u'studenten.csv' ('application/vnd.ms-excel')>
+2018-08-08 10:33:00,038 - SB - INFO - admin - add : <Setting: 4/current_schoolyear/1718/STRING>
+2018-08-08 10:33:01,592 - SB - INFO - admin - import: added 169 students and 0 classgroups
+2018-08-08 10:33:01,598 - SB - INFO - admin - Upload photos from : <FileStorage: u'1718.zip' ('application/x-zip-compressed')>
+2018-08-08 10:33:54,140 - SB - INFO - admin - Uploaded photos
+2018-08-08 10:41:39,444 - SB - INFO - admin - Import students from : <FileStorage: u'studenten.csv' ('application/vnd.ms-excel')>
+2018-08-08 10:41:40,983 - SB - INFO - admin - import: added 169 students and 0 classgroups
+2018-08-08 10:44:26,273 - SB - INFO - admin - Import students from : <FileStorage: u'studenten.csv' ('application/vnd.ms-excel')>
+2018-08-08 10:44:27,836 - SB - INFO - admin - import: added 169 students and 0 classgroups
+2018-08-08 10:46:35,443 - SB - INFO - NONE - start SB
+2018-08-08 10:47:08,008 - SB - INFO - admin - Import timetable from : <FileStorage: u'lesrooster.csv' ('application/vnd.ms-excel')>
+2018-08-08 10:47:08,100 - SB - INFO - admin - import: added 5 classmoments and 0 lessons
+2018-08-08 11:21:42,383 - SB - INFO - admin - add : <User: 2/leerkracht>
+2018-08-08 11:25:55,162 - SB - INFO - NONE - start SB
+2018-08-08 11:26:00,607 - SB - INFO - admin - User logged out
+2018-08-08 11:26:06,907 - SB - INFO - leerkracht - User logged in
+2018-08-08 11:26:09,451 - SB - INFO - leerkracht - add : <Setting: 5/inc_index_asset_name/True/BOOL>
+2018-08-08 11:26:09,463 - SB - INFO - leerkracht - add : <Setting: 6/copy_from_last_add/True/BOOL>
+2018-08-08 11:27:07,176 - SB - INFO - leerkracht - User logged out
+2018-08-08 11:27:20,087 - SB - INFO - admin - User logged in
+2018-08-08 11:43:46,369 - SB - INFO - NONE - start SB
+2018-08-08 13:09:07,519 - SB - INFO - NONE - start SB
+2018-08-08 13:16:21,997 - SB - INFO - admin - Upload photos from : <FileStorage: u'1718.zip' ('application/x-zip-compressed')>
+2018-08-08 13:16:22,156 - SB - INFO - admin - Uploaded photos
+2018-08-08 13:16:24,130 - SB - INFO - NONE - start SB
+2018-08-08 13:16:33,666 - SB - INFO - NONE - start SB
+2018-08-08 13:17:00,132 - SB - INFO - admin - Upload photos from : <FileStorage: u'1718.zip' ('application/x-zip-compressed')>
+2018-08-08 13:17:00,314 - SB - INFO - admin - Uploaded photos
+2018-08-08 13:20:56,848 - SB - INFO - NONE - start SB
+2018-08-08 13:21:55,399 - SB - INFO - NONE - start SB
+2018-08-08 13:22:44,385 - SB - INFO - admin - Import students from : <FileStorage: u'studenten.csv' ('application/vnd.ms-excel')>
+2018-08-08 13:22:46,077 - SB - INFO - admin - import: added 169 students and 0 classgroups
+2018-08-08 14:19:52,225 - SB - INFO - NONE - start SB
+2018-08-08 14:20:28,187 - SB - INFO - NONE - start SB
+2018-08-08 14:23:02,788 - SB - INFO - NONE - start SB
+2018-08-08 15:09:26,019 - SB - INFO - admin - User logged in
+2018-08-08 15:15:57,659 - SB - INFO - NONE - start SB
+2018-08-08 15:16:27,292 - SB - INFO - NONE - start SB
+2018-08-08 15:16:32,192 - SB - INFO - NONE - start SB
+2018-08-08 15:50:27,151 - SB - INFO - NONE - start SB
+2018-08-08 15:50:57,605 - SB - INFO - NONE - start SB
+2018-08-08 16:51:28,393 - SB - INFO - NONE - start SB
+2018-08-08 16:57:17,062 - SB - INFO - NONE - start SB
+2018-08-08 19:37:10,335 - SB - INFO - NONE - start SB
+2018-08-08 19:43:00,927 - SB - INFO - NONE - start SB
+2018-08-08 19:48:20,927 - SB - INFO - NONE - start SB
+2018-08-08 20:06:39,055 - SB - INFO - NONE - start SB
+2018-08-08 20:14:27,855 - SB - INFO - NONE - start SB
+2018-08-08 20:15:35,338 - SB - INFO - NONE - start SB
+2018-08-08 20:15:38,830 - SB - INFO - NONE - start SB
+2018-08-08 20:16:09,939 - SB - INFO - NONE - start SB
+2018-08-08 20:27:14,169 - SB - INFO - NONE - start SB

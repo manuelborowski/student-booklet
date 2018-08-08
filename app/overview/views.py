@@ -4,10 +4,14 @@
 from flask import render_template, redirect, url_for, request, flash, send_file, session
 from flask_login import login_required, current_user
 
-#from .forms import AddForm, EditForm, ViewForm
+from .forms import EditForm
 from .. import db, log
 from . import overview
-#from ..models import
+from ..models import Classgroup, Student
+from ..base import get_global_setting_current_schoolyear
+
+from ..documents import get_doc_path
+import os
 
 #from ..base import build_filter, get_ajax_table, get_setting_inc_index_asset_name
 #from ..tables_config import  tables_configuration
@@ -18,7 +22,14 @@ import cStringIO, csv, re
 @overview.route('/overview', methods=['GET', 'POST'])
 @login_required
 def overview():
-    return render_template('overview/overview.html')
+    if 'classgroup' in request.form:
+        classgroup = request.form['classgroup']
+    else:
+        classgroup = '3A'
+    students = Student.query.join(Classgroup).filter(Classgroup.name==classgroup, Student.schoolyear==get_global_setting_current_schoolyear()).all()
+    form = EditForm()
+    form.classgroup.data=classgroup
+    return render_template('overview/overview.html', form=form, students=students)
 
 
 

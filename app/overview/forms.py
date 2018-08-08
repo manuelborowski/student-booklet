@@ -8,61 +8,13 @@ from wtforms.validators import DataRequired, ValidationError
 from wtforms.widgets import HiddenInput
 #from .. import _
 
-from ..models import Asset, Supplier, Purchase
-
-def get_suppliers():
-    return Supplier.query.all()
-
-def get_purchases():
-    return Purchase.query.all()
-
-
-class UniqueQR:
-    def __init__(self, message=None):
-        if message:
-            self.message = message
-        else:
-            self.message = 'Een activa met deze QR-code bestaat reeds'
-
-    def __call__(self, form, field):
-        asset_found = Asset.query.filter(Asset.qr_code == field.data).first()
-        if 'id' in form:
-            id =form.id.data
-        else:
-            id = None
-
-        if asset_found and (id is None or id != asset_found.id):
-            raise ValidationError(self.message)
-
-class QRisValid():
-    def __init__(self, message=None):
-        if message:
-            self.message = message
-        else:
-            self.message = 'Een QR-code is een getal of een URL die eindigt op .../qr/123'
-
-    def __call__(self, form, field):
-        try:
-            code = int(field.data)
-        except:
-            fl = field.data.split('/')
-            lfl = len(fl)
-            if lfl < 2 or fl[-2] != 'qr':
-                raise ValidationError(self.message)
-            try:
-                code = int(fl[-1])
-                field.data = fl[-1]
-            except:
-                raise ValidationError(self.message)
+from ..models import Teacher, Classgroup, Classmoment
 
 
 class EditForm(FlaskForm):
-    name = StringField('Naam')
-    location = StringField('Locatie')
-    qr_code = StringField('QR', validators=[QRisValid(), UniqueQR()], render_kw={'autofocus': 'true'})
-    status = SelectField('Status', validators=[DataRequired()], choices=zip(Asset.Status.get_list(), Asset.Status.get_list()))
-    purchase = QuerySelectField('Aankoop', query_factory=get_purchases)
-    serial = StringField('SerieNr')
+    teacher = SelectField('Leerkracht', choices=zip(Teacher.get_list(), Teacher.get_list()))
+    dayhour = SelectField('Dag en uur', choices=zip(Classmoment.get_day_hour(), Classmoment.get_day_hour()))
+    classgroup = SelectField('Klas', choices=zip(Classgroup.get_list(), Classgroup.get_list()))
     id = IntegerField(widget=HiddenInput())
 
 
