@@ -129,16 +129,24 @@ class Classmoment(db.Model):
     __tablename__ = 'classmoments'
 
     @staticmethod
-    def get_day_hour():
-        days = ['maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag']
+    def get_choices_day_hour():
+        days = ['MA', 'DI', 'WO', 'DO', 'VR']
         l = []
+        day_count=1
         for d in days:
-            lh = 6 if d == 'woensdag' else 10
+            lh = 6 if d == 'WO' else 10
             for h in range(1,lh):
-                l.append('{} : {}'.format(d, h))
+                l.append(('{}/{}'.format(day_count, h), '{} : {}'.format(d, h)))
+            day_count += 1
         return l
 
-
+    @staticmethod
+    def decode_dayhour(dayhour):
+        try:
+            day_hour = dayhour.split('/')
+            return int(day_hour[0]), int(day_hour[1]) #day, hour
+        except Exception as e
+            return 1, 1
 
     id = db.Column(db.Integer, primary_key=True)
     day = db.Column(db.Integer)
@@ -161,6 +169,12 @@ class Classmoment(db.Model):
 
 class Lesson(db.Model):
     __tablename__ = 'lessons'
+
+    @staticmethod
+    def get_choices_list():
+        l = [(i.id, i.name) for i in db.session.query(Lesson.id, Lesson.name).distinct(Lesson.name).order_by(Lesson.name).all()]
+        return l
+
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(256), unique=True)
@@ -195,11 +209,66 @@ class Offence(db.Model):
     __tablename__ = 'offences'
 
     id = db.Column(db.Integer, primary_key=True)
-    type = db.Column(db.String(1024))
-    measure = db.Column(db.String(1024))
+    type_note = db.Column(db.String(1024))
+    measure_note = db.Column(db.String(1024))
     timestamp = db.Column(db.Date)
     student_id = db.Column(db.Integer, db.ForeignKey('students.id', ondelete='CASCADE'))
     lesson_id = db.Column(db.Integer, db.ForeignKey('lessons.id', ondelete='CASCADE'))
     teacher_id = db.Column(db.Integer, db.ForeignKey('teachers.id', ondelete='CASCADE'))
+    types = db.relationship('Type', cascade='all, delete', backref='offence', lazy='dynamic')
+    measures = db.relationship('Measure', cascade='all, delete', backref='offence', lazy='dynamic')
 
 
+class Type(db.Model):
+    __tablename__ = 'offence_types'
+
+    types = {
+        0: 'Materiaal vergeten',
+        1: 'Praten',
+        2: 'Stoort de les',
+        3: 'Geen aandacht',
+        4: 'GSM gebruiken',
+        5: 'Taak niet gemaakt'
+    }
+
+    #types_skip = (2, 4)
+    types_skip = ()
+
+    @staticmethod
+    def get_choices_list():
+        l = []
+        for k, v in Type.types.iteritems():
+            if k in Type.types_skip: continue
+            l.append((k, v))
+        return l
+
+    id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.Integer)
+    offence_id = db.Column(db.Integer, db.ForeignKey('offences.id', ondelete='CASCADE'))
+
+
+class Measure(db.Model):
+    __tablename__ = 'offence_measures'
+
+    measures =  {
+        0: 'Taak maken',
+        1: 'GSM afgenomen',
+        2: 'Buiten gezet',
+        3: 'Taakstudie',
+        4: 'Andere plaats'
+    }
+
+    #measures_skip = (1, 2, 3)
+    measures_skip = ()
+
+    @staticmethod
+    def get_choices_list():
+        l = []
+        for k, v in Measure.measures.iteritems():
+            if k in Measure.measures_skip: continue
+            l.append((k, v))
+        return l
+
+    id = db.Column(db.Integer, primary_key=True)
+    measure = db.Column(db.Integer)
+    offence_id = db.Column(db.Integer, db.ForeignKey('offences.id', ondelete='CASCADE'))

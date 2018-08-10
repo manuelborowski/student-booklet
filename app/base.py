@@ -7,7 +7,7 @@ from flask_login import current_user
 from sqlalchemy import or_
 import time
 
-from models import User, Settings
+from models import User, Settings, Teacher, Classmoment
 #from .forms import CategoryFilter, DeviceFilter, StatusFilter, SupplierFilter
 from . import log
 
@@ -275,3 +275,32 @@ def get_global_setting_current_schoolyear():
 
 def set_global_setting_current_schoolyear(value):
     return set_setting('current_schoolyear', str(value), 1)
+
+######################################################################################################
+###  Overview : select appropriate classgroup e.d.
+######################################################################################################
+
+def filter_overview(teacher_str, dayhour_str, classgroup_str, lesson_str, changed_item=None):
+    #filter on teacher, timeslot , classgroup and lesson
+    #priority is as follows:
+    #- if teacher is changed: determine timeslot from current time and find classgroup and lesson from timetable
+    #- if timeslot is changed: from teacher and timeslot determine classgroup and lesson from timetable
+    #- if classgroup is changed : from teacher, timeslot and classgroup, try to determine lesson from timetable.
+    #                             If this does not work, pick first available lesson for that classgroup
+    #- if lesson is changed : go with the flow... :-)
+    if not changed_item:
+        teacher_str = Teacher.get_list()[0]
+        changed_item = 'teacher'
+
+    if changed_item == 'teacher':
+        dayhour_str = '2/6' #needs to be fixed
+        changed_item = 'dayhour'
+
+    if changed_item == 'dayhour':
+        classgroup_str = '3A' #needs to be fixed
+        lesson_str = 'INFO'
+
+        #fetch classgroup and lesson from timetable
+        d, h = Classmoment.decode_dayhour(dayhour_str)
+        classmoment = Classmoment.query.join(Teacher).query(Classmoment.day == d, Classmoment.hour == h, Teacher.code == teacher_str).first()
+

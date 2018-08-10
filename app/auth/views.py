@@ -31,7 +31,7 @@ def login():
             # redirect to the appropriate page
             if 'redirect_url' in request.args:
                 return redirect(request.args['redirect_url'])
-            return redirect(url_for('overview.overview'))
+            return redirect(url_for('overview.show'))
             # when login details are incorrect
         else:
             flash('Ongeldige gebruikersnaam of paswoord')

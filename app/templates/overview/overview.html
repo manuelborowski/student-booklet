@@ -7,29 +7,27 @@
 
 {% block content2 %}
 <div class="content-section">
-  {{ utils.flashed_messages() }}
-    <div>
-        <h1>Overzicht</h1>
-        <br/>
-        <form action="{{ url_for('overview.overview')}}" method="post" class="form" role="form" id="select_form" enctype=multipart/form-data>
-            <div id="select_group">
-                {{ wtf.form_field(form.teacher, form_type="horizontal", horizontal_columns=("sm", 1, 1)) }}
-                {{ wtf.form_field(form.classgroup, form_type="horizontal", horizontal_columns=("sm", 1, 1)) }}
-                {{ wtf.form_field(form.dayhour, form_type="horizontal", horizontal_columns=("sm", 1, 2)) }}
-                <br/>
-                <br/>
-                <br/>
-            </div>
-        </form>
+    <form action="{{ url_for('overview.show')}}" method="post" class="form" role="form" id="filter_form" enctype=multipart/form-data>
+        <div id="filter_group">
+            {{ wtf.form_field(form.teacher, form_type="horizontal", horizontal_columns=("sm", 1, 1)) }}
+            {{ wtf.form_field(form.dayhour, form_type="horizontal", horizontal_columns=("sm", 1, 1)) }}
+            {{ wtf.form_field(form.classgroup, form_type="horizontal", horizontal_columns=("sm", 1, 1)) }}
+            {{ wtf.form_field(form.lesson, form_type="horizontal", horizontal_columns=("sm", 1, 1)) }}
+            <input type="hidden" id="change_id" name="change_id" value="test">
+            <br/>
+            <br/>
+        </div>
+        <div class="container-fluid">
         {% for s in students %}
-        <div class="imagecaption">
-            <figure>
+            <figure class="imagecaption">
                 <img src="../../static/photo/{{ s.photo }}" height="120">
                 <figcaption>{{ s.first_name + ' ' + s.last_name }}</figcaption>
+                <input type="hidden" id="id" value="{{ s.id|string }}">
             </figure>
-        </div>
         {% endfor %}
-    </div>
+        </div>
+        <input class="btn btn-default" id="dummy_offence" name="button" type="submit" value="Volgende" formaction="{{ url_for('overview.new_offence')}}">
+    </form>
 </div>
 {% endblock %}
 
@@ -37,8 +35,29 @@
 {{ super() }}
 <script>
 $(document).ready(function(){
-    $("#select_group").change(function(){
-        $("#select_form").submit();
+//    $("#filter_group").change(function(){
+//        //alert('test update filter');
+//        alert($(this));
+//        $("#filter_form").submit();
+//    });
+
+
+    $("#teacher").change(function(){$('#change_id').val('teacher');$("#filter_form").submit();});
+    $("#dayhour").change(function(){$('#change_id').val('dayhour');$("#filter_form").submit();});
+    $("#classgroup").change(function(){$('#change_id').val('classgroup');$("#filter_form").submit();});
+    $("#lesson").change(function(){$('#change_id').val('lesson');$("#filter_form").submit();});
+
+
+    $('figure').click(function() {
+        //New Code replaced here
+        //alert('test');
+        $(this).toggleClass('selected');
+        var name = $(this).find('#id').attr('name');
+        if(name == 'student_id') {
+            $(this).find('#id').attr('name', '');
+        } else {
+            $(this).find('#id').attr('name', 'student_id');
+        }
     });
 });
 </script>
