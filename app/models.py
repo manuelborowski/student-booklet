@@ -91,8 +91,8 @@ class Student(db.Model):
     classgroup_id = db.Column(db.Integer, db.ForeignKey('classgroups.id', ondelete='CASCADE'))
 
 
-    # def __repr__(self):
-    #     return '<Asset: {}>'.format(self.name)
+    def __repr__(self):
+        return '<Student: {}/{}/{}>'.format(self.id, self.firstname, self.last_name)
     #
     # def log(self):
     #     return '<Asset: {}/{}/{}/{}/{}>'.format(self.id, self.name, self.qr_code, self.purchase.since, self.purchase.value)
@@ -106,8 +106,8 @@ class Classgroup(db.Model):
     __tablename__= 'classgroups'
 
     @staticmethod
-    def get_list():
-        l = [i.name for i in db.session.query(Classgroup.name).distinct(Classgroup.name).order_by(Classgroup.name).all()]
+    def get_choices_list():
+        l = [i for i in db.session.query(Classgroup.id, Classgroup.name).distinct(Classgroup.name).order_by(Classgroup.name).all()]
         return l
 
     id = db.Column(db.Integer, primary_key=True)
@@ -115,8 +115,8 @@ class Classgroup(db.Model):
     students = db.relationship('Student', cascade='all, delete', backref='classgroup', lazy='dynamic')
     classmoments = db.relationship('Classmoment', cascade='all, delete', backref='classgroup', lazy='dynamic')
 
-    # def __repr__(self):
-    #     return '{} / {}'.format(self.since, self.value)
+    def __repr__(self):
+        return 'Classgroup: {}/{}'.format(self.id, self.name)
     #
     # def log(self):
     #     return '<Purchase: {}/{}/{}/{}/{}/{}>'.format(self.id, self.since, self.value, self.device.brand, self.device.type, self.supplier.name)
@@ -145,7 +145,7 @@ class Classmoment(db.Model):
         try:
             day_hour = dayhour.split('/')
             return int(day_hour[0]), int(day_hour[1]) #day, hour
-        except Exception as e
+        except Exception as e:
             return 1, 1
 
     id = db.Column(db.Integer, primary_key=True)
@@ -156,8 +156,8 @@ class Classmoment(db.Model):
     teacher_id = db.Column(db.Integer, db.ForeignKey('teachers.id', ondelete='CASCADE'))
     lesson_id = db.Column(db.Integer, db.ForeignKey('lessons.id', ondelete='CASCADE'))
 
-    # def __repr__(self):
-    #     return '{} / {}'.format(self.brand, self.type)
+    def __repr__(self):
+        return 'Classmoment: {}/{}/{}/{}/{}/{}/{}'.format(self.id, self.day, self.hour, self.schoolyear, self.classgroup.name, self.teacher.code, self.lesson.name)
     #
     # def log(self):
     #     return '<Device: {}/{}/{}>'.format(self.id, self.brand, self.type)
@@ -172,7 +172,7 @@ class Lesson(db.Model):
 
     @staticmethod
     def get_choices_list():
-        l = [(i.id, i.name) for i in db.session.query(Lesson.id, Lesson.name).distinct(Lesson.name).order_by(Lesson.name).all()]
+        l = [i for i in db.session.query(Lesson.id, Lesson.name).distinct(Lesson.name).order_by(Lesson.name).all()]
         return l
 
 
@@ -181,8 +181,8 @@ class Lesson(db.Model):
     offences = db.relationship('Offence', cascade='all, delete', backref='lesson', lazy='dynamic')
     classmoments = db.relationship('Classmoment', cascade='all, delete', backref='lesson', lazy='dynamic')
 
-    # def __repr__(self):
-    #     return '{}'.format(self.name)
+    def __repr__(self):
+        return 'Lesson: {}/{}'.format(self.id, self.name)
     #
     # def log(self):
     #     return '<Supplier: {}/{}>'.format(self.id, self.name)
@@ -194,8 +194,8 @@ class Teacher(db.Model):
     __tablename__ = 'teachers'
 
     @staticmethod
-    def get_list():
-        l = [i.code for i in db.session.query(Teacher.code).distinct(Teacher.code).order_by(Teacher.code).all()]
+    def get_choices_list():
+        l = [i for i in db.session.query(Teacher.id, Teacher.code).distinct(Teacher.code).order_by(Teacher.code).all()]
         return l
 
     id = db.Column(db.Integer, primary_key=True)
@@ -204,6 +204,10 @@ class Teacher(db.Model):
     code = db.Column(db.String(256))
     offences = db.relationship('Offence', cascade='all, delete', backref='teacher', lazy='dynamic')
     classmoments = db.relationship('Classmoment', cascade='all, delete', backref='teacher', lazy='dynamic')
+
+    def __repr__(self):
+        return 'Teacher: {}/{}'.format(self.id, self.code)
+
 
 class Offence(db.Model):
     __tablename__ = 'offences'

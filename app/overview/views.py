@@ -8,7 +8,7 @@ from .forms import ViewForm, OffenceForm
 from .. import db, log
 from . import overview
 from ..models import Classgroup, Student, Offence, Type, Measure, Teacher, Classmoment, Lesson
-from ..base import get_global_setting_current_schoolyear
+from ..base import get_global_setting_current_schoolyear, filter_overview
 
 from ..documents import get_doc_path
 import os
@@ -28,6 +28,8 @@ def filter_classgroup():
     #- if lesson is changed : go with the flow... :-)
     if 'classgroup' in request.form:
         classgroup = request.form['classgroup']
+
+        filter_overview(int(request.form['teacher']), request.form['dayhour'], int(request.form['classgroup']), int(request.form['lesson']),request.form['change_id'])
     else:
         classgroup = '3A'
     students = Student.query.join(Classgroup).filter(Classgroup.name==classgroup, Student.schoolyear==get_global_setting_current_schoolyear()).all()

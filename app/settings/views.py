@@ -3,8 +3,7 @@
 
 from flask import render_template, redirect, url_for, request, flash, send_file, abort
 from flask_login import login_required, current_user
-from ..base import get_setting_inc_index_asset_name, set_setting_inc_index_asset_name, get_setting_copy_from_last_add, set_setting_copy_from_last_add,  \
-    get_global_setting_current_schoolyear, set_global_setting_current_schoolyear
+from ..base import get_global_setting_current_schoolyear, set_global_setting_current_schoolyear, get_setting_simulate_dayhour, set_setting_simulate_dayhour
 from . import settings
 from .. import db, app, log
 from ..models import Settings, Classgroup, Student, Teacher, Lesson, Classmoment
@@ -22,6 +21,7 @@ def check_admin():
 def get_settings_and_show():
     return render_template('settings/settings.html',
                            schoolyear = get_global_setting_current_schoolyear(),
+                           simulate_dayhour = get_setting_simulate_dayhour(),
                            title='settings')
 
 @settings.route('/settings', methods=['GET', 'POST'])
@@ -35,6 +35,8 @@ def save():
     if request.form['button'] == 'Bewaar':
         if 'schoolyear' in request.form:
            set_global_setting_current_schoolyear(request.form['schoolyear'])
+    if 'simulate_dayhour' in request.form:
+        set_setting_simulate_dayhour(request.form['simulate_dayhour'])
     return get_settings_and_show()
 
 @settings.route('/settings/purge_database', methods=['GET', 'POST'])

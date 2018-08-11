@@ -76,3 +76,30 @@
 2018-08-10 12:33:06,249 - SB - INFO - NONE - start SB
 2018-08-10 13:05:03,579 - SB - INFO - NONE - start SB
 2018-08-10 13:17:07,807 - SB - INFO - NONE - start SB
+2018-08-10 15:52:05,643 - SB - INFO - NONE - start SB
+2018-08-10 15:52:28,042 - SB - INFO - NONE - start SB
+2018-08-10 15:52:28,042 - SB - INFO - NONE - start SB
+2018-08-10 16:05:17,702 - SB - INFO - NONE - start SB
+2018-08-10 16:05:35,793 - SB - INFO - admin - User logged in
+2018-08-10 16:08:56,795 - SB - INFO - NONE - start SB
+2018-08-11 11:31:33,389 - SB - INFO - admin - User logged in
+2018-08-11 11:43:34,238 - SB - INFO - admin - Import timetable from : <FileStorage: u'lesrooster.csv' ('application/vnd.ms-excel')>
+2018-08-11 11:43:34,832 - SB - INFO - admin - import: added 34 classmoments and 4 lessons
+2018-08-11 12:54:12,678 - SB - INFO - NONE - start SB
+2018-08-11 12:54:32,518 - SB - INFO - admin - add : <Setting: 7/simulate_dayhour/0/0/STRING>
+2018-08-11 14:17:42,302 - SB - INFO - NONE - start SB
+2018-08-11 15:41:35,951 - SB - INFO - NONE - start SB
+2018-08-11 15:43:56,810 - SB - INFO - NONE - start SB
+2018-08-11 15:44:39,994 - SB - INFO - NONE - start SB
+2018-08-11 15:45:29,046 - SB - INFO - NONE - start SB
+2018-08-11 15:46:01,889 - SB - INFO - NONE - start SB
+2018-08-11 15:46:06,923 - SB - INFO - admin - User logged in
+2018-08-11 15:47:36,590 - SB - INFO - NONE - start SB
+2018-08-11 15:47:37,376 - SB - INFO - NONE - start SB
+2018-08-11 15:47:40,882 - SB - INFO - NONE - start SB
+2018-08-11 15:49:03,764 - SB - INFO - NONE - start SB
+2018-08-11 15:50:57,031 - SB - INFO - NONE - start SB
+2018-08-11 15:52:06,709 - SB - INFO - NONE - start SB
+2018-08-11 15:52:32,764 - SB - INFO - NONE - start SB
+2018-08-11 15:55:07,460 - SB - INFO - NONE - start SB
+2018-08-11 15:57:04,269 - SB - INFO - NONE - start SB

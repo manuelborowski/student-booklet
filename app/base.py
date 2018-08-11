@@ -5,9 +5,9 @@ from wtforms import BooleanField
 from flask import flash,  request, get_flashed_messages, jsonify, url_for
 from flask_login import current_user
 from sqlalchemy import or_
-import time
+import time, datetime
 
-from models import User, Settings, Teacher, Classmoment
+from models import User, Settings, Teacher, Classmoment, Classgroup, Lesson
 #from .forms import CategoryFilter, DeviceFilter, StatusFilter, SupplierFilter
 from . import log
 
@@ -267,6 +267,15 @@ def get_setting_copy_from_last_add():
 def set_setting_copy_from_last_add(value):
     return set_setting('copy_from_last_add', str(value))
 
+def get_setting_simulate_dayhour():
+    found, value = get_setting('simulate_dayhour')
+    if found: return value
+    add_setting('simulate_dayhour', '0/0', Settings.SETTING_TYPE.E_STRING)
+    return '0/0'
+
+def set_setting_simulate_dayhour(value):
+    return set_setting('simulate_dayhour', value)
+
 def get_global_setting_current_schoolyear():
     found, value = get_setting('current_schoolyear', 1)
     if found: return value
@@ -280,27 +289,83 @@ def set_global_setting_current_schoolyear(value):
 ###  Overview : select appropriate classgroup e.d.
 ######################################################################################################
 
-def filter_overview(teacher_str, dayhour_str, classgroup_str, lesson_str, changed_item=None):
+def get_timeslot_from_current_time():
+    TT = [
+        (8*60+30,  8*60+30+50,  1),   #first hour : 8:30 till 9:20
+        (9*60+20,  9*60+20+50,  2),
+        (10*60+25, 10*60+25+50, 3),
+        (11*60+15, 11*60+15+50, 4),
+        (12*60+5,  12*60+5+55,  5),
+        (13*60+0,  13*60+0+50,  6),
+        (13*60+50, 13*60+50+50, 7),
+        (14*60+55, 15*60+55+50, 8),
+        (15*60+45, 15*60+45+50, 9),
+    ]
+
+    TT_W = [
+        (8*60+30,  8*60+30+50,  1),   #first hour : 8:30 till 9:20
+        (9*60+20,  9*60+20+50,  2),
+        (10*60+20, 10*60+20+50, 3),
+        (11*60+10, 11*60+10+50, 4),
+    ]
+
+    simulate_dayhour = get_setting_simulate_dayhour()
+    if simulate_dayhour != '0/0':
+        return Classmoment.decode_dayhour(simulate_dayhour)
+
+    now = datetime.datetime.now()
+    day = now.weekday()+1
+    if day > 5: return 1, 1 #no school, return monday, first hour
+    tt = TT_W if day == 3 else TT
+    m = now.hour * 60 + now.minute
+    for t in tt:
+        if m >= t[0] and m < t[1]: return day, t[2]
+    return 1, 1 #not found, return monday, first hour
+
+
+
+def filter_overview(teacher_id, dayhour_str, classgroup_id, lesson_id, changed_item=None):
     #filter on teacher, timeslot , classgroup and lesson
     #priority is as follows:
     #- if teacher is changed: determine timeslot from current time and find classgroup and lesson from timetable
     #- if timeslot is changed: from teacher and timeslot determine classgroup and lesson from timetable
+    #                             If this does not work, pick first classgroup for that teacher
     #- if classgroup is changed : from teacher, timeslot and classgroup, try to determine lesson from timetable.
     #                             If this does not work, pick first available lesson for that classgroup
     #- if lesson is changed : go with the flow... :-)
+    teacher = Teacher.query.get(teacher_id)
+    classmoment = None
+    classgroup = None
+    lesson = None
+
     if not changed_item:
-        teacher_str = Teacher.get_list()[0]
+        teacher = Teacher.query.distinct(Teacher.name).order_by(Teacher.name).first()
         changed_item = 'teacher'
 
     if changed_item == 'teacher':
-        dayhour_str = '2/6' #needs to be fixed
+        d, h = get_timeslot_from_current_time()
+        dayhour_str = '{}/{}'.format(d,h)
         changed_item = 'dayhour'
 
     if changed_item == 'dayhour':
-        classgroup_str = '3A' #needs to be fixed
-        lesson_str = 'INFO'
-
-        #fetch classgroup and lesson from timetable
+        #fetch classgroup from timetable
         d, h = Classmoment.decode_dayhour(dayhour_str)
-        classmoment = Classmoment.query.join(Teacher).query(Classmoment.day == d, Classmoment.hour == h, Teacher.code == teacher_str).first()
+        classmoment = Classmoment.query.join(Teacher).filter(Classmoment.day == d, Classmoment.hour == h, Teacher.id == teacher.id).first()
+        if classmoment:
+            classgroup = classmoment.classgroup
+        else:
+            classgroup = Classgroup.query.join(Classmoment).join(Teacher).filter(Teacher.id == teacher.id).distinct(Classgroup.name).order_by(Classgroup.name).first()
+            if not classgroup:
+                classgroup = Classgroup.query.distinct(Classgroup.name.order_by(Classgroup.name).first())
+        changed_item = 'classgroup'
 
+    if changed_item == 'classgroup':
+        if classmoment:
+            lesson = classmoment.lesson
+        else:
+            lesson = Lesson.query.join(Classmoment).join(Classgroup).filter(Classgroup.id == classgroup.id).distinct(Lesson.name).order_by(Lesson.name).first()
+            if not lesson:
+                lesson = Lesson.query.distinct(Lesson.name).order_by(Lesson.name).first()
+
+    print(teacher,  classmoment, classgroup, lesson, dayhour_str)
+    return teacher, classmoment, classgroup, lesson, dayhour_str
