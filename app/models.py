@@ -92,7 +92,7 @@ class Student(db.Model):
 
 
     def __repr__(self):
-        return '<Student: {}/{}/{}>'.format(self.id, self.firstname, self.last_name)
+        return '<Student: {}/{}/{}>'.format(self.id, self.first_name, self.last_name)
     #
     # def log(self):
     #     return '<Asset: {}/{}/{}/{}/{}>'.format(self.id, self.name, self.qr_code, self.purchase.since, self.purchase.value)
@@ -101,7 +101,6 @@ class Student(db.Model):
     #     return {'id':self.id, 'name':self.name, 'qr_code':self.qr_code, 'status':self.status, 'location':self.location,
     #             'db_status':self.db_status,  'serial':self.serial, 'description':self.description,'purchase':self.purchase.ret_dict()}
 
-
 class Classgroup(db.Model):
     __tablename__= 'classgroups'
 
@@ -109,6 +108,15 @@ class Classgroup(db.Model):
     def get_choices_list():
         l = [i for i in db.session.query(Classgroup.id, Classgroup.name).distinct(Classgroup.name).order_by(Classgroup.name).all()]
         return l
+
+    @staticmethod
+    def get_choices_filtered_by_teacher_list(teacher):
+        l = [i for i in db.session.query(Classgroup.id, Classgroup.name).join(Classmoment) \
+            .join(Teacher).filter(Teacher.id == teacher.id).distinct(Classgroup.name).order_by(Classgroup.name).all()]
+        return l
+
+    def get_choice(self):
+        return(self.id, self.name)
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(256))
@@ -128,17 +136,21 @@ class Classgroup(db.Model):
 class Classmoment(db.Model):
     __tablename__ = 'classmoments'
 
+    WEEK_DAYS = ['MA', 'DI', 'WO', 'DO', 'VR']
+
     @staticmethod
     def get_choices_day_hour():
-        days = ['MA', 'DI', 'WO', 'DO', 'VR']
         l = []
         day_count=1
-        for d in days:
+        for d in Classmoment.WEEK_DAYS:
             lh = 6 if d == 'WO' else 10
             for h in range(1,lh):
                 l.append(('{}/{}'.format(day_count, h), '{} : {}'.format(d, h)))
             day_count += 1
         return l
+
+    def get_data_day_hour(self):
+        return '{}/{}'.format(self.day, self.hour)
 
     @staticmethod
     def decode_dayhour(dayhour):
@@ -175,6 +187,14 @@ class Lesson(db.Model):
         l = [i for i in db.session.query(Lesson.id, Lesson.name).distinct(Lesson.name).order_by(Lesson.name).all()]
         return l
 
+    @staticmethod
+    def get_choices_filtered_by_teacher_list(teacher):
+        l = [i for i in db.session.query(Lesson.id, Lesson.name).join(Classmoment) \
+            .join(Teacher).filter(Teacher.id == teacher.id).distinct(Lesson.name).order_by(Lesson.name).all()]
+        return l
+
+    def get_choice(self):
+        return (self.id, self.name)
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(256), unique=True)
@@ -197,6 +217,9 @@ class Teacher(db.Model):
     def get_choices_list():
         l = [i for i in db.session.query(Teacher.id, Teacher.code).distinct(Teacher.code).order_by(Teacher.code).all()]
         return l
+
+    def get_choice(self):
+        return(self.id, self.code)
 
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(256))

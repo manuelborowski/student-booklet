@@ -8,7 +8,7 @@ from .forms import ViewForm, OffenceForm
 from .. import db, log
 from . import overview
 from ..models import Classgroup, Student, Offence, Type, Measure, Teacher, Classmoment, Lesson
-from ..base import get_global_setting_current_schoolyear, filter_overview
+from ..base import get_global_setting_current_schoolyear, filter_overview, filter_duplicates_out
 
 from ..documents import get_doc_path
 import os
@@ -19,22 +19,27 @@ import os
 import cStringIO, csv, re
 
 def filter_classgroup():
-    #filter on teacher, timeslot , classgroup and lesson
-    #priority is as follows:
-    #- if teacher is changed: determine timeslot from current time and find classgroup and lesson from timetable
-    #- if timeslot is changed: from teacher and timeslot determine classgroup and lesson from timetable
-    #- if classgroup is changed : from teacher, timeslot and classgroup, try to determine lesson from timetable.
-    #                             If this does not work, pick first available lesson for that classgroup
-    #- if lesson is changed : go with the flow... :-)
-    if 'classgroup' in request.form:
-        classgroup = request.form['classgroup']
+    try :
+        if 'change_id' in request.form:
+            classmoment = filter_overview(int(request.form['teacher']), request.form['dayhour'], int(request.form['classgroup']), int(request.form['lesson']), request.form['change_id'])
+        else:
+            classmoment = filter_overview(0, 0, 0, 0) #default settings
 
-        filter_overview(int(request.form['teacher']), request.form['dayhour'], int(request.form['classgroup']), int(request.form['lesson']),request.form['change_id'])
-    else:
-        classgroup = '3A'
-    students = Student.query.join(Classgroup).filter(Classgroup.name==classgroup, Student.schoolyear==get_global_setting_current_schoolyear()).all()
-    form = ViewForm()
-    form.classgroup.data=classgroup
+        students = Student.query.join(Classgroup).\
+            filter(Classgroup.id==classmoment.classgroup.id, Student.schoolyear==get_global_setting_current_schoolyear()).all()
+        teacher_classgroups = Classgroup.get_choices_filtered_by_teacher_list(classmoment.teacher)
+        teacher_lessons = Lesson.get_choices_filtered_by_teacher_list(classmoment.teacher)
+
+        form = ViewForm()
+        #update default option
+        form.teacher.data=str(classmoment.teacher.id)
+        form.dayhour.data=classmoment.get_data_day_hour()
+        form.classgroup.data=str(classmoment.classgroup.id)
+        form.classgroup.choices = filter_duplicates_out(teacher_classgroups + form.classgroup.choices)
+        form.lesson.data=str(classmoment.lesson.id)
+        form.lesson.choices = filter_duplicates_out(teacher_lessons + form.lesson.choices)
+    except Exception as e:
+        pass
     return form, students
 
 #show an overview of a classgroup

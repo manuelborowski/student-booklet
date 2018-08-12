@@ -333,39 +333,63 @@ def filter_overview(teacher_id, dayhour_str, classgroup_id, lesson_id, changed_i
     #- if classgroup is changed : from teacher, timeslot and classgroup, try to determine lesson from timetable.
     #                             If this does not work, pick first available lesson for that classgroup
     #- if lesson is changed : go with the flow... :-)
-    teacher = Teacher.query.get(teacher_id)
-    classmoment = None
+    teacher = None
     classgroup = None
     lesson = None
+    d = 0
+    h = 0
 
-    if not changed_item:
-        teacher = Teacher.query.distinct(Teacher.name).order_by(Teacher.name).first()
+    if changed_item:
+        teacher = Teacher.query.get(teacher_id)
+        classgroup = Classgroup.query.get(classgroup_id)
+        lesson = Lesson.query.get(lesson_id)
+        d, h = Classmoment.decode_dayhour(dayhour_str)
+    else:
+        teacher = Teacher.query.distinct(Teacher.code).order_by(Teacher.code).first()
         changed_item = 'teacher'
 
     if changed_item == 'teacher':
         d, h = get_timeslot_from_current_time()
-        dayhour_str = '{}/{}'.format(d,h)
+        #if default day and hour (1, 1) is returned, try to find the first avaible lesmoment for given teacher
+        classmoment = Classmoment.query.join(Teacher).filter(Teacher.id == teacher.id).order_by(Classmoment.day, Classmoment.hour).first()
+        if classmoment:
+            d = classmoment.day
+            h = classmoment.hour
+        #dayhour_str = '{}/{}'.format(d,h)
         changed_item = 'dayhour'
 
     if changed_item == 'dayhour':
         #fetch classgroup from timetable
-        d, h = Classmoment.decode_dayhour(dayhour_str)
         classmoment = Classmoment.query.join(Teacher).filter(Classmoment.day == d, Classmoment.hour == h, Teacher.id == teacher.id).first()
         if classmoment:
-            classgroup = classmoment.classgroup
-        else:
-            classgroup = Classgroup.query.join(Classmoment).join(Teacher).filter(Teacher.id == teacher.id).distinct(Classgroup.name).order_by(Classgroup.name).first()
-            if not classgroup:
-                classgroup = Classgroup.query.distinct(Classgroup.name.order_by(Classgroup.name).first())
+            #the classmoment points to a single teacher, classgroup and lesson
+            print(classmoment)
+            return classmoment
+        # find the first classgroup, teached by given teacher
+        classgroup = Classgroup.query.join(Classmoment).join(Teacher).filter(Teacher.id == teacher.id).distinct(Classgroup.name).order_by(Classgroup.name).first()
+        if not classgroup:
+            #just pick the first classgroup from all classgroups
+            classgroup = Classgroup.query.distinct(Classgroup.name).order_by(Classgroup.name).first()
         changed_item = 'classgroup'
 
     if changed_item == 'classgroup':
-        if classmoment:
-            lesson = classmoment.lesson
-        else:
-            lesson = Lesson.query.join(Classmoment).join(Classgroup).filter(Classgroup.id == classgroup.id).distinct(Lesson.name).order_by(Lesson.name).first()
-            if not lesson:
-                lesson = Lesson.query.distinct(Lesson.name).order_by(Lesson.name).first()
+        #find the first lesson, taken by given classgroup
+        lesson = Lesson.query.join(Classmoment).join(Classgroup).join(Teacher).filter(Classgroup.id == classgroup.id, Teacher.id == teacher.id)\
+                .distinct(Lesson.name).order_by(Lesson.name).first()
+        if not lesson:
+            #just pick the first lesson
+            lesson = Lesson.query.distinct(Lesson.name).order_by(Lesson.name).first()
 
-    print(teacher,  classmoment, classgroup, lesson, dayhour_str)
-    return teacher, classmoment, classgroup, lesson, dayhour_str
+    #create a dummy classmoment
+    classmoment = Classmoment(day=d, hour=h, schoolyear = get_global_setting_current_schoolyear(), teacher=teacher, lesson=lesson, classgroup=classgroup)
+    print(classmoment)
+    return classmoment
+
+def filter_duplicates_out(in_list):
+    out_list = []
+    added = set()
+    for val in in_list:
+        if not val in added:
+            out_list.append(val)
+            added.add(val)
+    return out_list
