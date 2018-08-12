@@ -11,7 +11,7 @@ from ..models import Classgroup, Student, Offence, Type, Measure, Teacher, Class
 from ..base import get_global_setting_current_schoolyear, filter_overview, filter_duplicates_out
 
 from ..documents import get_doc_path
-import os
+import os, datetime
 
 #from ..base import build_filter, get_ajax_table, get_setting_inc_index_asset_name
 #from ..tables_config import  tables_configuration
@@ -50,16 +50,24 @@ def show():
         if 'button' in request.form and request.form['button'] == 'Bewaar':
             types = request.form.getlist('type')
             measures = request.form.getlist('measure')
-            teacher = Teacher.query.filter(Teacher.code == request.form['teacher']).first()
+            teacher = Teacher.query.filter(Teacher.id == request.form['teacher']).first()
             d, h = Classmoment.decode_dayhour(request.form['dayhour'])
-            lesson = Lesson.query.join(Classmoment).filter(Classmoment.day == d, Classmoment.hour == h)
+            lesson = Lesson.query.filter(Lesson.id == request.form['lesson']).first()
             #iterate over all students involved.  Create an offence per student.
             #link the measures and offence-types to the offence
             for s in request.form.getlist('student_id'):
-                student = Student.query.filter(Student.id == int(s)).first()
+                student = Student.query.get(int(s))
                 if student:
                     #save new offence
-                    offence = Offence()
+                    offence = Offence(student=student, lesson=lesson, teacher=teacher, timestamp=datetime.datetime.now())
+                    for t in types:
+                        type=Type(type=int(t), offence=offence)
+                        db.session.add(type)
+                    for m in measures:
+                        measure=Measure(measure=int(m), offence=offence)
+                        db.session.add(measure)
+                    db.session.add(offence)
+            db.session.commit()
     except Exception as e:
         flash('Kan overtredingen niet opslaan')
     form, students = filter_classgroup()

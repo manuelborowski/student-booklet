@@ -6,6 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import db, login_manager
 from sqlalchemy import UniqueConstraint
+from sqlalchemy.sql import func
 
 class User(UserMixin, db.Model):
     # Ensures table will be named in plural and not in singular
@@ -238,7 +239,7 @@ class Offence(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     type_note = db.Column(db.String(1024))
     measure_note = db.Column(db.String(1024))
-    timestamp = db.Column(db.Date)
+    timestamp = db.Column(db.DateTime(timezone=True), server_default=func.now())
     student_id = db.Column(db.Integer, db.ForeignKey('students.id', ondelete='CASCADE'))
     lesson_id = db.Column(db.Integer, db.ForeignKey('lessons.id', ondelete='CASCADE'))
     teacher_id = db.Column(db.Integer, db.ForeignKey('teachers.id', ondelete='CASCADE'))
