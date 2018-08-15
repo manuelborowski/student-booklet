@@ -4,11 +4,11 @@ from wtforms.widgets import HTMLString
 from wtforms import BooleanField
 from flask import flash,  request, get_flashed_messages, jsonify, url_for
 from flask_login import current_user
-from sqlalchemy import or_
+from sqlalchemy import or_, func
 import time, datetime
 
-from models import User, Settings, Teacher, Classmoment, Classgroup, Lesson
-#from .forms import CategoryFilter, DeviceFilter, StatusFilter, SupplierFilter
+from models import User, Settings, Teacher, Classmoment, Classgroup, Lesson, Student, Offence, Measure, Type
+from .forms import ClassgroupFilter
 from . import log
 
 class InlineButtonWidget(object):
@@ -69,8 +69,14 @@ def build_filter(table, paginate=True):
     _filters_enabled = table['filter']
     _template = table['template']
     _filtered_list = _model.query
-    # if ('since' in  _filters_enabled or 'value' in _filters_enabled) and _model is not Purchase:
-    #     _filtered_list = _filtered_list.join(Purchase)
+
+    if 'classgroup' in  _filters_enabled:
+         _filtered_list = _filtered_list.join(Student).join(Classgroup)
+    if 'teacher' in _filters_enabled:
+        _filtered_list = _filtered_list.join(Teacher)
+    if 'lesson' in _filters_enabled:
+        _filtered_list = _filtered_list.join(Lesson)
+
     # if ('category' in _filters_enabled or 'device' in _filters_enabled) and _model is not Device:
     #     _filtered_list = _filtered_list.join(Device)
     # if 'supplier' in _filters_enabled and _model is not Supplier :
@@ -84,25 +90,26 @@ def build_filter(table, paginate=True):
     _filter_forms = {}
 
     #Create the sql-request with the apropriate filters
-    # if 'since' in _filters_enabled:
-    #     date = check_date_in_form('date_after', request.values)
-    #     if date:
-    #         _filtered_list = _filtered_list.filter(Purchase.since >= Purchase.reverse_date(date))
-    #     date = check_date_in_form('date_before', request.values)
-    #     if date:
-    #         _filtered_list = _filtered_list.filter(Purchase.since <= Purchase.reverse_date(date))
-    # if 'value' in _filters_enabled:
-    #     value = check_value_in_form('value_from', request.values)
-    #     if value:
-    #         _filtered_list = _filtered_list.filter(Purchase.value >= value)
-    #     value = check_value_in_form('value_till', request.values)
-    #     if value:
-    #         _filtered_list = _filtered_list.filter(Purchase.value <= value)
-    # if 'location' in _filters_enabled:
-    #     value = check_string_in_form('room', request.values)
-    #     if value:
-    #         _filtered_list = _filtered_list.filter(Asset.location.contains(value))
-    # if 'category' in _filters_enabled:
+    if 'date' in _filters_enabled:
+        date = check_date_in_form('date_after', request.values)
+        if date:
+            _filtered_list = _filtered_list.filter(Offence.timestamp >= Offence.reverse_date(date))
+        date = check_date_in_form('date_before', request.values)
+        if date:
+            _filtered_list = _filtered_list.filter(Offence.since <= Offence.reverse_date(date))
+
+    if 'teacher' in _filters_enabled:
+        value = check_string_in_form('teacher_code', request.values)
+        if value:
+            _filtered_list = _filtered_list.filter(Teacher.code == value)
+
+    if 'classgroup' in _filters_enabled:
+        _filter_forms['classgroup'] = ClassgroupFilter()
+        value = check_string_in_form('classgroup', request.values)
+        if value:
+            _filtered_list = _filtered_list.filter(Classgroup.id == value)
+
+    # if 'lesson' in _filters_enabled:
     #     _filter_forms['category'] = CategoryFilter()
     #     value = check_string_in_form('category', request.values)
     #     if value:
@@ -168,6 +175,10 @@ def build_filter(table, paginate=True):
             _filtered_list = _filtered_list.filter(or_(*search_constraints))
 
     _filtered_count = _filtered_list.count()
+    
+    #Measure and Type have to join here because they mess up the count
+    if _model is Offence:
+        _filtered_list = _filtered_list.join(Measure).join(Type)
 
     #order, if required
     column_number = check_value_in_form('order[0][column]', request.values)

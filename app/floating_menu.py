@@ -28,3 +28,8 @@ admin_menu_config = [
     fmi_delete,
     fmi_change_pwd
 ]
+
+offence_menu_config = [
+    fmi_view,
+    fmi_delete
+]

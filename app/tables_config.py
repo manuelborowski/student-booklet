@@ -1,35 +1,35 @@
 # -*- coding: utf-8 -*-
 
-from models import User
+from models import User, Offence, Teacher, Student, Classgroup, Lesson, Type, Measure
 import user.extra_filtering
-from floating_menu import default_menu_config
+from floating_menu import default_menu_config, offence_menu_config
 
 tables_configuration = {
-    # 'asset' : {
-    #     'model' : Asset,
-    #     'title' : 'activa',
-    #     'route' : 'asset.assets',
-    #     'subject' :'asset',
-    #     'delete_message' : '',
-    #     'template' : [{'name': 'Naam', 'data':'name', 'order_by': Asset.name},
-    #                   {'name': 'Categorie', 'data':'purchase.device.category', 'order_by': Device.category},
-    #                   {'name': 'Locatie', 'data':'location', 'order_by': Asset.location},
-    #                   {'name': 'Datum', 'data':'purchase.since', 'order_by': Purchase.since},
-    #                   {'name': 'Bedrag', 'data':'purchase.value', 'order_by': Purchase.value},
-    #                   {'name': 'QR', 'data':'qr_code', 'order_by': Asset.qr_code},
-    #                   {'name': 'Status', 'data':'status', 'order_by': Asset.status},
-    #                   {'name': 'Leverancier', 'data':'purchase.supplier.name', 'order_by': Supplier.name},
-    #                   {'name': 'Toestel', 'data':'purchase.device.brandtype', 'order_by': Device.brand},
-    #                   {'name': 'SerieNr', 'data': 'serial', 'order_by': Asset.serial}],
-    #     'filter' :  ['since', 'value', 'location', 'category', 'status', 'supplier', 'device'],
-    #     'href': [{'attribute': '["name"]', 'route': '"asset.view"', 'id': '["id"]'},
-    #              {'attribute': '["purchase"]["since"]', 'route': '"purchase.view"', 'id': '["purchase"]["id"]'},
-    #              {'attribute': '["purchase"]["supplier"]["name"]', 'route': '"supplier.view"', 'id': '["purchase"]["supplier"]["id"]'},
-    #              {'attribute': '["purchase"]["device"]["brandtype"]', 'route': '"device.view"', 'id': '["purchase"]["device"]["id"]'}
-    #              ],
-    #     'floating_menu' : default_menu_config,
-    #     'export' : 'asset.exportcsv',
-    # },
+    'offence' : {
+        'model' : Offence,
+        'title' : 'Opmerking',
+        'route' : 'offence.offences',
+        'subject' :'offence',
+        'delete_message' : '',
+        'template' : [{'name': 'Datum', 'data':'date', 'order_by': Offence.timestamp},
+                      {'name': 'Leerling', 'data':'student.full_name', 'order_by': Student.last_name},
+                      {'name': 'Leerkracht', 'data':'teacher.code', 'order_by': Teacher.code},
+                      {'name': 'Klas', 'data':'student.classgroup.name', 'order_by': Classgroup.name},
+                      {'name': 'Les', 'data':'lesson.name', 'order_by': Lesson.name},
+                      {'name': 'Opmerking', 'data':'types', 'order_by': Type.type},
+                      {'name': 'Maatregel', 'data':'measures', 'order_by': Measure.measure},
+                      ],
+        'filter' :  ['date', 'teacher', 'classgroup', 'lesson'],
+        'href': [],
+        # 'href': [{'attribute': '["name"]', 'route': '"asset.view"', 'id': '["id"]'},
+        #          {'attribute': '["purchase"]["since"]', 'route': '"purchase.view"', 'id': '["purchase"]["id"]'},
+        #          {'attribute': '["purchase"]["supplier"]["name"]', 'route': '"supplier.view"', 'id': '["purchase"]["supplier"]["id"]'},
+        #          {'attribute': '["purchase"]["device"]["brandtype"]', 'route': '"device.view"', 'id': '["purchase"]["device"]["id"]'}
+        #          ],
+        'floating_menu' : offence_menu_config,
+        'disable_add_button' : True,
+        #'export' : 'asset.exportcsv',
+    },
     'user': {
         'model': User,
         'title' : 'gebruiker',

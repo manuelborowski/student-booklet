@@ -1,0 +1,59 @@
+<!-- app/templates/auth/user.html -->
+<!-- this form is used for adding a user as well for editing a user, hence the if-clause -->
+
+{% import "bootstrap/wtf.html" as wtf %}
+{% extends "base_single_item.html" %}
+
+{% block content3 %}
+    {{ wtf.form_field(form.name) }}
+    {{ wtf.form_field(form.location) }}
+    {{ wtf.form_field(form.qr_code) }}
+    {{ wtf.form_field(form.status) }}
+{% if role == 'edit' or role == 'add' %}
+    {{ wtf.form_field(form.purchase) }}
+{% endif %}
+    {{ wtf.form_field(form.serial) }}
+{% if role == 'view' %}
+    {{ wtf.form_field(form.since) }}
+    {{ wtf.form_field(form.value) }}
+    {{ wtf.form_field(form.supplier) }}
+    {{ wtf.form_field(form.category) }}
+
+    {{ wtf.form_field(form.brand) }}
+    {{ wtf.form_field(form.type) }}
+    {{ wtf.form_field(form.power) }}
+    {{ wtf.form_field(form.ce) }}
+
+    <div class="input-group">
+        {{ wtf.form_field(form.risk_analysis) }}
+        <div class="input-group-btn">
+            <input class="btn btn-default" type="submit" name="risk_analysis_download" formaction="{{ url_for('asset.download') }}" value="Download">
+        </div>
+    </div>
+
+    <div class="input-group">
+        {{ wtf.form_field(form.manual) }}
+        <div class="input-group-btn">
+            <input class="btn btn-default" type="submit" name="manual_download" formaction="{{ url_for('asset.download') }}" value="Download">
+        </div>
+    </div>
+    <div class="input-group">
+        {{ wtf.form_field(form.safety_information) }}
+        <div class="input-group-btn">
+            <input class="btn btn-default" type="submit" name="safety_information_download" formaction="{{ url_for('asset.download') }}" value="Download">
+        </div>
+    </div>
+
+    <div class="input-group">
+        {{ wtf.form_field(form.photo) }}
+        <div class="input-group-btn">
+            <input class="btn btn-default" type="submit" name="photo_download" formaction="{{ url_for('asset.download') }}" value="Download">
+        </div>
+    </div>
+
+    <img src="../../static/photo/{{ form.photo.data }}" height="377">
+    </br>
+    </br>
+
+{% endif %}
+{% endblock %}

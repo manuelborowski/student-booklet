@@ -94,7 +94,11 @@ class Student(db.Model):
 
     def __repr__(self):
         return '<Student: {}/{}/{}>'.format(self.id, self.first_name, self.last_name)
-    #
+
+    def ret_dict(self):
+        return {'id':self.id, 'first_name':self.first_name, 'last_name': self.last_name, 'classgroup': self.classgroup.ret_dict(),
+                'full_name': '{} {}'.format(self.first_name, self.last_name)}
+
     # def log(self):
     #     return '<Asset: {}/{}/{}/{}/{}>'.format(self.id, self.name, self.qr_code, self.purchase.since, self.purchase.value)
     #
@@ -109,6 +113,10 @@ class Classgroup(db.Model):
     def get_choices_list():
         l = [i for i in db.session.query(Classgroup.id, Classgroup.name).distinct(Classgroup.name).order_by(Classgroup.name).all()]
         return l
+
+    @staticmethod
+    def get_choices__with_empty_list():
+        return [(0, '')] + Classgroup.get_choices_list()
 
     @staticmethod
     def get_choices_filtered_by_teacher_list(teacher):
@@ -130,9 +138,8 @@ class Classgroup(db.Model):
     # def log(self):
     #     return '<Purchase: {}/{}/{}/{}/{}/{}>'.format(self.id, self.since, self.value, self.device.brand, self.device.type, self.supplier.name)
     #
-    # def ret_dict(self):
-    #     return {'id':self.id, 'since':self.since.strftime('%d-%m-%Y'), 'value':float(self.value), 'commissioning':self.commissioning,
-    #             'supplier': self.supplier.ret_dict(), 'device':self.device.ret_dict()}
+    def ret_dict(self):
+         return {'id':self.id, 'name': self.name}
 
 class Classmoment(db.Model):
     __tablename__ = 'classmoments'
@@ -204,6 +211,9 @@ class Lesson(db.Model):
 
     def __repr__(self):
         return 'Lesson: {}/{}'.format(self.id, self.name)
+
+    def ret_dict(self):
+        return {'id':self.id, 'name': self.name}
     #
     # def log(self):
     #     return '<Supplier: {}/{}>'.format(self.id, self.name)
@@ -232,9 +242,15 @@ class Teacher(db.Model):
     def __repr__(self):
         return 'Teacher: {}/{}'.format(self.id, self.code)
 
+    def ret_dict(self):
+        return {'id':self.id, 'code':self.code}
 
 class Offence(db.Model):
     __tablename__ = 'offences'
+
+    @staticmethod
+    def reverse_date(date):
+        return '-'.join(date.split('-')[::-1])
 
     id = db.Column(db.Integer, primary_key=True)
     type_note = db.Column(db.String(1024))
@@ -246,6 +262,26 @@ class Offence(db.Model):
     types = db.relationship('Type', cascade='all, delete', backref='offence', lazy='dynamic')
     measures = db.relationship('Measure', cascade='all, delete', backref='offence', lazy='dynamic')
 
+    def ret_types(self):
+        l = ''
+        for t in self.types:
+            l += Type.types[t.type]
+            l +=', '
+        l += self.type_note
+        return l
+
+    def ret_measures(self):
+        l = ''
+        for t in self.measures:
+            l += Measure.measures[t.measure]
+            l +=', '
+        l += self.measure_note
+        return l
+
+    def ret_dict(self):
+        return {'id':self.id, 'date':self.timestamp, 'measure_note': self.measure_note, 'type_note': self.type_note,
+                'teacher':self.teacher.ret_dict(), 'student': self.student.ret_dict(), 'lesson': self.lesson.ret_dict(),
+                'types': self.ret_types(), 'measures': self.ret_measures()}
 
 class Type(db.Model):
     __tablename__ = 'offence_types'

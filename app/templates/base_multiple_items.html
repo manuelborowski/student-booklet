@@ -19,57 +19,30 @@
       <form method="post" enctype=multipart/form-data>
       <table class="table-condensed ">
           <tr>
-{% if 'since' in filter %}
+{% if 'date' in filter %}
               <th>Datum</th>
 {% endif %}
-{% if 'value' in filter %}
-              <th>Bedrag</th>
+{% if 'teacher' in filter %}
+              <th>Leerkracht</th>
 {% endif %}
-{% if 'location' in filter %}
-              <th>Locatie</th>
-{% endif %}
-{% if 'category' in filter %}
-              <th>Categorie</th>
-{% endif %}
-{% if 'status' in filter %}
-              <th>Status</th>
-{% endif %}
-{% if 'supplier' in filter %}
-              <th>Leverancier</th>
-{% endif %}
-{% if 'device' in filter %}
-              <th>Toestel</th>
+{% if 'classgroup' in filter %}
+              <th>Klas</th>
 {% endif %}
           </tr>
           <tr>
-{% if 'since' in filter %}
+{% if 'date' in filter %}
               <td><input id="date_after" class="filter" name="date_after" type="text" size="12"></td>
 {% endif %}
-{% if 'value' in filter %}
-              <td><input id="value_from" class="filter" name="value_from" type="text" size="12"></td>
+{% if 'teacher' in filter %}
+              <td><input id="teacher" class="filter" name="teacher" type="text" size="12"></td>
 {% endif %}
-{% if 'location' in filter %}
-              <td><input id="room" class="filter" name="room" type="text" size="12"></td>
-{% endif %}
-{% if 'category' in filter %}
-              <td rowspan="2"  >{{ wtf.form_field(filter_form.category.category) }}</td>
-{% endif %}
-{% if 'status' in filter %}
-              <td rowspan="2">{{ wtf.form_field(filter_form.status.status) }}</td>
-{% endif %}
-{% if 'supplier' in filter %}
-              <td rowspan="2">{{ wtf.form_field(filter_form.supplier.supplier) }}</td>
-{% endif %}
-{% if 'device' in filter %}
-              <td rowspan="2">{{ wtf.form_field(filter_form.device.device) }}</td>
+{% if 'classgroup' in filter %}
+              <td rowspan="2"  >{{ wtf.form_field(filter_form.classgroup.classgroup) }}</td>
 {% endif %}
           </tr>
           <tr>
-{% if 'since' in filter %}
+{% if 'date' in filter %}
               <td><input id="date_before" class="filter" name="date_before" type="text" size="12"></td>
-{% endif %}
-{% if 'value' in filter %}
-              <td><input id="value_till" class="filter" name="value_till" type="text" size="12"></td>
 {% endif %}
           </tr>
       </table>
@@ -84,12 +57,14 @@
 
 {% endif %}
       </form>
+      {% if not config.disable_add_button %}
       <hr />
-      <form method="post" action="{{ url_for(config.subject + '.add') }}" novalidate>
+      <form method ="post" action="{{ url_for(config.subject + '.add') }}" novalidate>
       <div class="btn-group" role="group" aria-label="...">
            <input class="btn btn-default" id="add" name="add" type="submit" value="Voeg {{config.title}} toe">
       </div>
       <hr />
+      {% endif %}
       <table cellspacing="0" class="table table-striped table-bordered " id="datatable" width="100%">
           <thead><tr>
               {% for h in config.template %}
@@ -149,10 +124,7 @@ $(document).ready(function() {
     //The clear button of the filter is pushed
     $('#clear').click(function() {
         $('.filter').val('');
-        $('#category').val('');
-        $('#status').val('');
-        $('#device').val('');
-        $('#supplier').val('');
+        $('#classgroup').val('');
         //emulate click on trigger button
         $('#filter').trigger('click');
     });
@@ -163,13 +135,7 @@ $(document).ready(function() {
         filter_settings = JSON.parse(localStorage.getItem("Filter"));
         $('#date_before').val(filter_settings['date_before']);
         $('#date_after').val(filter_settings['date_after']);
-        $('#value_from').val(filter_settings['value_from']);
-        $('#value_till').val(filter_settings['value_till']);
-        $('#category').val(filter_settings['category']);
-        $('#status').val(filter_settings['status']);
-        $('#device').val(filter_settings['device']);
-        $('#supplier').val(filter_settings['supplier']);
-        $('#room').val(filter_settings['room']);
+        $('#classgroup').val(filter_settings['classgroup']);
     } catch (err) {
     }
 
@@ -178,13 +144,7 @@ $(document).ready(function() {
         //Store filter in localstorage
         filter_settings = {"date_before" : $('#date_before').val(),
                    "date_after" : $('#date_after').val(),
-                   "value_from" : $('#value_from').val(),
-                   "value_till" : $('#value_till').val(),
-                   "category" : $('#category').val(),
-                   "status" : $('#status').val(),
-                   "device" : $('#device').val(),
-                   "supplier" : $('#supplier').val(),
-                   "room" : $('#room').val()}
+                   "classgroup" : $('#classgroup').val()};
         //alert(JSON.stringify(filter_settings));
         localStorage.setItem("Filter", JSON.stringify(filter_settings));
         table.ajax.reload();

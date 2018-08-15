@@ -101,6 +101,9 @@ def create_app(config_name):
         from .user import user as user_blueprint
         app.register_blueprint(user_blueprint)
 
+        from .offence import offence as offence_blueprint
+        app.register_blueprint(offence_blueprint)
+
         from .documents import init_documents
         init_documents(app, 'photo')
 
