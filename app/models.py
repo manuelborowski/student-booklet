@@ -97,7 +97,7 @@ class Student(db.Model):
 
     def ret_dict(self):
         return {'id':self.id, 'first_name':self.first_name, 'last_name': self.last_name, 'classgroup': self.classgroup.ret_dict(),
-                'full_name': '{} {}'.format(self.first_name, self.last_name)}
+                'full_name': '{} {}'.format(self.first_name, self.last_name), 'number' : Offence.query.join(Student).filter(Student.id == self.id).count()}
 
     # def log(self):
     #     return '<Asset: {}/{}/{}/{}/{}>'.format(self.id, self.name, self.qr_code, self.purchase.since, self.purchase.value)
@@ -115,7 +115,7 @@ class Classgroup(db.Model):
         return l
 
     @staticmethod
-    def get_choices__with_empty_list():
+    def get_choices_with_empty_list():
         return [(0, '')] + Classgroup.get_choices_list()
 
     @staticmethod
@@ -229,6 +229,10 @@ class Teacher(db.Model):
         l = [i for i in db.session.query(Teacher.id, Teacher.code).distinct(Teacher.code).order_by(Teacher.code).all()]
         return l
 
+    @staticmethod
+    def get_choices_with_empty_list():
+        return [(0, '')] + Teacher.get_choices_list()
+
     def get_choice(self):
         return(self.id, self.code)
 
@@ -279,7 +283,7 @@ class Offence(db.Model):
         return l
 
     def ret_dict(self):
-        return {'id':self.id, 'date':self.timestamp, 'measure_note': self.measure_note, 'type_note': self.type_note,
+        return {'id':self.id, 'date':self.timestamp.strftime('%d-%m-%Y %H:%M'), 'measure_note': self.measure_note, 'type_note': self.type_note,
                 'teacher':self.teacher.ret_dict(), 'student': self.student.ret_dict(), 'lesson': self.lesson.ret_dict(),
                 'types': self.ret_types(), 'measures': self.ret_measures()}
 

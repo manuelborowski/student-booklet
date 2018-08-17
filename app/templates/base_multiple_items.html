@@ -34,7 +34,7 @@
               <td><input id="date_after" class="filter" name="date_after" type="text" size="12"></td>
 {% endif %}
 {% if 'teacher' in filter %}
-              <td><input id="teacher" class="filter" name="teacher" type="text" size="12"></td>
+              <td rowspan="2"  >{{ wtf.form_field(filter_form.teacher.teacher) }}</td>
 {% endif %}
 {% if 'classgroup' in filter %}
               <td rowspan="2"  >{{ wtf.form_field(filter_form.classgroup.classgroup) }}</td>
@@ -124,6 +124,7 @@ $(document).ready(function() {
     //The clear button of the filter is pushed
     $('#clear').click(function() {
         $('.filter').val('');
+        $('#teacher').val('');
         $('#classgroup').val('');
         //emulate click on trigger button
         $('#filter').trigger('click');
@@ -135,6 +136,7 @@ $(document).ready(function() {
         filter_settings = JSON.parse(localStorage.getItem("Filter"));
         $('#date_before').val(filter_settings['date_before']);
         $('#date_after').val(filter_settings['date_after']);
+        $('#teacher').val(filter_settings['teacher']);
         $('#classgroup').val(filter_settings['classgroup']);
     } catch (err) {
     }
@@ -144,7 +146,9 @@ $(document).ready(function() {
         //Store filter in localstorage
         filter_settings = {"date_before" : $('#date_before').val(),
                    "date_after" : $('#date_after').val(),
-                   "classgroup" : $('#classgroup').val()};
+                   "teacher" : $('#teacher').val(),
+                   "classgroup" : $('#classgroup').val()
+                   };
         //alert(JSON.stringify(filter_settings));
         localStorage.setItem("Filter", JSON.stringify(filter_settings));
         table.ajax.reload();
@@ -166,7 +170,7 @@ $(document).ready(function() {
        lengthMenu: [20, 50, 100, 200],
        "columns": [
        {% for h in config.template %}
-           {data: "{{h.data}}", name: "{{h.name}}"},
+           {data: "{{h.data}}", name: "{{h.name}}", width: "{{h.width}}"},
        {% endfor %}
        ],
        "language" : {

@@ -6,9 +6,10 @@ from flask import flash,  request, get_flashed_messages, jsonify, url_for
 from flask_login import current_user
 from sqlalchemy import or_, func
 import time, datetime
+from operator import getitem
 
 from models import User, Settings, Teacher, Classmoment, Classgroup, Lesson, Student, Offence, Measure, Type
-from .forms import ClassgroupFilter
+from .forms import ClassgroupFilter, TeacherFilter
 from . import log
 
 class InlineButtonWidget(object):
@@ -99,13 +100,14 @@ def build_filter(table, paginate=True):
             _filtered_list = _filtered_list.filter(Offence.since <= Offence.reverse_date(date))
 
     if 'teacher' in _filters_enabled:
-        value = check_string_in_form('teacher_code', request.values)
+        _filter_forms['teacher'] = TeacherFilter()
+        value = check_value_in_form('teacher', request.values)
         if value:
-            _filtered_list = _filtered_list.filter(Teacher.code == value)
+            _filtered_list = _filtered_list.filter(Teacher.id == value)
 
     if 'classgroup' in _filters_enabled:
         _filter_forms['classgroup'] = ClassgroupFilter()
-        value = check_string_in_form('classgroup', request.values)
+        value = check_value_in_form('classgroup', request.values)
         if value:
             _filtered_list = _filtered_list.filter(Classgroup.id == value)
 
@@ -177,18 +179,19 @@ def build_filter(table, paginate=True):
     _filtered_count = _filtered_list.count()
     
     #Measure and Type have to join here because they mess up the count
-    if _model is Offence:
-        _filtered_list = _filtered_list.join(Measure).join(Type)
+    #if _model is Offence:
+    #    _filtered_list = _filtered_list.join(Measure).join(Type)
 
-    #order, if required
+    #order, if required, first stage
     column_number = check_value_in_form('order[0][column]', request.values)
     if column_number:
         column_name = check_string_in_form('columns[' + str(column_number) + '][data]', request.values)
-        direction = check_string_in_form('order[0][dir]', request.values)
-        if direction == 'desc':
-            _filtered_list = _filtered_list.order_by(_template[int(column_number)]['order_by'].desc())
-        else:
-            _filtered_list = _filtered_list.order_by(_template[int(column_number)]['order_by'])
+        if _template[int(column_number)]['order_by'] and  not callable(_template[int(column_number)]['order_by']) :
+            direction = check_string_in_form('order[0][dir]', request.values)
+            if direction == 'desc':
+                _filtered_list = _filtered_list.order_by(_template[int(column_number)]['order_by'].desc())
+            else:
+                _filtered_list = _filtered_list.order_by(_template[int(column_number)]['order_by'])
 
     if paginate:
         #paginate, if required
@@ -198,7 +201,9 @@ def build_filter(table, paginate=True):
             start = int(start)
             _filtered_list = _filtered_list.slice(start, start+length)
 
+
     _filtered_list = _filtered_list.all()
+
     return _filters_enabled,  _filter_forms, _filtered_list, _total_count, _filtered_count,
 
 
@@ -209,6 +214,13 @@ def get_ajax_table(table):
         for h in table['href']:
             exec("i" + h['attribute'] + "= \"<a href=\\\"{}\\\">{}</a>\".format(url_for(" + h['route'] + ", id=i" + h['id'] + "), i" + h['attribute'] + ')')
         i['DT_RowId'] = i['id']
+
+    # #order, if required, 2nd stage
+    _template = table['template']
+    column_number = check_value_in_form('order[0][column]', request.values)
+    if column_number and _template[int(column_number)]['order_by'] and  callable(_template[int(column_number)]['order_by']):
+        reverse = False if check_string_in_form('order[0][dir]', request.values) == 'desc' else True
+        _filtered_dict = sorted(_filtered_dict, key= _template[int(column_number)]['order_by'], reverse=reverse)
     output = {}
     output['draw'] = str(int(request.values['draw']))
     output['recordsTotal'] = str(_total_count)
