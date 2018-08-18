@@ -220,6 +220,32 @@ $(document).ready(function() {
       i.visibility = "visible";
       i.opacity = "1";
     }
+
+    //date picker
+    //Big hack to get dutch calendar to work... :-(
+    $.fn.datepicker.dates['nl'] = {
+        days : 'zondag_maandag_dinsdag_woensdag_donderdag_vrijdag_zaterdag'.split('_'),
+        daysShort : 'zo._ma._di._wo._do._vr._za.'.split('_'),
+        daysMin : 'zo_ma_di_wo_do_vr_za'.split('_'),
+        months : 'januari_februari_maart_april_mei_juni_juli_augustus_september_oktober_november_december'.split('_'),
+        monthsShort : 'jan_feb_maa_apr_mei_jun_jul_aug_sep_okt_nov_dec'.split('_'),
+        today: "Vandaag",
+        clear: "Clear",
+        format: "dd-mm-yyyy",
+        titleFormat: "MM yyyy", /* Leverages same syntax as 'format' */
+        weekStart: 0
+    };
+    var date_input=$('input[name="date_after"]'); //our date input has the name "date_after"
+    var container=$('.bootstrap-iso form').length>0 ? $('.bootstrap-iso form').parent() : "body";
+    var options={
+        language: 'nl',
+        container: container,
+        todayHighlight: true,
+        autoclose: true,
+    };
+    date_input.datepicker(options);
+
+
 });
 </script>
 {% endblock %}
