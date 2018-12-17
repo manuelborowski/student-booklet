@@ -1,7 +1,7 @@
 import sys, os
 import logging
 logging.basicConfig(stream=sys.stderr)
-sys.path.insert(0,"/home/aboro/projects/ict-inventory")
+sys.path.insert(0,"/home/aboro/projects/student-booklet")
 
 os.putenv('FLASK_CONFIG', 'production')
 
