@@ -10,9 +10,16 @@
   {{ utils.flashed_messages() }}
   <br/>
   <div class="center">
-    <h1>Please login </h1>
+    <h1>Inloggen aub </h1>
     <br/>
     {{ wtf.quick_form(form) }}
+      <br>
+    <form action="/">
+      <button  name="smartschool" type="submit"  style="border:none; background-color:transparent;">
+      <img src="{{ url_for('static', filename='img/btn_aanmelden_op_smartschool_290x40.png') }}" />
+      </button>
+    </form>
+
   </div>
 </div>
 {% endblock %}

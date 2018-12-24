@@ -13,6 +13,10 @@ class User(UserMixin, db.Model):
     # as is the name of the model
     __tablename__ = 'users'
 
+    class USER_TYPE:
+        LOCAL = 'local'
+        OAUTH = 'oauth'
+
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(256), index=True)
     username = db.Column(db.String(256), index=True, unique=True)
@@ -20,7 +24,15 @@ class User(UserMixin, db.Model):
     last_name = db.Column(db.String(256), index=True)
     password_hash = db.Column(db.String(256))
     is_admin = db.Column(db.Boolean, default=False)
+    user_type = db.Column(db.String(256))
+    last_login = db.Column(db.DateTime())
     settings = db.relationship('Settings', cascade='all, delete', backref='user', lazy='dynamic')
+
+    def is_local(self):
+        return self.user_type == User.USER_TYPE.LOCAL
+
+    def is_oauth(self):
+        return self.user_type == User.USER_TYPE.OAUTH
 
     @property
     def password(self):
@@ -50,7 +62,7 @@ class User(UserMixin, db.Model):
 
     def ret_dict(self):
         return {'id':self.id, 'email':self.email, 'username':self.username, 'first_name':self.first_name, 'last_name':self.last_name,
-                'is_admin': self.is_admin}
+                'is_admin': self.is_admin, 'user_type': self.user_type, 'last_loging': self.last_login}
 
 # Set up user_loader
 @login_manager.user_loader
