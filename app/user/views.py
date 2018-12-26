@@ -5,7 +5,7 @@ from flask import render_template, redirect, url_for, request, flash
 from flask_login import login_required, current_user
 
 from .forms import AddForm, EditForm, ViewForm, ChangePasswordForm
-from .. import db, log
+from .. import db, log, admin_required
 from . import user
 from ..models import User
 
@@ -21,6 +21,7 @@ def source_data():
 
 #ashow a list of purchases
 @user.route('/user', methods=['GET', 'POST'])
+@admin_required
 @login_required
 def users():
     #The following line is required only to build the filter-fields on the page.
@@ -41,6 +42,7 @@ def users():
 #add a new user
 @user.route('/user/add/<int:id>', methods=['GET', 'POST'])
 @user.route('/user/add', methods=['GET', 'POST'])
+@admin_required
 @login_required
 def add(id=-1):
     if id > -1:
@@ -68,12 +70,13 @@ def add(id=-1):
 
 #edit a user
 @user.route('/user/edit/<int:id>', methods=['GET', 'POST'])
+@admin_required
 @login_required
 def edit(id):
     user = User.query.get_or_404(id)
     form = EditForm(obj=user)
     if form.validate_on_submit():
-        if request.form['button'] == 'Save':
+        if request.form['button'] == 'Bewaar':
             form.populate_obj(user)
             db.session.commit()
             #flash('You have edited user {}'.format(user.username))
@@ -83,6 +86,7 @@ def edit(id):
 
 #no login required
 @user.route('/user/view/<int:id>', methods=['GET', 'POST'])
+@admin_required
 def view(id):
     user = User.query.get_or_404(id)
     form = ViewForm(obj=user)
@@ -92,6 +96,7 @@ def view(id):
 
 #delete a user
 @user.route('/user/delete/<int:id>', methods=['GET', 'POST'])
+@admin_required
 @login_required
 def delete(id):
     user = User.query.get_or_404(id)
@@ -101,6 +106,7 @@ def delete(id):
     return redirect(url_for('user.users'))
 
 @user.route('/user/change-password/<int:id>', methods=['GET', 'POST'])
+@admin_required
 @login_required
 def change_pwd(id):
     user = User.query.get_or_404(id)

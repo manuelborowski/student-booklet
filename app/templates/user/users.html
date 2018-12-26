@@ -9,7 +9,8 @@
   {{ utils.flashed_messages() }}
   <div class="center">
       <div class="btn-group" role="group" aria-label="...">
-           <a class="btn btn-default" href="{{ url_for('user.add') }}" >Add user</a>
+           <a class="btn btn-default" href="{{ url_for('user.add') }}" >Voeg lokale gebruiker toe</a>
+           <a class="btn btn-default" href="{{ url_for('user.add_oauth') }}" >Voeg OAuth gebruiker toe</a>
       </div>
       <hr />
       {{table}}

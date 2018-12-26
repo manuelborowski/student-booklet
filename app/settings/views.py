@@ -5,7 +5,7 @@ from flask import render_template, redirect, url_for, request, flash, send_file,
 from flask_login import login_required, current_user
 from ..base import get_global_setting_current_schoolyear, set_global_setting_current_schoolyear, get_setting_simulate_dayhour, set_setting_simulate_dayhour
 from . import settings
-from .. import db, app, log
+from .. import db, app, log, admin_required
 from ..models import Settings, Classgroup, Student, Teacher, Lesson, Classmoment
 from flask_login import current_user
 from ..documents import  get_doc_path, get_doc_list, upload_doc, get_doc_select, get_doc_download, get_doc_reference
@@ -14,10 +14,6 @@ import os
 import unicodecsv  as  csv
 import zipfile
 
-def check_admin():
-    if not current_user.is_admin:
-        abort(403)
-
 def get_settings_and_show():
     return render_template('settings/settings.html',
                            schoolyear = get_global_setting_current_schoolyear(),
@@ -25,11 +21,13 @@ def get_settings_and_show():
                            title='settings')
 
 @settings.route('/settings', methods=['GET', 'POST'])
+@admin_required
 @login_required
 def show():
     return get_settings_and_show()
 
 @settings.route('/settings/save', methods=['GET', 'POST'])
+@admin_required
 @login_required
 def save():
     if request.form['button'] == 'Bewaar':
@@ -40,6 +38,7 @@ def save():
     return get_settings_and_show()
 
 @settings.route('/settings/purge_database', methods=['GET', 'POST'])
+@admin_required
 @login_required
 def purge_database():
     try:
@@ -56,6 +55,7 @@ def purge_database():
 
 
 @settings.route('/settings/upload_file', methods=['GET', 'POST'])
+@admin_required
 @login_required
 def upload_file():
     if request.files['upload_students']: import_students(request.files['upload_students'])

@@ -42,6 +42,8 @@ tables_configuration = {
             {'name': 'Voornaam', 'data': 'first_name', 'order_by': User.first_name},
             {'name': 'Naam', 'data': 'last_name', 'order_by': User.last_name},
             {'name': 'Email', 'data': 'email', 'order_by': User.email},
+            {'name': 'Type', 'data': 'user_type', 'order_by': User.user_type},
+            {'name': 'Login', 'data': 'last_login', 'order_by': User.last_login},
             {'name': 'Is admin', 'data': 'is_admin', 'order_by': User.is_admin},],
         'filter': [],
         'href': [{'attribute': '["username"]', 'route': '"user.view"', 'id': '["id"]'},

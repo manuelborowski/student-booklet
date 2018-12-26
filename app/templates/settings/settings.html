@@ -9,7 +9,7 @@
 <div class="content-section">
   {{ utils.flashed_messages() }}
     <div class="center">
-        <h1>Instellingen</h1>
+        <h1>Instellingen : </h1>
         <form method="post" enctype=multipart/form-data>
             {% if current_user.is_admin %}
                 <input id="upload_trigger" type="submit" value="Import" style="display:none" formaction="{{ url_for('settings.upload_file') }}">

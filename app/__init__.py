@@ -11,6 +11,7 @@ from flask_bootstrap import Bootstrap
 from flask_jsglue import JSGlue
 from werkzeug.routing import IntegerConverter as OrigIntegerConvertor
 import config, logging, logging.handlers, os, sys
+from functools import wraps
 
 app = Flask(__name__, instance_relative_config=True)
 
@@ -123,4 +124,14 @@ def create_app(config_name):
         def error_500():
             abort(500)
     return app
+
+#decorator to grant access to admins only
+def admin_required(func):
+    @wraps(func)
+    def decorated_view(*args, **kwargs):
+        if not current_user.is_admin:
+            abort(403)
+        return func(*args, **kwargs)
+    return decorated_view
+
 

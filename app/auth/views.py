@@ -61,16 +61,16 @@ def smartschool_profile(token):
     resp = oauth.smartschool.get('fulluserinfo', token=json.loads(token))
     profile = resp.json()
 
-    if 'error' in profile: #not good
+    if  not 'username' in profile: #not good
         flash('Smartschool geeft een foutcode terug: {}'.format(profile['error']))
         log.error("OAUTH step 3 error : {}".format(profile['error']))
         return redirect(url_for('auth.login'))
 
     if profile['basisrol'] in SMARTSCHOOL_ALLOWED_BASE_ROLES:
         #Students are NOT allowed to log in
-        user = User.query.filter_by(username=profile['username'], user_type=User.USER_TYPE.OAUTH).first()
+        user = User.query.filter_by(username=profile['username'].lower(), user_type=User.USER_TYPE.OAUTH).first()
         if not user:
-            user = User(username=profile['username'], first_name=profile['name'], last_name=profile['surname'],
+            user = User(username=profile['username'].lower(), first_name=profile['name'], last_name=profile['surname'],
                         email=profile['email'], user_type=User.USER_TYPE.OAUTH)
             db.session.add(user)
             db.session.flush() #user.id is filled in

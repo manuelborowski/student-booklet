@@ -10,39 +10,26 @@ from ..models import User
 
 
 class EditForm(FlaskForm):
-    """
-    Edit an existing user
-    """
-
-    first_name = StringField('First name', validators=[DataRequired()])
-    last_name = StringField('Last name', validators=[DataRequired()])
+    first_name = StringField('First name')
+    last_name = StringField('Last name')
     username = StringField('Username', validators=[DataRequired()])
-    email = StringField('Email', validators=[DataRequired(), Email()])
+    email = StringField('Email', validators=[Email()])
     is_admin = BooleanField('Is admin')
     id = IntegerField(widget=HiddenInput())
 
 class AddForm(EditForm):
-    """
-    Add a user
-    """
     password = PasswordField('Password', validators=[DataRequired(), EqualTo('confirm_password')])
     confirm_password = PasswordField('Confirm Password')
     def validate_username(self, field):
         if User.query.filter_by(username=field.data).first():
             raise ValidationError('Username is already in use')
 
-
-
 class ViewForm(FlaskForm):
-    """
-    View an existing user
-    """
-
     first_name = StringField('First name', render_kw={'readonly':''})
     last_name = StringField('Last name', render_kw={'readonly':''})
     username = StringField('Username', render_kw={'readonly':''})
     email = StringField('Email', render_kw={'readonly':''})
-    is_admin = BooleanField('Is admin', render_kw={'readonly':''})
+    is_admin = BooleanField('Is admin', render_kw={'disabled':'disabled'})
     id = IntegerField(widget=HiddenInput())
 
 class ChangePasswordForm(FlaskForm):

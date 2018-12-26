@@ -62,7 +62,7 @@ class User(UserMixin, db.Model):
 
     def ret_dict(self):
         return {'id':self.id, 'email':self.email, 'username':self.username, 'first_name':self.first_name, 'last_name':self.last_name,
-                'is_admin': self.is_admin, 'user_type': self.user_type, 'last_loging': self.last_login}
+                'is_admin': self.is_admin, 'user_type': self.user_type, 'last_login': self.last_login}
 
 # Set up user_loader
 @login_manager.user_loader
