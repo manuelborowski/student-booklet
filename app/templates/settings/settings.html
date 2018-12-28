@@ -11,21 +11,39 @@
     <div class="center">
         <h1>Instellingen : </h1>
         <form method="post" enctype=multipart/form-data>
-            {% if current_user.is_admin %}
-                <input id="upload_trigger" type="submit" value="Import" style="display:none" formaction="{{ url_for('settings.upload_file') }}">
-
-                <input class="btn btn-default" type="button" id="import" value="1) Importeer studenten"  onclick="$('#import_fileid').click();">
-                <input id='import_fileid' type='file' name='upload_students' style="display:none" accept=".csv" onchange="$('#upload_trigger').click();">
-                <br/>
-                <input class="btn btn-default" type="button" id="import2" value="2) Importeer leerkrachten"  onclick="$('#import_fileid2').click();">
-                <input id='import_fileid2' type='file' name='upload_teachers' style="display:none" accept=".csv" onchange="$('#upload_trigger').click();">
-                <br/>
-                <input class="btn btn-default" type="button" id="import3" value="3) Importeer lesrooster"  onclick="$('#import_fileid3').click();">
-                <input id='import_fileid3' type='file' name='upload_timetable' style="display:none" accept=".csv" onchange="$('#upload_trigger').click();">
-                <br/>
-                <input class="btn btn-default" type="button" id="import4" value="4) Importeer fotos"  onclick="$('#import_fileid4').click();">
-                <input id='import_fileid4' type='file' name='upload_photos' style="display:none" accept=".zip" onchange="$('#upload_trigger').click();">
-            {% endif %}
+            <input id="upload_trigger" type="submit" value="Import" style="display:none" formaction="{{ url_for('settings.upload_file') }}">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-3">
+                        <input class="btn btn-default" type="button" id="import" value="1) Importeer studenten"  onclick="$('#import_fileid').click();">
+                        <input id='import_fileid' type='file' name='upload_students' style="display:none" accept=".csv" onchange="$('#upload_trigger').click();">
+                    </div>
+                    <div class="col-sm-2">
+                        <input class="btn btn-default" type="button" value="Wis studenten"  onclick="confirm_before_delete('settings.delete_students')">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-3">
+                        <input class="btn btn-default" type="button" id="import2" value="2) Importeer leerkrachten"  onclick="$('#import_fileid2').click();">
+                        <input id='import_fileid2' type='file' name='upload_teachers' style="display:none" accept=".csv" onchange="$('#upload_trigger').click();">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-3">
+                        <input class="btn btn-default" type="button" id="import3" value="3) Importeer lesrooster"  onclick="$('#import_fileid3').click();">
+                        <input id='import_fileid3' type='file' name='upload_timetable' style="display:none" accept=".csv" onchange="$('#upload_trigger').click();">
+                    </div>
+                    <div class="col-sm-2">
+                        <input class="btn btn-default" type="button" value="Wis lesrooster"  onclick="confirm_before_delete('settings.delete_timetable')">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-3">
+                        <input class="btn btn-default" type="button" id="import4" value="4) Importeer fotos"  onclick="$('#import_fileid4').click();">
+                        <input id='import_fileid4' type='file' name='upload_photos' style="display:none" accept=".zip" onchange="$('#upload_trigger').click();">
+                    </div>
+                </div>
+            </div>
         </form>
         <br/>
         <br/>
@@ -58,23 +76,7 @@
 </div>
 {% endblock %}
 
-
-
 {% block scripts %}
 {{ super() }}
-<script>
-//Before removing an entry, a confirm-box is shown.
-function confirm_before_delete(e) {
-    e.preventDefault();
-    var message = "Bent u zeker dat u deze items wil verwijderen?";
-    bootbox.confirm(message, function(result) {
-        if (result) {
-            $('#purge_database').val(e.srcElement.id);
-            console.log(e.srcElement.id);
-            $('#purge_database').click();
-        }
-    });
-}
-</script>
-
+<script type="text/javascript" > {% include "settings/settings.js" %}</script>
 {% endblock %}

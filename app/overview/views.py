@@ -60,7 +60,8 @@ def show():
                 if student:
                     #save new offence
                     offence = Offence(student=student, lesson=lesson, teacher=teacher, timestamp=datetime.datetime.now(),
-                                      measure_note=request.form['comment_measure'], type_note=request.form['comment_offence'])
+                                      measure_note=request.form['comment_measure'], type_note=request.form['comment_offence'],
+                                      classgroup=student.classgroup)
                     for t in types:
                         type=Type(type=int(t), offence=offence)
                         db.session.add(type)

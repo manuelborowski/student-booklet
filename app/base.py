@@ -97,7 +97,7 @@ def build_filter(table, paginate=True):
             _filtered_list = _filtered_list.filter(Offence.timestamp >= Offence.reverse_date(date))
         date = check_date_in_form('date_before', request.values)
         if date:
-            _filtered_list = _filtered_list.filter(Offence.since <= Offence.reverse_date(date))
+            _filtered_list = _filtered_list.filter(Offence.timestamp <= Offence.reverse_date(date))
 
     if 'teacher' in _filters_enabled:
         _filter_forms['teacher'] = TeacherFilter()

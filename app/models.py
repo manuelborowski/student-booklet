@@ -142,6 +142,7 @@ class Classgroup(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(256))
     students = db.relationship('Student', cascade='all, delete', backref='classgroup', lazy='dynamic')
+    offences = db.relationship('Offence', cascade='all, delete', backref='classgroup', lazy='dynamic')
     classmoments = db.relationship('Classmoment', cascade='all, delete', backref='classgroup', lazy='dynamic')
 
     def __repr__(self):
@@ -275,6 +276,7 @@ class Offence(db.Model):
     student_id = db.Column(db.Integer, db.ForeignKey('students.id', ondelete='CASCADE'))
     lesson_id = db.Column(db.Integer, db.ForeignKey('lessons.id', ondelete='CASCADE'))
     teacher_id = db.Column(db.Integer, db.ForeignKey('teachers.id', ondelete='CASCADE'))
+    classgroup_id = db.Column(db.Integer, db.ForeignKey('classgroups.id', ondelete='CASCADE'))
     types = db.relationship('Type', cascade='all, delete', backref='offence', lazy='dynamic')
     measures = db.relationship('Measure', cascade='all, delete', backref='offence', lazy='dynamic')
 
@@ -296,8 +298,8 @@ class Offence(db.Model):
 
     def ret_dict(self):
         return {'id':self.id, 'date':self.timestamp.strftime('%d-%m-%Y %H:%M'), 'measure_note': self.measure_note, 'type_note': self.type_note,
-                'teacher':self.teacher.ret_dict(), 'student': self.student.ret_dict(), 'lesson': self.lesson.ret_dict(),
-                'types': self.ret_types(), 'measures': self.ret_measures()}
+                'teacher':self.teacher.ret_dict(), 'classgroup': self.classgroup.ret_dict(), 'lesson': self.lesson.ret_dict(),
+                'types': self.ret_types(), 'measures': self.ret_measures(), 'student': self.student.ret_dict()}
 
 class Type(db.Model):
     __tablename__ = 'offence_types'

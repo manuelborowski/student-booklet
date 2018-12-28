@@ -15,7 +15,7 @@ tables_configuration = {
                       {'name': 'Leerling', 'data':'student.full_name', 'order_by': Student.last_name, 'width': '10%'},
                       {'name': 'Aantal', 'data':'student.number', 'order_by': lambda k: k['student']['number'], 'width': '5%'},
                       {'name': 'Leerkracht', 'data':'teacher.code', 'order_by': Teacher.code, 'width': '5%'},
-                      {'name': 'Klas', 'data':'student.classgroup.name', 'order_by': Classgroup.name, 'width': '5%'},
+                      {'name': 'Klas', 'data':'classgroup.name', 'order_by': Classgroup.name, 'width': '5%'},
                       {'name': 'Les', 'data':'lesson.name', 'order_by': Lesson.name, 'width': '5%'},
                       {'name': 'Opmerking', 'data':'types', 'order_by': lambda k: k['types'], 'width': '30%'},
                       {'name': 'Maatregel', 'data':'measures', 'order_by': lambda k: k['measures'], 'width': '30%'},

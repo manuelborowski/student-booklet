@@ -108,11 +108,16 @@ def import_students(rfile):
                     db.session.add(classgroup)
                     nbr_classgroups += 1
                 #add student, if not already present
-                find_student=Student.query.filter(Student.first_name==s['VOORNAAM'], Student.last_name==s['NAAM'],
-                                                        Student.number==int(s['LEERLINGNUMMER']),
-                                                        Student.photo==s['FOTO'], Student.classgroup==classgroup,
+                find_student=Student.query.filter(Student.number==int(s['LEERLINGNUMMER']),
                                                         Student.schoolyear==schoolyear).first()
-                if not find_student:
+                if find_student:
+                    #check if the student has a different photo or has changed classgroup
+                    #If so update
+                    if find_student.photo != s['FOTO']:
+                        find_student.photo = s['FOTO']
+                    if  find_student.classgroup != classgroup:
+                        find_student.classgroup = classgroup
+                else:
                     student = Student(first_name=s['VOORNAAM'], last_name=s['NAAM'], number=int(s['LEERLINGNUMMER']), photo=s['FOTO'], classgroup=classgroup, schoolyear=schoolyear)
                     db.session.add(student)
                     nbr_students += 1
@@ -123,6 +128,7 @@ def import_students(rfile):
 
     except Exception as e:
         flash('Kan bestand niet importeren')
+        log.error('cannot import : {}'.format(e))
     return redirect(url_for('settings.show'))
 
 #FAMILIENAAM    last_name
@@ -207,4 +213,38 @@ def import_timetable(rfile):
 
     except Exception as e:
         flash('Kan bestand niet importeren')
+    return redirect(url_for('settings.show'))
+
+@settings.route('/settings/delete_students', methods=['GET', 'POST'])
+@admin_required
+@login_required
+def delete_students():
+    schoolyear = get_global_setting_current_schoolyear()
+    try:
+        students = Student.query.filter(Student.schoolyear==schoolyear).all()
+        for s in students:
+            db.session.delete(s)
+        db.session.commit()
+    except Exception as e:
+        log.error('Could not not delete students from {}, error {}'.format(schoolyear, e))
+        flash("Kan studenten van jaar {} niet wissen".format(schoolyear))
+
+    log.info('Deleted students')
+    return redirect(url_for('settings.show'))
+
+@settings.route('/settings/delete_timetable', methods=['GET', 'POST'])
+@admin_required
+@login_required
+def delete_timetable():
+    schoolyear = get_global_setting_current_schoolyear()
+    try:
+        classmoments = Classmoment.query.filter(Classmoment.schoolyear==schoolyear).all()
+        for c in classmoments:
+            db.session.delete(c)
+        db.session.commit()
+    except Exception as e:
+        log.error('Could not not delete classmoments from {}, error {}'.format(schoolyear, e))
+        flash("Kan lesrooster van jaar {} niet wissen".format(schoolyear))
+
+    log.info('Deleted timetable')
     return redirect(url_for('settings.show'))
