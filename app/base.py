@@ -72,7 +72,7 @@ def build_filter(table, paginate=True):
     _filtered_list = _model.query
 
     if 'classgroup' in  _filters_enabled:
-         _filtered_list = _filtered_list.join(Student).join(Classgroup)
+         _filtered_list = _filtered_list.join(Classgroup)
     if 'teacher' in _filters_enabled:
         _filtered_list = _filtered_list.join(Teacher)
     if 'lesson' in _filters_enabled:

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # app/settings/views.py
 
-from flask import render_template, redirect, url_for, request, flash, send_file, abort
+from flask import render_template, redirect, url_for, request, flash, send_file, abort, jsonify
 from flask_login import login_required, current_user
 from ..base import get_global_setting_current_schoolyear, set_global_setting_current_schoolyear, get_setting_simulate_dayhour, set_setting_simulate_dayhour
 from . import settings
@@ -10,15 +10,40 @@ from ..models import Settings, Classgroup, Student, Teacher, Lesson, Classmoment
 from flask_login import current_user
 from ..documents import  get_doc_path, get_doc_list, upload_doc, get_doc_select, get_doc_download, get_doc_reference
 
-import os
+import os, datetime
 import unicodecsv  as  csv
 import zipfile
 
 def get_settings_and_show():
+    schoolyear = get_global_setting_current_schoolyear()
+    find_student = None
+    try:
+        find_student = Student.query.filter(Student.schoolyear == schoolyear).first()
+        find_timetable = Classmoment.query.filter(Classmoment.schoolyear == schoolyear).first()
+        schoolyears = Student.query.with_entities(Student.schoolyear).distinct().order_by(Student.schoolyear).all()
+        if schoolyears:
+            schoolyear_list = [int(i) for i,  in schoolyears]
+        else:
+            now = datetime.datetime.now()
+            reference = datetime.datetime(year=now.year, month=9, day=1)
+            now_year = int(str(now.year)[2:4])
+            if now < reference:
+                year = (now_year-1)*100 + now_year
+            else:
+                year = now_year*100 + now_year+1
+            schoolyear_list = [year]
+        last = schoolyear_list[-1]
+        schoolyear_list.append(last+101)
+    except Exception as e:
+        log.error('Could not check the database for students or timetables, error {}'.format(e))
+
     return render_template('settings/settings.html',
-                           schoolyear = get_global_setting_current_schoolyear(),
-                           simulate_dayhour = get_setting_simulate_dayhour(),
-                           title='settings')
+                            students_already_in_database = True if find_student else False,
+                            timetable_already_in_database = True if find_timetable else False,
+                            schoolyear = schoolyear,
+                            simulate_dayhour = get_setting_simulate_dayhour(),
+                            schoolyear_list = schoolyear_list,
+                            title='settings')
 
 @settings.route('/settings', methods=['GET', 'POST'])
 @admin_required
@@ -30,11 +55,13 @@ def show():
 @admin_required
 @login_required
 def save():
-    if request.form['button'] == 'Bewaar':
+    if 'select_schoolyear' in request.form:
+        set_global_setting_current_schoolyear(request.form['select_schoolyear'])
+    if 'save_settings' in request.form:
         if 'schoolyear' in request.form:
            set_global_setting_current_schoolyear(request.form['schoolyear'])
-    if 'simulate_dayhour' in request.form:
-        set_setting_simulate_dayhour(request.form['simulate_dayhour'])
+        if 'simulate_dayhour' in request.form:
+            set_setting_simulate_dayhour(request.form['simulate_dayhour'])
     return get_settings_and_show()
 
 @settings.route('/settings/purge_database', methods=['GET', 'POST'])
@@ -115,7 +142,7 @@ def import_students(rfile):
                     #If so update
                     if find_student.photo != s['FOTO']:
                         find_student.photo = s['FOTO']
-                    if  find_student.classgroup != classgroup:
+                    if find_student.classgroup != classgroup:
                         find_student.classgroup = classgroup
                 else:
                     student = Student(first_name=s['VOORNAAM'], last_name=s['NAAM'], number=int(s['LEERLINGNUMMER']), photo=s['FOTO'], classgroup=classgroup, schoolyear=schoolyear)
@@ -230,6 +257,7 @@ def delete_students():
         flash("Kan studenten van jaar {} niet wissen".format(schoolyear))
 
     log.info('Deleted students')
+    flash("Studenten van jaar {} zijn gewist".format(schoolyear))
     return redirect(url_for('settings.show'))
 
 @settings.route('/settings/delete_timetable', methods=['GET', 'POST'])
@@ -247,4 +275,6 @@ def delete_timetable():
         flash("Kan lesrooster van jaar {} niet wissen".format(schoolyear))
 
     log.info('Deleted timetable')
+    flash("Lesrooster van jaar {} is gewist".format(schoolyear))
     return redirect(url_for('settings.show'))
+

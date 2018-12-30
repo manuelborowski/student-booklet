@@ -46,12 +46,15 @@
 {% endif %}
           </tr>
       </table>
-      <br>
+
       <div class="btn-group" role="group" aria-label="...">
           <a class="btn btn-default" id="filter">Filter</a>
           <a class="btn btn-default" id="clear">Wissen</a>
+          <br>
+          <br>
           {% if 'export' in config %}
             <input class="btn btn-default" id="export" type="submit" value="Export"  formaction="{{ url_for(config.export) }}">
+            <br>
           {% endif %}
       </div>
 

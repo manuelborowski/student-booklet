@@ -9,13 +9,34 @@
 <div class="content-section">
   {{ utils.flashed_messages() }}
     <div class="center">
-        <h1>Instellingen : </h1>
-        <form method="post" enctype=multipart/form-data>
+        <form method="post" enctype=multipart/form-data id="settings_form" action="{{ url_for('settings.save') }}">
+        <h2>Huidig schooljaar : </h2>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <label for="select_schoolyear">Selecteer schooljaar</label>
+                        <select class="form-control" id="select_schoolyear" name="select_schoolyear"
+                                onchange="document.getElementById('settings_form').submit();"
+                                >
+                            {% for i in schoolyear_list %}
+                                {% if i == schoolyear|int %}
+                                    <option val="{{i}}" selected="selected">{{i}}</option>
+                                {% else %}
+                                    <option val="{{i}}">{{i}}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <h2>Database : </h2>
             <input id="upload_trigger" type="submit" value="Import" style="display:none" formaction="{{ url_for('settings.upload_file') }}">
             <div class="container">
                 <div class="row">
                     <div class="col-sm-3">
-                        <input class="btn btn-default" type="button" id="import" value="1) Importeer studenten"  onclick="$('#import_fileid').click();">
+                        <input class="btn btn-default" type="button" id="import" value="1) Importeer studenten" onclick="import_students();">
                         <input id='import_fileid' type='file' name='upload_students' style="display:none" accept=".csv" onchange="$('#upload_trigger').click();">
                     </div>
                     <div class="col-sm-2">
@@ -30,7 +51,7 @@
                 </div>
                 <div class="row">
                     <div class="col-sm-3">
-                        <input class="btn btn-default" type="button" id="import3" value="3) Importeer lesrooster"  onclick="$('#import_fileid3').click();">
+                        <input class="btn btn-default" type="button" id="import3" value="3) Importeer lesrooster"  onclick="import_timetable();">
                         <input id='import_fileid3' type='file' name='upload_timetable' style="display:none" accept=".csv" onchange="$('#upload_trigger').click();">
                     </div>
                     <div class="col-sm-2">
@@ -68,7 +89,7 @@
 
 <!--
              <input id='purge_database' type="submit" name='purge_database' style="display:none"  formaction="{{ url_for('settings.purge_database') }}"/>
--->        <input class="btn btn-default" id="submit" name="button" type="submit" value="Bewaar">
+-->        <input class="btn btn-default" id="submit" name="save_settings" type="submit" value="Bewaar">
 
 
         </form>

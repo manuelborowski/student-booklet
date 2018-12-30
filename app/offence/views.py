@@ -5,17 +5,21 @@ from flask import render_template, redirect, url_for, request, flash, send_file,
 from flask_login import login_required, current_user
 
 #from .forms import AddForm, EditForm, ViewForm
-from .. import db, log
+from .. import db, log, app
 from . import offence
 from ..models import Offence, Type, Measure, Teacher, Classgroup, Lesson
 
-from ..base import build_filter, get_ajax_table, get_setting_inc_index_asset_name
+from ..base import build_filter, get_ajax_table, get_global_setting_current_schoolyear
 from ..tables_config import  tables_configuration
 from ..documents import download_single_doc
 
 import cStringIO, csv, re
 
 from werkzeug.datastructures import FileStorage
+
+@app.context_processor
+def inject_schoolyear():
+    return dict(schoolyear=get_global_setting_current_schoolyear())
 
 #This route is called by an ajax call on the assets-page to populate the table.
 @offence.route('/offence/data', methods=['GET', 'POST'])
