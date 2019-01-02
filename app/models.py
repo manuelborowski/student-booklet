@@ -109,7 +109,8 @@ class Student(db.Model):
 
     def ret_dict(self):
         return {'id':self.id, 'first_name':self.first_name, 'last_name': self.last_name, 'classgroup': self.classgroup.ret_dict(),
-                'full_name': '{} {}'.format(self.first_name, self.last_name), 'number' : Offence.query.join(Student).filter(Student.id == self.id).count()}
+                'full_name': '{} {}'.format(self.first_name, self.last_name),
+                'number' : Offence.query.join(Student).filter(Student.id == self.id).count()}
 
     # def log(self):
     #     return '<Asset: {}/{}/{}/{}/{}>'.format(self.id, self.name, self.qr_code, self.purchase.since, self.purchase.value)
@@ -298,7 +299,7 @@ class Offence(db.Model):
 
     def ret_dict(self):
         return {'id':self.id, 'date':self.timestamp.strftime('%d-%m-%Y %H:%M'), 'measure_note': self.measure_note, 'type_note': self.type_note,
-                'teacher':self.teacher.ret_dict(), 'classgroup': self.classgroup.ret_dict(), 'lesson': self.lesson.ret_dict(),
+                'teacher':self.teacher.ret_dict(), 'classgroup': self.classgroup.ret_dict(), 'lesson': self.lesson.ret_dict(), 'cb': '',
                 'types': self.ret_types(), 'measures': self.ret_measures(), 'student': self.student.ret_dict()}
 
 class Type(db.Model):

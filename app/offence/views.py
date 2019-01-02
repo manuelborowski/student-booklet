@@ -5,7 +5,7 @@ from flask import render_template, redirect, url_for, request, flash, send_file,
 from flask_login import login_required, current_user
 
 #from .forms import AddForm, EditForm, ViewForm
-from .. import db, log, app
+from .. import db, log, app, admin_required
 from . import offence
 from ..models import Offence, Type, Measure, Teacher, Classgroup, Lesson
 
@@ -21,13 +21,11 @@ from werkzeug.datastructures import FileStorage
 def inject_schoolyear():
     return dict(schoolyear=get_global_setting_current_schoolyear())
 
-#This route is called by an ajax call on the assets-page to populate the table.
 @offence.route('/offence/data', methods=['GET', 'POST'])
 @login_required
 def source_data():
     return get_ajax_table(tables_configuration['offence'])
 
-#show a list of assets
 @offence.route('/offence', methods=['GET', 'POST'])
 @login_required
 def offences():
@@ -37,6 +35,29 @@ def offences():
                            title='Opmerkingen',
                            filter=_filter, filter_form=_filter_form,
                            config = tables_configuration['offence'])
+
+@offence.route('/offence/delete', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def delete():
+    try:
+        cb_id_list = request.form.getlist('cb')
+        for id in cb_id_list:
+            offence = Offence.query.get_or_404(int(id))
+            db.session.delete(offence)
+        db.session.commit()
+    except Exception as e:
+        log.error('Could not delete offence : {}'.format(e))
+        flash('Kan de opmerkingen niet verwijderen')
+        
+    #The following line is required only to build the filter-fields on the page.
+    _filter, _filter_form, a,b, c = build_filter(tables_configuration['offence'])
+    return render_template('base_multiple_items.html',
+                           title='Opmerkingen',
+                           filter=_filter, filter_form=_filter_form,
+                           config = tables_configuration['offence'])
+
+
 
 # #export a list of assets
 # @asset.route('/asset/export', methods=['GET', 'POST'])

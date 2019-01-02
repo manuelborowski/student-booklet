@@ -72,7 +72,8 @@ def build_filter(table, paginate=True):
     _filtered_list = _model.query
 
     if 'classgroup' in  _filters_enabled:
-         _filtered_list = _filtered_list.join(Classgroup)
+        _filtered_list = _filtered_list.join(Student)
+        _filtered_list = _filtered_list.join(Classgroup)
     if 'teacher' in _filters_enabled:
         _filtered_list = _filtered_list.join(Teacher)
     if 'lesson' in _filters_enabled:
@@ -143,27 +144,18 @@ def build_filter(table, paginate=True):
         search_date = '%' + '-'.join(a) + '%'
         search_value = '%' + search_value + '%'
         search_constraints = []
-        # if Asset.name in column_list:
-        #     search_constraints.append(Asset.name.like(search_value))
-        # if Device.category in column_list:
-        #     search_constraints.append(Device.category.like(search_value))
-        # if Asset.location in column_list:
-        #     search_constraints.append(Asset.location.like(search_value))
-        # if Purchase.since in column_list:
-        #     search_constraints.append(Purchase.since.like(search_date))
-        # if Purchase.value in column_list:
-        #     search_constraints.append(Purchase.value.like(search_value))
-        # if Asset.qr_code in column_list:
-        #     search_constraints.append(Asset.qr_code.like(search_value))
-        # if Asset.status in column_list:
-        #     search_constraints.append(Asset.status.like(search_value))
-        # if Supplier.name in column_list:
-        #     search_constraints.append(Supplier.name.like(search_value))
-        # if Device.brand in column_list:
-        #     search_constraints.append(Device.brand.like(search_value))
-        #     search_constraints.append(Device.type.like(search_value))
-        # if Asset.serial in column_list:
-        #     search_constraints.append(Asset.serial.like(search_value))
+        #if Offence.timestamp in column_list:
+        #    search_constraints.append(Offence.timestamp.like(search_value))
+        if Student.last_name in column_list:
+            search_constraints.append(Student.last_name.like(search_value))
+        if Student.last_name in column_list:
+            search_constraints.append(Student.first_name.like(search_value))
+        if Teacher.code in column_list:
+            search_constraints.append(Teacher.code.like (search_date))
+        if Classgroup.name in column_list:
+            search_constraints.append(Classgroup.name.like(search_value))
+        if Lesson.name in column_list:
+            search_constraints.append(Lesson.name.like(search_value))
         if User.username in column_list:
             search_constraints.append(User.username.like(search_value))
         if User.first_name in column_list:
@@ -214,6 +206,8 @@ def get_ajax_table(table):
         for h in table['href']:
             exec("i" + h['attribute'] + "= \"<a href=\\\"{}\\\">{}</a>\".format(url_for(" + h['route'] + ", id=i" + h['id'] + "), i" + h['attribute'] + ')')
         i['DT_RowId'] = i['id']
+        if 'cb' in i:
+            i['cb'] = "<input type='checkbox' class='cb_all' name='cb' value='{}'>".format(i['id'], i['id'])
 
     # #order, if required, 2nd stage
     _template = table['template']

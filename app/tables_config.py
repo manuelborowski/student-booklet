@@ -11,7 +11,8 @@ tables_configuration = {
         'route' : 'offence.offences',
         'subject' :'offence',
         'delete_message' : '',
-        'template' : [{'name': 'Datum', 'data':'date', 'order_by': Offence.timestamp, 'width': '12%'},
+        'template' : [{'name': 'cb', 'data':'cb', 'order_by': Offence.timestamp, 'width': '2%'},
+                      {'name': 'Datum', 'data':'date', 'order_by': Offence.timestamp, 'width': '12%'},
                       {'name': 'Leerling', 'data':'student.full_name', 'order_by': Student.last_name, 'width': '10%'},
                       {'name': 'Aantal', 'data':'student.number', 'order_by': lambda k: k['student']['number'], 'width': '5%'},
                       {'name': 'Leerkracht', 'data':'teacher.code', 'order_by': Teacher.code, 'width': '5%'},
@@ -27,7 +28,7 @@ tables_configuration = {
         #          {'attribute': '["purchase"]["supplier"]["name"]', 'route': '"supplier.view"', 'id': '["purchase"]["supplier"]["id"]'},
         #          {'attribute': '["purchase"]["device"]["brandtype"]', 'route': '"device.view"', 'id': '["purchase"]["device"]["id"]'}
         #          ],
-        'floating_menu' : offence_menu_config,
+        'floating_menu' : [],
         'disable_add_button' : True,
         #'export' : 'asset.exportcsv',
     },

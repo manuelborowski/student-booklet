@@ -68,7 +68,7 @@ $(document).ready(function() {
     var table = $('#datatable').DataTable({
        serverSide: true,
        stateSave: true,
-       dom : 'lfiptp',
+       dom : 'fiptlBp',
        ajax: {
            url: '/{{config.subject}}/data',
            type: 'POST',
@@ -78,15 +78,21 @@ $(document).ready(function() {
        },
        pagingType: "full_numbers",
        lengthMenu: [20, 50, 100, 200],
+       "buttons": [
+        {extend: 'pdfHtml5', text: 'Exporteer naar PDF'}],
        "columns": [
        {% for h in config.template %}
-           {data: "{{h.data}}", name: "{{h.name}}", width: "{{h.width}}"},
+            {% if h.name=='cb' %}
+                {data: "{{h.data}}", width: "{{h.width}}", orderable: false},
+            {% else %}
+                {data: "{{h.data}}", width: "{{h.width}}"},
+            {% endif %}
        {% endfor %}
        ],
        "language" : {
         /*"url" : "static/DataTables/nl_nl.lang"*/
         "url" : "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Dutch.json"
-      }
+      },
     });
 
      //flash messages, if required
@@ -156,6 +162,11 @@ $(document).ready(function() {
     };
     date_after.datepicker(options);
     date_before.datepicker(options);
+
+    //checkbox in header is clicked
+    $("#select_all").change(function() {
+        $(".cb_all").prop('checked', this.checked);
+    });
 
 
 });

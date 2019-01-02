@@ -58,7 +58,8 @@ def add(id=-1):
                         first_name=form.first_name.data,
                         last_name=form.last_name.data,
                         password=form.password.data,
-                        is_admin=form.is_admin.data
+                        is_admin=form.is_admin.data,
+                        user_type = User.USER_TYPE.LOCAL
                     )
         db.session.add(user)
         db.session.commit()
