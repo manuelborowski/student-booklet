@@ -17,22 +17,56 @@ class User(UserMixin, db.Model):
         LOCAL = 'local'
         OAUTH = 'oauth'
 
+    class LEVEL:
+        USER = 1
+        SUPERVISOR = 3
+        ADMIN = 5
+
+        ls = ["GEBRUIKER", "BEGELEIDER", "ADMINISTRATOR"]
+
+        @staticmethod
+        def i2s(i):
+            if i == 1:
+                return User.LEVEL.ls[0]
+            elif i == 3:
+                return User.LEVEL.ls[1]
+            if i == 5:
+                return User.LEVEL.ls[2]
+
+    @staticmethod
+    def get_zipped_levels():
+        return zip(["1", "3", "5"], User.LEVEL.ls)
+
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(256), index=True)
     username = db.Column(db.String(256), index=True, unique=True)
     first_name = db.Column(db.String(256), index=True)
     last_name = db.Column(db.String(256), index=True)
     password_hash = db.Column(db.String(256))
-    is_admin = db.Column(db.Boolean, default=False)
+    level = db.Column(db.Integer)
     user_type = db.Column(db.String(256))
     last_login = db.Column(db.DateTime())
     settings = db.relationship('Settings', cascade='all, delete', backref='user', lazy='dynamic')
 
+    @property
     def is_local(self):
         return self.user_type == User.USER_TYPE.LOCAL
 
+    @property
     def is_oauth(self):
         return self.user_type == User.USER_TYPE.OAUTH
+
+    @property
+    def is_user(self):
+        return self.level >= User.LEVEL.USER
+
+    @property
+    def is_supervisor(self):
+        return self.level >= User.LEVEL.SUPERVISOR
+
+    @property
+    def is_admin(self):
+        return self.level >= User.LEVEL.ADMIN
 
     @property
     def password(self):
@@ -62,7 +96,7 @@ class User(UserMixin, db.Model):
 
     def ret_dict(self):
         return {'id':self.id, 'email':self.email, 'username':self.username, 'first_name':self.first_name, 'last_name':self.last_name,
-                'is_admin': self.is_admin, 'user_type': self.user_type, 'last_login': self.last_login}
+                'level': User.LEVEL.i2s(self.level), 'user_type': self.user_type, 'last_login': self.last_login, 'cb': ''}
 
 # Set up user_loader
 @login_manager.user_loader

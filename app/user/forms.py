@@ -2,7 +2,7 @@
 #app/auth/forms.py
 
 from flask_wtf import FlaskForm
-from wtforms import PasswordField, StringField, BooleanField, ValidationError, IntegerField
+from wtforms import PasswordField, StringField, BooleanField, ValidationError, IntegerField, SelectField
 from wtforms.validators import DataRequired, Email, EqualTo
 from wtforms.widgets import HiddenInput
 
@@ -14,7 +14,8 @@ class EditForm(FlaskForm):
     last_name = StringField('Last name')
     username = StringField('Username', validators=[DataRequired()])
     email = StringField('Email', validators=[Email()])
-    is_admin = BooleanField('Is admin')
+    #level = IntegerField('Niveau', default=User.LEVEL.USER)
+    level = SelectField('Niveau', validators=[DataRequired()], choices=User.get_zipped_levels())
     id = IntegerField(widget=HiddenInput())
 
 class AddForm(EditForm):
@@ -29,7 +30,7 @@ class ViewForm(FlaskForm):
     last_name = StringField('Last name', render_kw={'readonly':''})
     username = StringField('Username', render_kw={'readonly':''})
     email = StringField('Email', render_kw={'readonly':''})
-    is_admin = BooleanField('Is admin', render_kw={'disabled':'disabled'})
+    level = StringField('Niveau', render_kw={'readonly':''}, filters=[lambda i : User.LEVEL.i2s(i)])
     id = IntegerField(widget=HiddenInput())
 
 class ChangePasswordForm(FlaskForm):

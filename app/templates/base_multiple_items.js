@@ -7,8 +7,8 @@ function handle_floating_menu(menu_id) {
     console.log(menu_id + ' : ' + row_id);
     for(var i=0; i < floating_menu.length; i++) {
         if(floating_menu[i].menu_id == menu_id) {
-            if(floating_menu[i].flags.includes('confirm_before_delete')) {
-                confirm_before_delete(row_id);
+            if(floating_menu[i].flags.includes('confirm_before_delete_single_id')) {
+                confirm_before_delete_single_id(row_id);
             } else if(floating_menu[i].flags.includes('id_required')) {
                 window.location.href=Flask.url_for('{{config.subject}}.' + floating_menu[i].route, {'id':row_id});
             } else {
@@ -19,12 +19,24 @@ function handle_floating_menu(menu_id) {
 }
 
 //Before removing an entry, a confirm-box is shown.
-function confirm_before_delete(id) {
+function confirm_before_delete_single_id(id) {
     var message = "Are you sure want to delete this " + '{{config.subject}}' + "?";
     if ('{{ config.delete_message }}') {message='{{ config.delete_message }}';}
     bootbox.confirm(message, function(result) {
         if (result) {
             window.location.href = Flask.url_for('{{config.subject}}' + ".delete", {'id' : id})
+        }
+    });
+}
+
+//Before removing multiple entries, a confirm-box is shown.
+function confirm_before_delete() {
+    var message = "Are you sure want to delete this " + '{{config.subject}}' + "?";
+    if ('{{ config.delete_message }}') {message='{{ config.delete_message }}';}
+    bootbox.confirm(message, function(result) {
+        if (result) {
+            document.getElementById('delete_form').submit();
+            //window.location.href = Flask.url_for('{{config.subject}}' + ".delete")
         }
     });
 }
@@ -78,8 +90,8 @@ $(document).ready(function() {
        },
        pagingType: "full_numbers",
        lengthMenu: [20, 50, 100, 200],
-       "buttons": [
-        {extend: 'pdfHtml5', text: 'Exporteer naar PDF'}],
+       "buttons": [{extend: 'pdfHtml5', text: 'Exporteer naar PDF'}],
+       "order" : [[1, 'asc']],
        "columns": [
        {% for h in config.template %}
             {% if h.name=='cb' %}

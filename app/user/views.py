@@ -58,7 +58,7 @@ def add(id=-1):
                         first_name=form.first_name.data,
                         last_name=form.last_name.data,
                         password=form.password.data,
-                        is_admin=form.is_admin.data,
+                        level=form.level.data,
                         user_type = User.USER_TYPE.LOCAL
                     )
         db.session.add(user)
@@ -97,13 +97,31 @@ def view(id):
 
 #delete a user
 @user.route('/user/delete/<int:id>', methods=['GET', 'POST'])
+@user.route('/user/delete/', methods=['GET', 'POST'])
 @admin_required
 @login_required
-def delete(id):
-    user = User.query.get_or_404(id)
-    db.session.delete(user)
-    db.session.commit()
-    #flash('You have successfully deleted the user.')
+def delete(id=-1):
+    try:
+        if id == 1:
+            log.error('cannot delete this user')
+            flash('Kan de gebruiker admin niet verwijderen')
+        elif id > -1:
+            user = User.query.get_or_404(id)
+            db.session.delete(user)
+            db.session.commit()
+        else:
+            cb_id_list = request.form.getlist('cb')
+            for id in cb_id_list:
+                if int(id) == 1:
+                    log.error('cannot delete this user')
+                    flash('Kan de gebruiker admin niet verwijderen')
+                    continue
+                user = User.query.get_or_404(int(id))
+                db.session.delete(user)
+            db.session.commit()
+    except Exception as e:
+        log.error('Could not delete user : {}'.format(e))
+        flash('Kan de gebruikers niet verwijderen')
     return redirect(url_for('user.users'))
 
 @user.route('/user/change-password/<int:id>', methods=['GET', 'POST'])

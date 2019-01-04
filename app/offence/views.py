@@ -49,7 +49,7 @@ def delete():
     except Exception as e:
         log.error('Could not delete offence : {}'.format(e))
         flash('Kan de opmerkingen niet verwijderen')
-        
+
     #The following line is required only to build the filter-fields on the page.
     _filter, _filter_form, a,b, c = build_filter(tables_configuration['offence'])
     return render_template('base_multiple_items.html',

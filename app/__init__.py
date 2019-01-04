@@ -33,7 +33,7 @@ class IntegerConverter(OrigIntegerConvertor):
 
 def create_admin(db):
     from app.models import User
-    admin = User(username='admin', password='admin', is_admin=True)
+    admin = User(username='admin', password='admin', level = User.LEVEL.ADMIN)
     db.session.add(admin)
     db.session.commit()
 

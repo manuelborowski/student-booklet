@@ -37,7 +37,7 @@ def login():
         # check whether user exists in the database and whether
         # the password entered matches the password in the database
         user = User.query.filter_by(username=form.username.data).first()
-        if user is not None and user.is_local() and user.verify_password(form.password.data):
+        if user is not None and user.is_local and user.verify_password(form.password.data):
             login_user(user)
             log.info('LOCAL user {} logged in'.format(user.username))
             user.last_login = datetime.datetime.now()
