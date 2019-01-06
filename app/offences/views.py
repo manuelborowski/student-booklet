@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from flask import render_template, url_for, request, flash
-from flask_login import login_required
+from flask_login import login_required, current_user
 
-from .. import db, log, app, admin_required
+from .. import db, log, app
 from . import offences
 from ..models import Offence, Type, Measure
 from ..forms import OffenceForm
@@ -18,7 +18,8 @@ def inject_schoolyear():
 @offences.route('/offences/data', methods=['GET', 'POST'])
 @login_required
 def source_data():
-    return get_ajax_table(tables_configuration['offence'])
+    only_checkbox_for = current_user.username if current_user.is_strict_user else None
+    return get_ajax_table(tables_configuration['offence'], only_checkbox_for=only_checkbox_for)
 
 @offences.route('/offences', methods=['GET', 'POST'])
 @login_required
@@ -49,7 +50,6 @@ def show():
 
 @offences.route('/offences/delete', methods=['GET', 'POST'])
 @login_required
-@admin_required
 def delete():
     try:
         cb_id_list = request.form.getlist('cb')
@@ -70,7 +70,6 @@ def delete():
 
 @offences.route('/offences/edit', methods=['GET', 'POST'])
 @login_required
-@admin_required
 def edit():
     students = []
     offences = []

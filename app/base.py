@@ -117,22 +117,6 @@ def build_filter(table, paginate=True):
     #     value = check_string_in_form('category', request.values)
     #     if value:
     #         _filtered_list = _filtered_list.filter(Device.category == value)
-    # if 'status' in _filters_enabled:
-    #     _filter_forms['status'] = StatusFilter()
-    #     value = check_string_in_form('status', request.values)
-    #     if value:
-    #         _filtered_list = _filtered_list.filter(Asset.status == value)
-    # if 'supplier' in _filters_enabled:
-    #     _filter_forms['supplier'] = SupplierFilter()
-    #     value = check_string_in_form('supplier', request.values)
-    #     if value:
-    #         _filtered_list = _filtered_list.filter(Supplier.name == value)
-    # if 'device' in _filters_enabled:
-    #     _filter_forms['device'] = DeviceFilter()
-    #     value = check_string_in_form('device', request.values)
-    #     if value:
-    #         s = value.split('/')
-    #         _filtered_list = _filtered_list.filter(Device.brand==s[0].strip(), Device.type==s[1].strip())
 
     #search, if required
     #from template, take order_by and put in a list.  This is user later on, to get the columns in which can be searched
@@ -170,10 +154,6 @@ def build_filter(table, paginate=True):
 
     _filtered_count = _filtered_list.count()
     
-    #Measure and Type have to join here because they mess up the count
-    #if _model is Offence:
-    #    _filtered_list = _filtered_list.join(Measure).join(Type)
-
     #order, if required, first stage
     column_number = check_value_in_form('order[0][column]', request.values)
     if column_number:
@@ -199,15 +179,20 @@ def build_filter(table, paginate=True):
     return _filters_enabled,  _filter_forms, _filtered_list, _total_count, _filtered_count,
 
 
-def get_ajax_table(table):
+def get_ajax_table(table, only_checkbox_for=None):
     __filters_enabled,  _filter_forms, _filtered_list, _total_count, _filtered_count = build_filter(table)
     _filtered_dict = [i.ret_dict() for i in _filtered_list]
     for i in _filtered_dict:
         for h in table['href']:
             exec("i" + h['attribute'] + "= \"<a href=\\\"{}\\\">{}</a>\".format(url_for(" + h['route'] + ", id=i" + h['id'] + "), i" + h['attribute'] + ')')
         i['DT_RowId'] = i['id']
-        if 'cb' in i:
-            i['cb'] = "<input type='checkbox' class='cb_all' name='cb' value='{}'>".format(i['id'], i['id'])
+    if _filtered_dict and 'cb' in _filtered_dict[0]:
+        for i in _filtered_dict:
+            if only_checkbox_for:
+                if only_checkbox_for==i['teacher']['code']:
+                    i['cb'] = "<input type='checkbox' class='cb_all' name='cb' value='{}'>".format(i['id'], i['id'])
+            else:
+                i['cb'] = "<input type='checkbox' class='cb_all' name='cb' value='{}'>".format(i['id'], i['id'])
 
     # #order, if required, 2nd stage
     _template = table['template']
@@ -399,7 +384,6 @@ def filter_overview(teacher_id, dayhour_str, classgroup_id, lesson_id, changed_i
 
     #create a dummy classmoment
     classmoment = Classmoment(day=d, hour=h, schoolyear = get_global_setting_current_schoolyear(), teacher=teacher, lesson=lesson, classgroup=classgroup)
-    print(classmoment)
     return classmoment
 
 def filter_duplicates_out(in_list):

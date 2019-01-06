@@ -61,6 +61,10 @@ class User(UserMixin, db.Model):
         return self.level >= User.LEVEL.USER
 
     @property
+    def is_strict_user(self):
+        return self.level == User.LEVEL.USER
+
+    @property
     def is_supervisor(self):
         return self.level >= User.LEVEL.SUPERVISOR
 
@@ -143,7 +147,7 @@ class Student(db.Model):
 
     def ret_dict(self):
         return {'id':self.id, 'first_name':self.first_name, 'last_name': self.last_name, 'classgroup': self.classgroup.ret_dict(),
-                'full_name': '{} {}'.format(self.first_name, self.last_name),
+                'full_name': u'{} {}'.format(self.first_name, self.last_name),
                 'number' : Offence.query.join(Student).filter(Student.id == self.id).count()}
 
     # def log(self):

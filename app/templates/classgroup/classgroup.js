@@ -14,5 +14,23 @@ $(document).ready(function(){
             $(this).find('#id').attr('name', 'student_id');
         }
     });
+    $("#select_all").val("Iedereen");
+
 });
 
+function select_all_students() {
+    if ($("#select_all").val() == "Iedereen") {
+        $('figure').addClass('selected');
+        $('#students input').each(function(i){
+            console.log(i + ' ' + $(this).val());
+            $(this).attr('name', 'student_id');
+        });
+        $("#select_all").val("Niemand");
+    } else {
+        $('figure').removeClass('selected');
+        $('#students input').each(function(i){
+            $(this).attr('name', '');
+        });
+        $("#select_all").val("Iedereen");
+    }
+}

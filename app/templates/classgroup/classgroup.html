@@ -14,7 +14,7 @@
             <br/>
             <br/>
         </div>
-        <div class="container-fluid">
+        <div class="container-fluid" id="students">
         {% for s in students %}
             <figure class="imagecaption" style="text-align:center;">
                 <img src="../../static/photo/{{ s.photo }}" height="120" align="middle">
@@ -23,7 +23,11 @@
             </figure>
         {% endfor %}
         </div>
-        <input class="btn btn-default" id="dummy_offence" name="button" type="submit" value="Volgende" formaction="{{ url_for('classgroup.new_offence')}}">
+        <div class="btn-group" role="group" aria-label="...">
+            <input class="btn btn-default" name="button" type="submit" value="Volgende" formaction="{{ url_for('classgroup.new_offence')}}">
+            <input class="btn btn-default" id="select_all" value="Iedereen"  onclick="select_all_students()">
+        </div>
+
     </form>
 </div>
 {% endblock %}
