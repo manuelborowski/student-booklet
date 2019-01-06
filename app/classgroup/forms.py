@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, DateField, SelectField, DecimalField,  IntegerField, BooleanField
-from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from wtforms.validators import DataRequired, ValidationError
-#from .. import _
+from wtforms import SelectField
 
-from ..models import Teacher, Classgroup, Classmoment, Offence, Type, Measure, Lesson
+from ..models import Teacher, Classgroup, Classmoment, Lesson
 
 
 class ViewForm(FlaskForm):

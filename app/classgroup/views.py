@@ -64,6 +64,7 @@ def show():
             db.session.commit()
     except Exception as e:
         flash('Kan overtredingen niet opslaan')
+        log.error('Cannot save remarks {}'.format(e))
     form, students = filter_classgroup()
     return render_template('classgroup/classgroup.html', form=form, students=students)
 
@@ -75,9 +76,7 @@ def new_offence():
     for s in request.form.getlist('student_id'):
         student = Student.query.filter(Student.id == int(s)).first()
         if student:
-            print('geselecteeerd : {} {}'.format(student.first_name, student.last_name))
             students.append(student)
-
     form_filter, not_used_student = filter_classgroup()
     form_offence = OffenceForm()
     return render_template('offence/offence.html',

@@ -48,7 +48,7 @@ def login():
                 flash('Fout in database : {}'.format(e))
                 return redirect(url_for('auth.login'))
             # Ok, continue
-            return redirect(url_for('overview.show'))
+            return redirect(url_for('classgroup.show'))
         else:
             flash('Ongeldige gebruikersnaam of paswoord')
             log.error("Invalid username/password")
@@ -84,7 +84,7 @@ def smartschool_profile(token):
             flash('Fout in database : {}'.format(e))
             return redirect(url_for('auth.login'))
         #Ok, continue
-        return redirect(url_for('overview.show'))
+        return redirect(url_for('classgroup.show'))
 
     flash('Geen geldige smartschoolaccount, alleen leerkrachten, directie of personeel')
     log.error('Invalid smartschool account : {}'.format(profile['username']))
