@@ -4,11 +4,12 @@
 from flask import render_template, redirect, url_for, request, flash, send_file, session
 from flask_login import login_required, current_user
 
-from .forms import ViewForm, OffenceForm
+from .forms import ViewForm
 from .. import db, log
 from . import overview
 from ..models import Classgroup, Student, Offence, Type, Measure, Teacher, Classmoment, Lesson
 from ..base import get_global_setting_current_schoolyear, filter_overview, filter_duplicates_out
+from ..forms import OffenceForm
 
 from ..documents import get_doc_path
 import os, datetime
@@ -88,6 +89,11 @@ def new_offence():
             students.append(student)
 
     form_filter, not_used_student = filter_classgroup()
-    form_offence = OffenceForm(measure='test')
-    return render_template('overview/offence.html', form_filter=form_filter, form_offence=form_offence, students=students)
+    form_offence = OffenceForm()
+    return render_template('offence/offence.html',
+                           redirect_url = url_for('overview.show'),
+                           save_filters=form_filter,
+                           save_offences=None,
+                           form_offence=form_offence,
+                           students=students)
 

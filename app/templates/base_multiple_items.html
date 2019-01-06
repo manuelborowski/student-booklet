@@ -56,13 +56,12 @@
 
 {% endif %}
       </form >
-      <form method ="post" id="delete_form" action="{{ url_for(config.subject + '.delete') }}">
-      {% if current_user.is_admin %}
+      <form method ="post" id="button_form">
       <hr />
       <div class="btn-group" role="group" aria-label="...">
            <input class="btn btn-default" id="delete" name="delete" value="Verwijder" onclick="confirm_before_delete()">
+           <input class="btn btn-default" id="edit" name="edit" value="Pas aan"  onclick="edit_offences()">
       </div>
-      {% endif %}
       <table cellspacing="0" class="table table-striped table-bordered " id="datatable" width="100%">
           <thead><tr>
               {% for h in config.template %}

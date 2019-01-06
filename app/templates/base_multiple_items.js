@@ -35,10 +35,16 @@ function confirm_before_delete() {
     if ('{{ config.delete_message }}') {message='{{ config.delete_message }}';}
     bootbox.confirm(message, function(result) {
         if (result) {
-            document.getElementById('delete_form').submit();
-            //window.location.href = Flask.url_for('{{config.subject}}' + ".delete")
+            document.getElementById('button_form').action = Flask.url_for('{{config.subject}}' + ".delete");
+            document.getElementById('button_form').submit();
         }
     });
+}
+
+//Before removing multiple entries, a confirm-box is shown.
+function edit_offences() {
+    document.getElementById('button_form').action = Flask.url_for('{{config.subject}}' + ".edit");
+    document.getElementById('button_form').submit();
 }
 
 

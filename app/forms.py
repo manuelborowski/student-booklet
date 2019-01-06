@@ -2,8 +2,9 @@
 #app/forms.py
 
 from flask_wtf import FlaskForm
-from wtforms import SelectField
-from models import Classgroup, Teacher
+from wtforms import SelectField, IntegerField
+from wtforms.widgets import HiddenInput
+from models import Classgroup, Teacher, Type, Measure
 
 
 class ClassgroupFilter(FlaskForm):
@@ -20,32 +21,7 @@ class TeacherFilter(FlaskForm):
 
     teacher = SelectField('')
 
-
-# class StatusFilter(FlaskForm):
-#     def __init__(self, *args, **kwargs):
-#         super(StatusFilter, self).__init__(*args, **kwargs)
-#         self.status.choices=zip(Asset.Status.get_list_with_empty(), Asset.Status.get_list_with_empty())
-#
-#     status = SelectField('')
-#
-# class SupplierFilter(FlaskForm):
-#     def __init__(self, *args, **kwargs):
-#         super(SupplierFilter, self).__init__(*args, **kwargs)
-#         sl = Supplier.query.order_by(Supplier.name).all()
-#         sl.insert(0, '')
-#         self.supplier.choices=zip(sl, sl)
-#
-#     supplier = SelectField('')
-#
-# class DeviceFilter(FlaskForm):
-#     def __init__(self, *args, **kwargs):
-#         super(DeviceFilter, self).__init__(*args, **kwargs)
-#         dl = Device.query.order_by(Device.brand).all()
-#         dl.insert(0, '')
-#         self.device.choices=zip(dl, dl)
-#
-#     device = SelectField('')
-
-class NonValidatingSelectFields(SelectField):
-    def pre_validate(self, form):
-        pass
+class OffenceForm(FlaskForm):
+    type = SelectField('Overtreding', choices=Type.get_choices_list())
+    measure = SelectField('Maatregel', choices=Measure.get_choices_list())
+    id = IntegerField(widget=HiddenInput())

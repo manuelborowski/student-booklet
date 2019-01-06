@@ -1,59 +1,60 @@
-<!-- app/templates/auth/user.html -->
-<!-- this form is used for adding a user as well for editing a user, hence the if-clause -->
-
 {% import "bootstrap/wtf.html" as wtf %}
-{% extends "base_single_item.html" %}
+{% import "bootstrap/utils.html" as utils %}
+{% import "mywtf.html" as mywtf %}
+{% extends "base.html" %}
 
-{% block content3 %}
-    {{ wtf.form_field(form.name) }}
-    {{ wtf.form_field(form.location) }}
-    {{ wtf.form_field(form.qr_code) }}
-    {{ wtf.form_field(form.status) }}
-{% if role == 'edit' or role == 'add' %}
-    {{ wtf.form_field(form.purchase) }}
-{% endif %}
-    {{ wtf.form_field(form.serial) }}
-{% if role == 'view' %}
-    {{ wtf.form_field(form.since) }}
-    {{ wtf.form_field(form.value) }}
-    {{ wtf.form_field(form.supplier) }}
-    {{ wtf.form_field(form.category) }}
-
-    {{ wtf.form_field(form.brand) }}
-    {{ wtf.form_field(form.type) }}
-    {{ wtf.form_field(form.power) }}
-    {{ wtf.form_field(form.ce) }}
-
-    <div class="input-group">
-        {{ wtf.form_field(form.risk_analysis) }}
-        <div class="input-group-btn">
-            <input class="btn btn-default" type="submit" name="risk_analysis_download" formaction="{{ url_for('asset.download') }}" value="Download">
+{% block content2 %}
+<div class="content-section">
+    <form action={{redirect_url}} method="post" class="form" role="form" id="filter_form" enctype=multipart/form-data>
+        <div class="hidden">
+            {% if save_filters %}
+                {{ wtf.form_field(save_filters.teacher) }}
+                {{ wtf.form_field(save_filters.classgroup) }}
+                {{ wtf.form_field(save_filters.dayhour) }}
+                {{ wtf.form_field(save_filters.lesson) }}
+                <input type="hidden" id="change_id" name="change_id" value="teacher">
+            {% endif %}
+            {% if save_offences %}
+                {% for o in save_offences %}
+                    <input type="hidden" name="offence_id" value="{{ o.id|string }}">
+                {% endfor %}
+            {% endif %}
         </div>
-    </div>
-
-    <div class="input-group">
-        {{ wtf.form_field(form.manual) }}
-        <div class="input-group-btn">
-            <input class="btn btn-default" type="submit" name="manual_download" formaction="{{ url_for('asset.download') }}" value="Download">
+        <div class="container-fluid">
+        {% for s in students %}
+            <figure class="imagecaption" style="text-align:center;">
+                <img src="../../static/photo/{{ s.photo }}" height="120">
+                <figcaption>{{s.first_name}}<br>{{s.last_name}}</figcaption>
+                <input type="hidden" id="id" name="student_id" value="{{ s.id|string }}">
+            </figure>
+        {% endfor %}
         </div>
-    </div>
-    <div class="input-group">
-        {{ wtf.form_field(form.safety_information) }}
-        <div class="input-group-btn">
-            <input class="btn btn-default" type="submit" name="safety_information_download" formaction="{{ url_for('asset.download') }}" value="Download">
+        <div class="container-fluid">
+            <div class="form-group row">
+                {{ mywtf.select_multiple(form_offence.type, grid_class = 'col-sm-5') }}
+                {{ mywtf.select_multiple(form_offence.measure, grid_class = 'col-sm-5') }}
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-5">
+                  <label for="comment_offence">Notitie bij opmerking</label>
+                  <textarea class="form-control" rows="5" id="comment_offence" name="comment_offence"></textarea>
+                </div>
+                <div class="col-sm-5">
+                  <label for="comment_measure">Notitie bij maatregel</label>
+                  <textarea class="form-control" rows="5" id="comment_measure" name="comment_measure"></textarea>
+                </div>
+            </div>
         </div>
-    </div>
+        <br/>
+        <input class="btn btn-default" id="dummy_offence" name="button" type="submit" value="Bewaar">
+         <a class="btn btn-default" href="javascript:history.back()">Annuleer</a>
+    </form>
+</div>
+{% endblock %}
 
-    <div class="input-group">
-        {{ wtf.form_field(form.photo) }}
-        <div class="input-group-btn">
-            <input class="btn btn-default" type="submit" name="photo_download" formaction="{{ url_for('asset.download') }}" value="Download">
-        </div>
-    </div>
+{% block scripts %}
+{{ super() }}
+<script>
+</script>
 
-    <img src="../../static/photo/{{ form.photo.data }}" height="377">
-    </br>
-    </br>
-
-{% endif %}
 {% endblock %}
