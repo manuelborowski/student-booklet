@@ -26,7 +26,7 @@
           <ul class="nav navbar-nav navbar-right">
               {% if current_user.is_authenticated %}
                   <li><a href="{{ url_for('overview.show') }}">Overzicht</a></li>
-                  <li><a href="{{ url_for('offence.offences') }}">Opmerkingen</a></li>
+                  <li><a href="{{ url_for('offences.show') }}">Opmerkingen</a></li>
                   {% if current_user.is_admin %}
                       <li><a href="{{ url_for('user.users') }}">Gebruikers</a></li>
                       <li><a href="{{ url_for('settings.show') }}">Instellingen</a></li>

@@ -8,8 +8,8 @@ tables_configuration = {
     'offence' : {
         'model' : Offence,
         'title' : 'Opmerking',
-        'route' : 'offence.offences',
-        'subject' :'offence',
+        'route' : 'offences.show',
+        'subject' :'offences',
         'delete_message' : 'Wilt u deze opmerking(en) verwijderen?',
         'template' : [{'name': 'cb', 'data':'cb', 'order_by': Offence.timestamp, 'width': '2%'},
                       {'name': 'Datum', 'data':'date', 'order_by': Offence.timestamp, 'width': '12%'},

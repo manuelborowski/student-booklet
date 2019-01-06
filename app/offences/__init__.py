@@ -3,6 +3,6 @@
 
 from flask import Blueprint
 
-offence = Blueprint('offence', __name__)
+offences = Blueprint('offences', __name__)
 
 from . import views

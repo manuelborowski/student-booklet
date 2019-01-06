@@ -1,34 +1,28 @@
 # -*- coding: utf-8 -*-
-# app/asset/views.py
 
-from flask import render_template, redirect, url_for, request, flash, send_file, session
-from flask_login import login_required, current_user
+from flask import render_template, url_for, request, flash
+from flask_login import login_required
 
-#from .forms import AddForm, EditForm, ViewForm
 from .. import db, log, app, admin_required
-from . import offence
-from ..models import Offence, Type, Measure, Teacher, Classgroup, Lesson
+from . import offences
+from ..models import Offence, Type, Measure
 from ..forms import OffenceForm
 from ..base import build_filter, get_ajax_table, get_global_setting_current_schoolyear
 from ..tables_config import  tables_configuration
-from ..documents import download_single_doc
 
-import cStringIO, csv, re
-
-from werkzeug.datastructures import FileStorage
-
+#This will make the variable 'schoolyear' default available in all templates
 @app.context_processor
 def inject_schoolyear():
     return dict(schoolyear=get_global_setting_current_schoolyear())
 
-@offence.route('/offence/data', methods=['GET', 'POST'])
+@offences.route('/offences/data', methods=['GET', 'POST'])
 @login_required
 def source_data():
     return get_ajax_table(tables_configuration['offence'])
 
-@offence.route('/offence', methods=['GET', 'POST'])
+@offences.route('/offences', methods=['GET', 'POST'])
 @login_required
-def offences():
+def show():
     if 'button' in request.form and request.form['button'] == 'Bewaar':
         try:
             #iterate over the offences, delete the old types and measures and attach the new
@@ -53,7 +47,7 @@ def offences():
                            filter=_filter, filter_form=_filter_form,
                            config = tables_configuration['offence'])
 
-@offence.route('/offence/delete', methods=['GET', 'POST'])
+@offences.route('/offences/delete', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def delete():
@@ -74,7 +68,7 @@ def delete():
                            filter=_filter, filter_form=_filter_form,
                            config = tables_configuration['offence'])
 
-@offence.route('/offence/edit', methods=['GET', 'POST'])
+@offences.route('/offences/edit', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def edit():
@@ -93,7 +87,7 @@ def edit():
 
     form_offence = OffenceForm()
     return render_template('offence/offence.html',
-                           redirect_url = url_for('offence.offences'),
+                           redirect_url = url_for('offences.show'),
                            save_filters=None,
                            save_offences=offences,
                            form_offence=form_offence,

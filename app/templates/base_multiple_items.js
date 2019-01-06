@@ -20,7 +20,7 @@ function handle_floating_menu(menu_id) {
 
 //Before removing an entry, a confirm-box is shown.
 function confirm_before_delete_single_id(id) {
-    var message = "Are you sure want to delete this " + '{{config.subject}}' + "?";
+    var message = "Are you sure want to delete this?";
     if ('{{ config.delete_message }}') {message='{{ config.delete_message }}';}
     bootbox.confirm(message, function(result) {
         if (result) {
@@ -31,7 +31,7 @@ function confirm_before_delete_single_id(id) {
 
 //Before removing multiple entries, a confirm-box is shown.
 function confirm_before_delete() {
-    var message = "Are you sure want to delete this " + '{{config.subject}}' + "?";
+    var message = "Are you sure want to delete this?";
     if ('{{ config.delete_message }}') {message='{{ config.delete_message }}';}
     bootbox.confirm(message, function(result) {
         if (result) {
@@ -97,7 +97,7 @@ $(document).ready(function() {
        pagingType: "full_numbers",
        lengthMenu: [20, 50, 100, 200],
        "buttons": [{extend: 'pdfHtml5', text: 'Exporteer naar PDF'}],
-       "order" : [[1, 'asc']],
+       "order" : [[1, 'desc']],
        "columns": [
        {% for h in config.template %}
             {% if h.name=='cb' %}
