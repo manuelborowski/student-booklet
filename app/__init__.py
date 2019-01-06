@@ -90,8 +90,8 @@ def create_app(config_name):
         #uncheck when migrating database
         #return app
 
-        from .overview import overview as overview_blueprint
-        app.register_blueprint(overview_blueprint)
+        from .classgroup import classgroup as classgroup_blueprint
+        app.register_blueprint(classgroup_blueprint)
 
         from .auth import auth as auth_blueprint
         app.register_blueprint(auth_blueprint)

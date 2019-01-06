@@ -1,13 +1,10 @@
-<!-- app/templates/auth/user.html -->
-<!-- this form is used for adding a user as well for editing a user, hence the if-clause -->
-
 {% import "bootstrap/wtf.html" as wtf %}
 {% import "bootstrap/utils.html" as utils %}
 {% extends "base.html" %}
 
 {% block content2 %}
 <div class="content-section">
-    <form action="{{ url_for('overview.show')}}" method="post" class="form" role="form" id="filter_form" enctype=multipart/form-data>
+    <form action="{{ url_for('classgroup.show')}}" method="post" class="form" role="form" id="filter_form" enctype=multipart/form-data>
         <div id="filter_group">
             {{ wtf.form_field(form.teacher, form_type="horizontal", horizontal_columns=("sm", 1, 1)) }}
             {{ wtf.form_field(form.dayhour, form_type="horizontal", horizontal_columns=("sm", 1, 1)) }}
@@ -26,12 +23,12 @@
             </figure>
         {% endfor %}
         </div>
-        <input class="btn btn-default" id="dummy_offence" name="button" type="submit" value="Volgende" formaction="{{ url_for('overview.new_offence')}}">
+        <input class="btn btn-default" id="dummy_offence" name="button" type="submit" value="Volgende" formaction="{{ url_for('classgroup.new_offence')}}">
     </form>
 </div>
 {% endblock %}
 
 {% block scripts %}
 {{ super() }}
-<script type="text/javascript" > {% include "overview/overview.js" %}</script>
+<script type="text/javascript" > {% include "classgroup/classgroup.js" %}</script>
 {% endblock %}

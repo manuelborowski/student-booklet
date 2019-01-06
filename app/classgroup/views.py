@@ -1,23 +1,15 @@
 # -*- coding: utf-8 -*-
-# app/asset/views.py
 
-from flask import render_template, redirect, url_for, request, flash, send_file, session
-from flask_login import login_required, current_user
+from flask import render_template, url_for, request, flash
+from flask_login import login_required
 
 from .forms import ViewForm
 from .. import db, log
-from . import overview
+from . import classgroup
 from ..models import Classgroup, Student, Offence, Type, Measure, Teacher, Classmoment, Lesson
 from ..base import get_global_setting_current_schoolyear, filter_overview, filter_duplicates_out
 from ..forms import OffenceForm
-
-from ..documents import get_doc_path
-import os, datetime
-
-#from ..base import build_filter, get_ajax_table, get_setting_inc_index_asset_name
-#from ..tables_config import  tables_configuration
-
-import cStringIO, csv, re
+import datetime
 
 def filter_classgroup():
     try :
@@ -43,8 +35,7 @@ def filter_classgroup():
         pass
     return form, students
 
-#show an overview of a classgroup
-@overview.route('/overview', methods=['GET', 'POST'])
+@classgroup.route('/classgroup', methods=['GET', 'POST'])
 @login_required
 def show():
     try:
@@ -74,11 +65,10 @@ def show():
     except Exception as e:
         flash('Kan overtredingen niet opslaan')
     form, students = filter_classgroup()
-    return render_template('overview/overview.html', form=form, students=students)
+    return render_template('classgroup/classgroup.html', form=form, students=students)
 
 
-#a number of students are selected
-@overview.route('/overview/new_offence', methods=['GET', 'POST'])
+@classgroup.route('/classgroup/new_offence', methods=['GET', 'POST'])
 @login_required
 def new_offence():
     students = []
@@ -91,7 +81,7 @@ def new_offence():
     form_filter, not_used_student = filter_classgroup()
     form_offence = OffenceForm()
     return render_template('offence/offence.html',
-                           redirect_url = url_for('overview.show'),
+                           redirect_url = url_for('classgroup.show'),
                            save_filters=form_filter,
                            save_offences=None,
                            form_offence=form_offence,
