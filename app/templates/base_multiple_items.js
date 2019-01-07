@@ -29,24 +29,38 @@ function confirm_before_delete_single_id(id) {
     });
 }
 
+//If one or more checkboxes are checked, return true.  Else display warning and return false
+function is_checkbox_selected() {
+    var nbr_checked = 0;
+    $(".cb_all").each(function(i){if(this.checked) {nbr_checked++;}});
+    if (nbr_checked==0) {
+        bootbox.alert("U hebt niets geselecteerd, probeer nogmaals");
+        return false;
+    } else {
+        return true;
+    }
+}
+
 //Before removing multiple entries, a confirm-box is shown.
 function confirm_before_delete() {
-    var message = "Are you sure want to delete this?";
-    if ('{{ config.delete_message }}') {message='{{ config.delete_message }}';}
-    bootbox.confirm(message, function(result) {
-        if (result) {
-            document.getElementById('button_form').action = Flask.url_for('{{config.subject}}' + ".delete");
-            document.getElementById('button_form').submit();
-        }
-    });
+    if (is_checkbox_selected()) {
+        var message = "Bent u zeker dat u dit wilt verwijderen?";
+        if ('{{ config.delete_message }}') {message='{{ config.delete_message }}';}
+        bootbox.confirm(message, function(result) {
+            if (result) {
+                document.getElementById('button_form').action = Flask.url_for('{{config.subject}}' + ".delete");
+                document.getElementById('button_form').submit();
+            }
+        });
+    }
 }
 
-//Before removing multiple entries, a confirm-box is shown.
 function edit_offences() {
-    document.getElementById('button_form').action = Flask.url_for('{{config.subject}}' + ".edit");
-    document.getElementById('button_form').submit();
+    if (is_checkbox_selected()) {
+        document.getElementById('button_form').action = Flask.url_for('{{config.subject}}' + ".edit");
+        document.getElementById('button_form').submit();
+    }
 }
-
 
 $(document).ready(function() {
     //The clear button of the filter is pushed

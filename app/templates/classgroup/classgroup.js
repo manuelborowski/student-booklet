@@ -14,23 +14,22 @@ $(document).ready(function(){
             $(this).find('#id').attr('name', 'student_id');
         }
     });
-    $("#select_all").val("Iedereen");
+    $("#select_all").html("Iedereen");
 
 });
 
 function select_all_students() {
-    if ($("#select_all").val() == "Iedereen") {
+    if ($("#select_all").html() == "Iedereen") {
         $('figure').addClass('selected');
         $('#students input').each(function(i){
-            console.log(i + ' ' + $(this).val());
             $(this).attr('name', 'student_id');
         });
-        $("#select_all").val("Niemand");
+        $("#select_all").html("Niemand");
     } else {
         $('figure').removeClass('selected');
         $('#students input').each(function(i){
             $(this).attr('name', '');
         });
-        $("#select_all").val("Iedereen");
+        $("#select_all").html("Iedereen");
     }
 }

@@ -23,10 +23,8 @@
             </figure>
         {% endfor %}
         </div>
-        <div class="btn-group" role="group" aria-label="...">
-            <input class="btn btn-default" name="button" type="submit" value="Volgende" formaction="{{ url_for('classgroup.new_offence')}}">
-            <input class="btn btn-default" id="select_all" value="Iedereen"  onclick="select_all_students()">
-        </div>
+        <button class="btn btn-default" name="button" formaction="{{ url_for('classgroup.new_offence')}}">Volgende</button>
+        <a class="btn btn-default" type=button" id="select_all" onclick="select_all_students()">Iedereen</a>
 
     </form>
 </div>
