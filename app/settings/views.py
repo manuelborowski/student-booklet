@@ -6,11 +6,11 @@ from flask_login import login_required, current_user
 from ..base import get_global_setting_current_schoolyear, set_global_setting_current_schoolyear, get_setting_simulate_dayhour, set_setting_simulate_dayhour
 from . import settings
 from .. import db, app, log, admin_required
-from ..models import Settings, Classgroup, Student, Teacher, Lesson, Classmoment
+from ..models import Settings, Classgroup, Student, Teacher, Lesson, Classmoment, Offence, Type, Measure
 from flask_login import current_user
 from ..documents import  get_doc_path, get_doc_list, upload_doc, get_doc_select, get_doc_download, get_doc_reference
 
-import os, datetime
+import os, datetime, random
 import unicodecsv  as  csv
 import zipfile
 
@@ -276,5 +276,60 @@ def delete_timetable():
 
     log.info('Deleted timetable')
     flash("Lesrooster van jaar {} is gewist".format(schoolyear))
+    return redirect(url_for('settings.show'))
+
+offence_dates = [
+    ['5/1', '15/1', '16/1', '22/1', '24/1', '8/2', '1/3', '13/3', '15/3'],
+    ['5/1', '15/1', '16/1', '22/1', '24/1', '8/2', '1/3', '13/3'],
+    ['5/1', '15/1', '16/1', '22/1', '24/1', '8/2', '9/2', '13/3', '15/3', '19/3', '21/3'],
+    ['5/1', '15/1', '16/1', '22/1', '24/1', '8/2', '9/2', '1/3'],
+    ['5/1', '15/1', '16/1', '22/1', '24/1', '8/2', '9/2', '1/3', '2/3'],
+    ['5/1', '15/1', '16/1', '22/1', '24/1', '8/2', '9/2', '10/2', '11/3', '19/3', '21/3'],
+    ['5/1', '15/1', '16/1', '22/1', '24/1', '8/2', '10/2', '15/2', '16/2', '23/3', '27/3'],
+]
+
+@settings.route('/settings/add_test_students', methods=['GET', 'POST'])
+@admin_required
+@login_required
+def add_test_students():
+    schoolyear = get_global_setting_current_schoolyear()
+    random.seed()
+    try:
+        #fetch the first classmoment
+        classmoment = Classmoment.query.join(Classgroup).join(Lesson).join(Teacher).first()
+        if classmoment:
+            students = Student.query.filter(Student.first_name.like('TEST%'),
+                                            Student.last_name.like('TEST%'), Student.schoolyear==schoolyear).all()
+            for s in students:
+                #delete students/...
+                db.session.delete(s)
+            students = []
+            for i, dates in enumerate(offence_dates):
+                student = Student(first_name='TEST{}'.format(i), last_name='TEST{}'.format(i), schoolyear=schoolyear,
+                                  classgroup=classmoment.classgroup)
+                db.session.add(student)
+                students.append(student)
+                for d in dates:
+                    h = random.randint(10, 16)
+                    m = random.randint(1, 50)
+                    timestamp = datetime.datetime.strptime('{}/2018 {}:{}'.format(d, h, m), '%d/%m/%Y %H:%M')
+                    offence = Offence(student=student, classgroup=s.classgroup, timestamp=timestamp,
+                                      lesson=classmoment.lesson, teacher=classmoment.teacher, measure_note='', type_note='')
+                    t = random.randint(0, 5)
+                    m = random.randint(0, 4)
+                    type = Type(type=t, offence=offence)
+                    measure = Measure(measure=m, offence=offence)
+                    db.session.add(type)
+                    db.session.add(measure)
+                    db.session.add(offence)
+        db.session.commit()
+
+        pass
+    except Exception as e:
+        log.error('Could not add test students error {}'.format(e))
+        flash("Kan test studenten voor jaar {} niet toevoegen".format(schoolyear))
+
+    log.info('Added test students/offences')
+    flash("Test studenten toegevoegd voor jaar {} ".format(schoolyear))
     return redirect(url_for('settings.show'))
 

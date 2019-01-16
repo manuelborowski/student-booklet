@@ -5,10 +5,12 @@ from flask_login import login_required, current_user
 
 from .. import db, log, app
 from . import offences
-from ..models import Offence, Type, Measure
+from ..models import Offence, Type, Measure, Student
 from ..forms import OffenceForm
 from ..base import build_filter, get_ajax_table, get_global_setting_current_schoolyear
 from ..tables_config import  tables_configuration
+
+import datetime
 
 #This will make the variable 'schoolyear' default available in all templates
 @app.context_processor

@@ -301,6 +301,17 @@ class Teacher(db.Model):
     def ret_dict(self):
         return {'id':self.id, 'code':self.code}
 
+class ExtraMeasure(db.Model):
+    __tablename__ = 'extra_measures'
+
+    id = db.Column(db.Integer, primary_key=True)
+    note = db.Column(db.String(1024), default='')
+    offences = db.relationship('Offence', cascade='all, delete', backref='extra_measure', lazy='dynamic')
+
+    def ret_dict(self):
+        return {'id':self.id, 'note':self.note}
+
+
 class Offence(db.Model):
     __tablename__ = 'offences'
 
@@ -309,8 +320,8 @@ class Offence(db.Model):
         return '-'.join(date.split('-')[::-1])
 
     id = db.Column(db.Integer, primary_key=True)
-    type_note = db.Column(db.String(1024))
-    measure_note = db.Column(db.String(1024))
+    type_note = db.Column(db.String(1024), default='')
+    measure_note = db.Column(db.String(1024), default='')
     timestamp = db.Column(db.DateTime(timezone=True), server_default=func.now())
     student_id = db.Column(db.Integer, db.ForeignKey('students.id', ondelete='CASCADE'))
     lesson_id = db.Column(db.Integer, db.ForeignKey('lessons.id', ondelete='CASCADE'))
@@ -318,6 +329,9 @@ class Offence(db.Model):
     classgroup_id = db.Column(db.Integer, db.ForeignKey('classgroups.id', ondelete='CASCADE'))
     types = db.relationship('Type', cascade='all, delete', backref='offence', lazy='dynamic')
     measures = db.relationship('Measure', cascade='all, delete', backref='offence', lazy='dynamic')
+
+    reviewed = db.Column(db.Boolean, default=False)
+    measure_id = db.Column(db.Integer, db.ForeignKey('extra_measures.id', ondelete='CASCADE'))
 
     def ret_types(self):
         l = ''
@@ -339,6 +353,12 @@ class Offence(db.Model):
         return {'id':self.id, 'date':self.timestamp.strftime('%d-%m-%Y %H:%M'), 'measure_note': self.measure_note, 'type_note': self.type_note,
                 'teacher':self.teacher.ret_dict(), 'classgroup': self.classgroup.ret_dict(), 'lesson': self.lesson.ret_dict(), 'cb': '',
                 'types': self.ret_types(), 'measures': self.ret_measures(), 'student': self.student.ret_dict()}
+
+    def __repr__(self):
+        return u'ID({}) TS({}) SDNT({})'.format(self.id, self.timestamp.strftime('%d-%m-%Y %H:%M'), self.student.first_name + ' ' + self.student.last_name)
+
+    def __str__(self):
+        return self.__repr__()
 
 class Type(db.Model):
     __tablename__ = 'offence_types'

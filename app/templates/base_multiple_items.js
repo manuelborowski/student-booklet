@@ -62,6 +62,13 @@ function edit_offences() {
     }
 }
 
+function start_review() {
+    document.getElementById('button_form').action = Flask.url_for("review.start_review");
+    document.getElementById('button_form').submit();
+}
+
+
+
 $(document).ready(function() {
     //The clear button of the filter is pushed
     $('#clear').click(function() {
