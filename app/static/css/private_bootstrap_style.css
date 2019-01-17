@@ -153,3 +153,6 @@ p.copyright {
   padding-left: 1px;
 }
 
+.default-hidden {
+    visibility: hidden;
+}

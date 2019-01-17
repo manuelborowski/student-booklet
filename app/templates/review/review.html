@@ -2,20 +2,21 @@
 {% import "bootstrap/utils.html" as utils %}
 {% extends "base.html" %}
 
+
 {% block content2 %}
 <div class="content-section">
     {{ utils.flashed_messages() }}
     <!-- begin message block -->
     <div class="container flashed-messages">
         <div class="row">
-            <div class="col-md-12" id="flash-list">
-7            </div>
+            <div class="col-md-12" id="flash-list"></div>
         </div>
     </div>
     <!-- end message block -->
     <div class="center">
         {% for s, offence_lists in matched_offences %}
-        {% for mid, ol in offence_lists %}
+        {% for mid, extra_measure, ol in offence_lists %}
+        <input type="text" id="match_id" value="{{mid}}" hidden="true">
         <form method="post" class="form" role="form" id="form_{{mid}}" enctype=multipart/form-data>
             <span class="label label-warning">Leerling : </span>&nbsp;{{s.first_name}} {{s.last_name}}
             <span class="label label-warning">Klas : </span>&nbsp;{{s.classgroup.name}}
@@ -42,10 +43,10 @@
                 {% endfor %}
             </table>
             <div class="btn-group" role="group" aria-label="...">
-                <a class="btn btn-default" onclick="extra_measure('{{mid}}')">Extra sanctie</a>
-                <a class="btn btn-default" onclick="edit_offences()">Gecontroleerd</a>
-                <a class="btn btn-default" id="btn_delete_extra_measure_{{mid}}" style="visibility:hidden;" onclick="">Verwijder</a>
-                <textarea  rows="3" cols="40" id="txt_extra_measure_{{mid}}" name="extra_measure" style="visibility:hidden;"></textarea>
+                <a class="btn btn-default" onclick="match_reviewed('{{mid}}')">Gecontroleerd</a>
+                <a class="btn btn-default" id="btn_extra_measure_{{mid}}" onclick="extra_measure('{{mid}}')">Extra sanctie</a>
+                <a class="btn btn-default default-hidden" id="btn_delete_extra_measure_{{mid}}"  onclick="delete_measure('{{mid}}')">Verwijder sanctie</a>
+                <textarea class="default-hidden" rows="3" cols="40" id="txt_extra_measure_{{mid}}" readonly>{{extra_measure.note}}</textarea>
            </div>
             <br>
             <br>

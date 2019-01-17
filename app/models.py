@@ -306,7 +306,7 @@ class ExtraMeasure(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     note = db.Column(db.String(1024), default='')
-    offences = db.relationship('Offence', cascade='all, delete', backref='extra_measure', lazy='dynamic')
+    offences = db.relationship('Offence', backref='extra_measure', lazy='dynamic')
 
     def ret_dict(self):
         return {'id':self.id, 'note':self.note}
@@ -331,7 +331,7 @@ class Offence(db.Model):
     measures = db.relationship('Measure', cascade='all, delete', backref='offence', lazy='dynamic')
 
     reviewed = db.Column(db.Boolean, default=False)
-    measure_id = db.Column(db.Integer, db.ForeignKey('extra_measures.id', ondelete='CASCADE'))
+    measure_id = db.Column(db.Integer, db.ForeignKey('extra_measures.id'))
 
     def ret_types(self):
         l = ''

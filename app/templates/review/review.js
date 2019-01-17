@@ -20,13 +20,8 @@ $(document).ready(function(){
 
     $('#myModal').on('hide.bs.modal', function (e) {
         if (document.activeElement.id == 'close_modal') {
-            $('#btn_delete_extra_measure_' + match_id).css('visibility', 'visible');
-            $('#txt_extra_measure_' + match_id).css('visibility', 'visible');
-            $('#txt_extra_measure_' + match_id).html($('#modal_extra_measure').val());
-
             var oids = [];
             $("form#form_" + match_id + " :input").each(function() {
-                console.log($(this).attr('name'), $(this).attr('value'));
                 if ($(this).attr('name')=='offence_id') {
                     oids.push($(this).attr('value'));
                 }
@@ -36,22 +31,21 @@ $(document).ready(function(){
             data.extra_measure = $('#modal_extra_measure').val();
 
             $.getJSON(Flask.url_for('review.add_measure', {'data': JSON.stringify(data)}), function(data) {
-            if(data.status) {
-            } else {
-                alert('Fout: kan schakelaar niet aanpassen');
-            }
-        });
+                if(data.status) {
+                    extra_measure_controls_visible(match_id, true);
+                    $('#txt_extra_measure_' + match_id).html($('#modal_extra_measure').val());
+                } else {
+                    alert('Fout: kan de extra sanctie niet toevoegen');
+                }
+            });
 
-
-            //$('#extra_measure').val($('#modal_extra_measure').val());
-            //document.getElementById(form_id).action = Flask.url_for("review.extra_measure");
-            //document.getElementById(form_id).submit();
         }
     });
 
-
     //Standard value
     $("#select_all").html("Iedereen");
+
+    do_at_ready();
 
 });
 
@@ -71,7 +65,67 @@ function select_all_students() {
     }
 }
 
+function extra_measure_controls_visible(match_id, status) {
+    $('#btn_extra_measure_' + match_id).css('visibility', (status) ? 'hidden' : 'visible');
+    $('#btn_delete_extra_measure_' + match_id).css('visibility', (status) ? 'visible' : 'hidden');
+    $('#txt_extra_measure_' + match_id).css('visibility', (status) ? 'visible' : 'hidden');
+}
+
+function extra_measure_present(mid, measure)
+{
+    if (measure != "") {
+        extra_measure_controls_visible(mid, true)
+    }
+}
+
 function extra_measure(mid) {
     match_id = mid;
     $('#myModal').modal();
+}
+
+function delete_measure(mid) {
+    bootbox.confirm("Bent u zeker dat u deze maatregel wilt verwijderen?", function (result) {
+        if (result) {
+            //Find the first offence and use that id
+            var offence_id = -1;
+            $("form#form_" + mid + " :input").each(function() {
+                if ($(this).attr('name')=='offence_id') {
+                    offence_id = ($(this).attr('value'));
+                    return false;
+                }
+            });
+            $.getJSON(Flask.url_for('review.delete_measure', {'offence_id': offence_id}), function(data) {
+                if(data.status) {
+                    extra_measure_controls_visible(mid, false);
+                } else {
+                    alert('Fout: kan de extra sanctie verwijderen');
+                }
+            });
+        }
+    });
+}
+function match_reviewed(mid) {
+    bootbox.confirm("De controle is in orde?", function (result) {
+        if (result) {
+            //Find the first offence and use that id
+            var offence_id = -1;
+            $("form#form_" + mid + " :input").each(function() {
+                if ($(this).attr('name')=='offence_id') {
+                    offence_id = ($(this).attr('value'));
+                    return false;
+                }
+            });
+            window.location.href = Flask.url_for('review.match_reviewed', {'offence_id': offence_id});
+        }
+    });
+}
+
+function do_at_ready() {
+    // iterate over all matches and show extra-measure-controls when the extra_measure-textbox is not empty
+    $("input[id='match_id']").each(function() {
+        var id = $(this).attr('value')
+        if ($('#txt_extra_measure_' + id).val() != "") {
+            extra_measure_controls_visible(id, true)
+        }
+    });
 }

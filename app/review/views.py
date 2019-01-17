@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask import render_template, url_for, request, flash, redirect
+from flask import render_template, url_for, request, flash, redirect, jsonify
 from flask_login import login_required, current_user
 
 from .. import db, log, app
@@ -38,6 +38,8 @@ match_periods = [
 #Take the newest offence in the list and calculate the first_date, i.e. timestamp - 30
 #Iterate over the list, from old to new, and mark an offence as REVIEWED if its timestamp is older then first_date
 
+dummy_extra_match = {'id' : -1, 'note': ''}
+
 @review.route('/review/start_review', methods=['GET', 'POST'])
 @login_required
 def start_review():
@@ -64,7 +66,9 @@ def start_review():
                         else:
                             break
                     if len(o_match) >= max_offences:
-                        match_temp.append((match_id, o_match))
+                        #extra_measure = o_match[0].extra_measure.note if o_match[0].extra_measure is not None else ''
+                        extra_measure = o_match[0].extra_measure if o_match[0].extra_measure else dummy_extra_match
+                        match_temp.append((match_id, extra_measure, o_match))
                         match_id += 1
                         del offences[:len(o_match) - 1]
                     else:
@@ -87,7 +91,7 @@ def start_review():
         db.session.commit()
 
         for s, oll in matched_offences:
-            for id, ol in oll:
+            for id, extra_measure, ol in oll:
                 for o in ol:
                     o.print_date = o.timestamp.strftime('%d-%m-%Y %H:%M')
                     o.print_types = o.ret_types()
@@ -102,26 +106,55 @@ def start_review():
 
     return render_template('review/review.html',
                            matched_offences=matched_offences,
-                           non_matched_offences=non_matched_offences
-                           )
-
+                           non_matched_offences=non_matched_offences)
 
 
 @review.route('/review/add_measure/<string:data>', methods=['GET', 'POST'])
 @login_required
 def add_measure(data):
     try:
-        s = json.loads(data)
-        if 'offence_id' and 'extra_measure' in request.form:
-            offences = request.form.getlist('offence_id')
-            em = ExtraMeasure(note=request.form['extra_measure'])
+        jdata = json.loads(data)
+        o = Offence.query.get(int(jdata['oid_list'][0]))
+        if o.extra_measure is not None:
+            o.extra_measure.note = jdata['extra_measure']
+        else:
+            em = ExtraMeasure(note=jdata['extra_measure'])
             db.session.add(em)
-            for oid in offences:
-                o = Offence.query.get(oid)
+            for oid in jdata['oid_list']:
+                o = Offence.query.get(int(oid))
                 o.extra_measure = em
-            db.session.commit()
+        db.session.commit()
     except Exception as e:
         log.error('Could not add extra measure : {}'.format(e))
-        flash('Kan geen extra maatregel toevoegen')
+        return jsonify({"status" : False})
+
+    return jsonify({"status" : True})
+
+@review.route('/review/delete_measure/<int:offence_id>', methods=['GET', 'POST'])
+@login_required
+def delete_measure(offence_id):
+    try:
+        o = Offence.query.get(offence_id)
+        db.session.delete(o.extra_measure)
+        db.session.commit()
+    except Exception as e:
+        log.error('Could not delete extra measure : {}'.format(e))
+        return jsonify({"status" : False})
+
+    return jsonify({"status" : True})
+
+@review.route('/review/match_reviewed/<int:offence_id>', methods=['GET', 'POST'])
+@login_required
+def match_reviewed(offence_id):
+    try:
+        em = Offence.query.get(offence_id).extra_measure
+        if em:
+            for o in em.offences:
+                o.reviewed = True
+        db.session.commit()
+    except Exception as e:
+        log.error('Could not set the offences in reviewed state : {}'.format(e))
+        return jsonify({"status" : False})
 
     return redirect(url_for('review.start_review'))
+    return jsonify({"status" : True})
