@@ -43,10 +43,10 @@
                 {% endfor %}
             </table>
             <div class="btn-group" role="group" aria-label="...">
-                <a class="btn btn-default" onclick="match_reviewed('{{mid}}')">Gecontroleerd</a>
+                <a class="btn btn-default" id="btn_match_reviewed_{{mid}}" onclick="match_reviewed('{{mid}}')">Controle afronden</a>
                 <a class="btn btn-default" id="btn_extra_measure_{{mid}}" onclick="extra_measure('{{mid}}')">Extra sanctie</a>
-                <a class="btn btn-default default-hidden" id="btn_delete_extra_measure_{{mid}}"  onclick="delete_measure('{{mid}}')">Verwijder sanctie</a>
-                <textarea class="default-hidden" rows="3" cols="40" id="txt_extra_measure_{{mid}}" readonly>{{extra_measure.note}}</textarea>
+                <a class="btn btn-default" id="btn_delete_extra_measure_{{mid}}"  onclick="delete_measure('{{mid}}')">Verwijder sanctie</a>
+                <textarea rows="3" cols="40" id="txt_extra_measure_{{mid}}" readonly>{{extra_measure.note}}</textarea>
            </div>
             <br>
             <br>

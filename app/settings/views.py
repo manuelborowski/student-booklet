@@ -313,7 +313,7 @@ def add_test_students():
                     h = random.randint(10, 16)
                     m = random.randint(1, 50)
                     timestamp = datetime.datetime.strptime('{}/2018 {}:{}'.format(d, h, m), '%d/%m/%Y %H:%M')
-                    offence = Offence(student=student, classgroup=s.classgroup, timestamp=timestamp,
+                    offence = Offence(student=student, classgroup=student.classgroup, timestamp=timestamp,
                                       lesson=classmoment.lesson, teacher=classmoment.teacher, measure_note='', type_note='')
                     t = random.randint(0, 5)
                     m = random.randint(0, 4)

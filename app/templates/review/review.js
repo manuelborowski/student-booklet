@@ -28,11 +28,11 @@ $(document).ready(function(){
             });
             var data = {};
             data.oid_list = oids;
-            data.extra_measure = $('#modal_extra_measure').val();
-
-            $.getJSON(Flask.url_for('review.add_measure', {'data': JSON.stringify(data)}), function(data) {
+            //replace newline characters with %0a so it can be put inside a GET request
+            extra_measure = $('#modal_extra_measure').val().replace(/\n/g, '%0a');
+            $.getJSON(Flask.url_for('review.add_measure', {'oids': JSON.stringify(oids), 'em' : extra_measure }), function(data) {
                 if(data.status) {
-                    extra_measure_controls_visible(match_id, true);
+                    button_extra_measure_visible(match_id, false);
                     $('#txt_extra_measure_' + match_id).html($('#modal_extra_measure').val());
                 } else {
                     alert('Fout: kan de extra sanctie niet toevoegen');
@@ -65,17 +65,11 @@ function select_all_students() {
     }
 }
 
-function extra_measure_controls_visible(match_id, status) {
-    $('#btn_extra_measure_' + match_id).css('visibility', (status) ? 'hidden' : 'visible');
-    $('#btn_delete_extra_measure_' + match_id).css('visibility', (status) ? 'visible' : 'hidden');
-    $('#txt_extra_measure_' + match_id).css('visibility', (status) ? 'visible' : 'hidden');
-}
-
-function extra_measure_present(mid, measure)
-{
-    if (measure != "") {
-        extra_measure_controls_visible(mid, true)
-    }
+function button_extra_measure_visible(match_id, status) {
+    $('#btn_extra_measure_' + match_id).css('display', (status) ? 'inherit' : 'none');
+    $('#btn_delete_extra_measure_' + match_id).css('display', (status) ? 'none' : 'inherit');
+    $('#btn_match_reviewed_' + match_id).css('display', (status) ? 'none' : 'inherit');
+    $('#txt_extra_measure_' + match_id).css('display', (status) ? 'none' : 'inherit');
 }
 
 function extra_measure(mid) {
@@ -96,7 +90,7 @@ function delete_measure(mid) {
             });
             $.getJSON(Flask.url_for('review.delete_measure', {'offence_id': offence_id}), function(data) {
                 if(data.status) {
-                    extra_measure_controls_visible(mid, false);
+                    button_extra_measure_visible(mid, true);
                 } else {
                     alert('Fout: kan de extra sanctie verwijderen');
                 }
@@ -124,8 +118,6 @@ function do_at_ready() {
     // iterate over all matches and show extra-measure-controls when the extra_measure-textbox is not empty
     $("input[id='match_id']").each(function() {
         var id = $(this).attr('value')
-        if ($('#txt_extra_measure_' + id).val() != "") {
-            extra_measure_controls_visible(id, true)
-        }
+        button_extra_measure_visible(id, ($('#txt_extra_measure_' + id).val() == ""));
     });
 }

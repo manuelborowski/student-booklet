@@ -20,19 +20,21 @@ def filter_classgroup():
 
         students = Student.query.join(Classgroup).\
             filter(Classgroup.id==classmoment.classgroup.id, Student.schoolyear==get_global_setting_current_schoolyear()).all()
-        teacher_classgroups = Classgroup.get_choices_filtered_by_teacher_list(classmoment.teacher)
-        teacher_lessons = Lesson.get_choices_filtered_by_teacher_list(classmoment.teacher)
+        if students:
+            teacher_classgroups = Classgroup.get_choices_filtered_by_teacher_list(classmoment.teacher)
+            teacher_lessons = Lesson.get_choices_filtered_by_teacher_list(classmoment.teacher)
 
-        form = ViewForm()
-        #update default option
-        form.teacher.data=str(classmoment.teacher.id)
-        form.dayhour.data=classmoment.get_data_day_hour()
-        form.classgroup.data=str(classmoment.classgroup.id)
-        form.classgroup.choices = filter_duplicates_out(teacher_classgroups + form.classgroup.choices)
-        form.lesson.data=str(classmoment.lesson.id)
-        form.lesson.choices = filter_duplicates_out(teacher_lessons + form.lesson.choices)
+            #update default option
+            form = ViewForm()
+            form.teacher.data=str(classmoment.teacher.id)
+            form.dayhour.data=classmoment.get_data_day_hour()
+            form.classgroup.data=str(classmoment.classgroup.id)
+            form.classgroup.choices = filter_duplicates_out(teacher_classgroups + form.classgroup.choices)
+            form.lesson.data=str(classmoment.lesson.id)
+            form.lesson.choices = filter_duplicates_out(teacher_lessons + form.lesson.choices)
     except Exception as e:
-        pass
+        log.error('Cannot filter the classgroup {}'.format(e))
+        return ViewForm(), []
     return form, students
 
 @classgroup.route('/classgroup', methods=['GET', 'POST'])

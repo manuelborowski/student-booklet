@@ -10,7 +10,7 @@ from ..forms import OffenceForm
 from ..base import build_filter, get_ajax_table, get_global_setting_current_schoolyear
 from ..tables_config import  tables_configuration
 
-import datetime, json
+import datetime, json, base64
 
 MAX_OFFENCES_PER_MONTH = 5
 MAX_OFFENCES_PER_WEEK = 3
@@ -109,20 +109,25 @@ def start_review():
                            non_matched_offences=non_matched_offences)
 
 
-@review.route('/review/add_measure/<string:data>', methods=['GET', 'POST'])
+@review.route('/review/add_measure/<string:oids>/<string:em>', methods=['GET', 'POST'])
 @login_required
-def add_measure(data):
+def add_measure(oids, em):
     try:
-        jdata = json.loads(data)
-        o = Offence.query.get(int(jdata['oid_list'][0]))
+        #jdata = json.loads(data)
+        #o = Offence.query.get(int(jdata['oid_list'][0]))
+        #note = jdata['extra_measure']
+        #note = u'ée'
+        oid_list = json.loads(oids)
+        o = Offence.query.get(int(oid_list[0]))
         if o.extra_measure is not None:
-            o.extra_measure.note = jdata['extra_measure']
+            o.extra_measure.note = em
         else:
-            em = ExtraMeasure(note=jdata['extra_measure'])
-            db.session.add(em)
-            for oid in jdata['oid_list']:
+            extra_measure = ExtraMeasure(note=em)
+            db.session.add(extra_measure)
+            db.session.commit()
+            for oid in oid_list:
                 o = Offence.query.get(int(oid))
-                o.extra_measure = em
+                o.extra_measure = extra_measure
         db.session.commit()
     except Exception as e:
         log.error('Could not add extra measure : {}'.format(e))
