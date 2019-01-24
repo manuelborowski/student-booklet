@@ -7,7 +7,7 @@ from .. import db, log, app
 from . import review
 from ..models import Offence, Type, Measure, Student, ExtraMeasure
 from ..forms import OffenceForm
-from ..base import build_filter, get_ajax_table, get_global_setting_current_schoolyear
+from ..base import build_filter_and_filter_data, prepare_data_for_html, get_global_setting_current_schoolyear
 from ..tables_config import  tables_configuration
 
 import datetime, json, base64
@@ -109,16 +109,16 @@ def start_review():
                            non_matched_offences=non_matched_offences)
 
 
+# @review.route('/review/add_measure/<string:oids>/<string:em>', methods=['GET', 'POST'])
+# @login_required
+# def add_measure(oids, em):
 @review.route('/review/add_measure/<string:oids>/<string:em>', methods=['GET', 'POST'])
 @login_required
 def add_measure(oids, em):
     try:
-        #jdata = json.loads(data)
-        #o = Offence.query.get(int(jdata['oid_list'][0]))
-        #note = jdata['extra_measure']
-        #note = u'ée'
         oid_list = json.loads(oids)
         o = Offence.query.get(int(oid_list[0]))
+        em = em.replace('&47;', '/')
         if o.extra_measure is not None:
             o.extra_measure.note = em
         else:
@@ -163,3 +163,44 @@ def match_reviewed(offence_id):
 
     return redirect(url_for('review.start_review'))
     return jsonify({"status" : True})
+
+
+@review.route('/review/data', methods=['GET', 'POST'])
+@login_required
+def source_data():
+    only_checkbox_for = current_user.username if current_user.is_strict_user else None
+    start = datetime.datetime.now()
+    ajax_table =  prepare_data_for_html(tables_configuration['extra_measure'])
+    stop = datetime.datetime.now()
+    print('ajax data call {}'.format(stop-start))
+    return ajax_table
+
+
+@review.route('/review/show', methods=['GET', 'POST'])
+@login_required
+def show():
+    if 'button' in request.form and request.form['button'] == 'Bewaar':
+        try:
+            #iterate over the offences, delete the old types and measures and attach the new
+            for o in request.form.getlist('offence_id'):
+                offence = Offence.query.get(int(o))
+                if offence:
+                    for t in Type.query.filter(Type.offence_id==offence.id).all(): db.session.delete(t)
+                    for m in Measure.query.filter(Measure.offence_id==offence.id).all(): db.session.delete(m)
+                    for t in request.form.getlist('type'): db.session.add(Type(type=int(t), offence=offence))
+                    for m in request.form.getlist('measure'): db.session.add(Measure(measure=int(m), offence=offence))
+                    offence.measure_note = request.form['comment_measure']
+                    offence.type_note = request.form['comment_offence']
+
+            db.session.commit()
+        except Exception as e:
+            log.error("Could not edit offences {}".format(e))
+            flash('Kan opmerkingen niet aanpassen')
+    #The following line is required only to build the filter-fields on the page.
+    #_filter, _filter_form, a,b, c = build_filter_and_filter_data(tables_configuration['offence'])
+    _filter, _filter_form, a,b, c = build_filter_and_filter_data(tables_configuration['extra_measure'])
+    return render_template('base_multiple_items.html',
+                           title='Opmerkingen',
+                           filter=_filter, filter_form=_filter_form,
+                           config = tables_configuration['extra_measure'])
+                          # config = tables_configuration['offence'])

@@ -6,7 +6,7 @@ from flask_login import login_required, current_user
 from ..base import get_global_setting_current_schoolyear, set_global_setting_current_schoolyear, get_setting_simulate_dayhour, set_setting_simulate_dayhour
 from . import settings
 from .. import db, app, log, admin_required
-from ..models import Settings, Classgroup, Student, Teacher, Lesson, Classmoment, Offence, Type, Measure
+from ..models import Settings, Classgroup, Student, Teacher, Lesson, Classmoment, Offence, Type, Measure, ExtraMeasure
 from flask_login import current_user
 from ..documents import  get_doc_path, get_doc_list, upload_doc, get_doc_select, get_doc_download, get_doc_reference
 
@@ -296,15 +296,19 @@ def add_test_students():
     random.seed()
     try:
         #fetch the first classmoment
-        classmoment = Classmoment.query.join(Classgroup).join(Lesson).join(Teacher).first()
-        if classmoment:
-            students = Student.query.filter(Student.first_name.like('TEST%'),
+        classmoments = Classmoment.query.join(Classgroup).join(Lesson).join(Teacher).all()
+        if classmoments:
+            students = Student.query.join(Offence).filter(Student.first_name.like('TEST%'),
                                             Student.last_name.like('TEST%'), Student.schoolyear==schoolyear).all()
             for s in students:
+                for o in s.offences:
+                    if o.extra_measure:
+                        db.session.delete(o.extra_measure)
                 #delete students/...
                 db.session.delete(s)
             students = []
             for i, dates in enumerate(offence_dates):
+                classmoment = random.choice(classmoments)
                 student = Student(first_name='TEST{}'.format(i), last_name='TEST{}'.format(i), schoolyear=schoolyear,
                                   classgroup=classmoment.classgroup)
                 db.session.add(student)

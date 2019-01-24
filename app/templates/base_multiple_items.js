@@ -1,3 +1,8 @@
+//Convert python True/False to js true/false
+var False = false;
+var True = true;
+
+
 //row_id is filled in with the database id of the item (asset, purchase,...) at the moment the user rightclicks on a row
 var row_id
 //The metadata of the floating menu.  See tables_config.py
@@ -75,20 +80,24 @@ $(document).ready(function() {
         $('.filter').val('');
         $('#teacher').val('');
         $('#classgroup').val('');
+        $('#rbn_reviewed_false').prop("checked", true);
         //emulate click on trigger button
         $('#filter').trigger('click');
     });
 
-    var filter_settings
-    //Get content from localstorage and store in fields
-    try {
-        filter_settings = JSON.parse(localStorage.getItem("Filter"));
-        $('#date_before').val(filter_settings['date_before']);
-        $('#date_after').val(filter_settings['date_after']);
-        $('#teacher').val(filter_settings['teacher']);
-        $('#classgroup').val(filter_settings['classgroup']);
-    } catch (err) {
-    }
+     var filter_settings
+//    //Get content from localstorage and store in fields
+//    try {
+//        filter_settings = JSON.parse(localStorage.getItem("Filter"));
+//        $('#date_before').val(filter_settings['date_before']);
+//        $('#date_after').val(filter_settings['date_after']);
+//        $('#teacher').val(filter_settings['teacher']);
+//        $('#classgroup').val(filter_settings['classgroup']);
+//        $('#rbn_reviewed_' + filter_settings['reviewed']).prop("checked", true);
+//
+//
+//    } catch (err) {
+//    }
 
     //The filter button of the filter is pushed
     $('#filter').click(function() {
@@ -96,10 +105,10 @@ $(document).ready(function() {
         filter_settings = {"date_before" : $('#date_before').val(),
                    "date_after" : $('#date_after').val(),
                    "teacher" : $('#teacher').val(),
-                   "classgroup" : $('#classgroup').val()
+                   "classgroup" : $('#classgroup').val(),
+                   "reviewed" : $('input[name=rbn_reviewed]:checked').val()
                    };
-        //alert(JSON.stringify(filter_settings));
-        localStorage.setItem("Filter", JSON.stringify(filter_settings));
+//        localStorage.setItem("Filter", JSON.stringify(filter_settings));
         table.ajax.reload();
     });
 
@@ -120,12 +129,16 @@ $(document).ready(function() {
        "buttons": [{extend: 'pdfHtml5', text: 'Exporteer naar PDF'}],
        "order" : [[1, 'desc']],
        "columns": [
+        {
+            "class":          "details-control",
+            "orderable":      false,
+            "data":           null,
+            "defaultContent": "",
+            "width": "1%"
+        },
+
        {% for h in config.template %}
-            {% if h.name=='cb' %}
-                {data: "{{h.data}}", width: "{{h.width}}", orderable: false},
-            {% else %}
-                {data: "{{h.data}}", width: "{{h.width}}"},
-            {% endif %}
+            {data: "{{h.data}}", width: "{{h.width}}", orderable: {{h.orderable}} },
        {% endfor %}
        ],
        "language" : {
@@ -133,6 +146,56 @@ $(document).ready(function() {
         "url" : "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Dutch.json"
       },
     });
+
+    var d_table_start = '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'
+    var d_table_stop = '</table>'
+    var d_header = '<tr><td>Datum</td><td>Leerling</td><td>LKR</td><td>KL</td><td>Les</td><td>Opmerking</td><td>Maatregel</td></tr>'
+    var d_row    = '<tr><td>%s</td><td>{}</td><td>LKR</td><td>KL</td><td>Les</td><td>Opmerking</td><td>Maatregel</td></tr>'
+
+    function format ( d ) {
+        s = d_table_start;
+        s += d_header;
+        for (i=0; i < d.offences.length; i++) {
+            s += '<tr>'
+            s = s + '<td>' + d.offences[i].date + '</td>';
+            s = s + '<td>' + d.offences[i].student.full_name + '</td>';
+            s = s + '<td>' + d.offences[i].teacher.code + '</td>';
+            s = s + '<td>' + d.offences[i].classgroup.name + '</td>';
+            s = s + '<td>' + d.offences[i].lesson.name + '</td>';
+            s = s + '<td>' + d.offences[i].types + '</td>';
+            s = s + '<td>' + d.offences[i].measures + '</td>';
+            s += '</tr>'
+        }
+        s += d_table_stop;
+        return s;
+    }
+
+    // Array to track the ids of the details displayed rows
+    var detailRows = [];
+
+    $('#datatable tbody').on( 'click', 'tr td.details-control', function () {
+        var tr = $(this).closest('tr');
+        var row = table.row( tr );
+        var idx = $.inArray( tr.attr('DT_RowId'), detailRows );
+
+        if ( row.child.isShown() ) {
+            tr.removeClass( 'details' );
+            row.child.hide();
+
+            // Remove from the 'open' array
+            detailRows.splice( idx, 1 );
+        }
+        else {
+            tr.addClass( 'details' );
+            row.child( format( row.data() ) ).show();
+
+            // Add to the 'open' array
+            if ( idx === -1 ) {
+                detailRows.push( tr.attr('DT_RowId') );
+            }
+        }
+    } );
+
 
      //flash messages, if required
      table.on( 'draw', function () {
@@ -145,6 +208,12 @@ $(document).ready(function() {
             }
                 $("#flash-list").html(flash_string);
         }
+
+        //Row details
+        $.each( detailRows, function ( i, id ) {
+            $('#'+id+' td.details-control').trigger( 'click' );
+        } );
+
      });
 
 

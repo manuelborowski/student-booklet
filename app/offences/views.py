@@ -7,7 +7,7 @@ from .. import db, log, app
 from . import offences
 from ..models import Offence, Type, Measure, Student
 from ..forms import OffenceForm
-from ..base import build_filter, get_ajax_table, get_global_setting_current_schoolyear
+from ..base import build_filter_and_filter_data, prepare_data_for_html, get_global_setting_current_schoolyear
 from ..tables_config import  tables_configuration
 
 import datetime
@@ -21,7 +21,11 @@ def inject_schoolyear():
 @login_required
 def source_data():
     only_checkbox_for = current_user.username if current_user.is_strict_user else None
-    return get_ajax_table(tables_configuration['offence'], only_checkbox_for=only_checkbox_for)
+    start = datetime.datetime.now()
+    ajax_table =  prepare_data_for_html(tables_configuration['offence'], only_checkbox_for=only_checkbox_for)
+    stop = datetime.datetime.now()
+    print('ajax data call {}'.format(stop-start))
+    return ajax_table
 
 @offences.route('/offences', methods=['GET', 'POST'])
 @login_required
@@ -44,7 +48,7 @@ def show():
             log.error("Could not edit offences {}".format(e))
             flash('Kan opmerkingen niet aanpassen')
     #The following line is required only to build the filter-fields on the page.
-    _filter, _filter_form, a,b, c = build_filter(tables_configuration['offence'])
+    _filter, _filter_form, a,b, c = build_filter_and_filter_data(tables_configuration['offence'])
     return render_template('base_multiple_items.html',
                            title='Opmerkingen',
                            filter=_filter, filter_form=_filter_form,
@@ -64,7 +68,7 @@ def delete():
         flash('Kan de opmerkingen niet verwijderen')
 
     #The following line is required only to build the filter-fields on the page.
-    _filter, _filter_form, a,b, c = build_filter(tables_configuration['offence'])
+    _filter, _filter_form, a,b, c = build_filter_and_filter_data(tables_configuration['offence'])
     return render_template('base_multiple_items.html',
                            title='Opmerkingen',
                            filter=_filter, filter_form=_filter_form,

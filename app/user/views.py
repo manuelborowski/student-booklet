@@ -9,7 +9,7 @@ from .. import db, log, admin_required
 from . import user
 from ..models import User
 
-from ..base import build_filter, get_ajax_table
+from ..base import build_filter_and_filter_data, prepare_data_for_html
 from ..tables_config import  tables_configuration
 from ..floating_menu import user_menu_config, admin_menu_config
 
@@ -17,7 +17,7 @@ from ..floating_menu import user_menu_config, admin_menu_config
 @user.route('/user/data', methods=['GET', 'POST'])
 @login_required
 def source_data():
-    return get_ajax_table(tables_configuration['user'])
+    return prepare_data_for_html(tables_configuration['user'])
 
 #ashow a list of purchases
 @user.route('/user', methods=['GET', 'POST'])
@@ -25,7 +25,7 @@ def source_data():
 @login_required
 def users():
     #The following line is required only to build the filter-fields on the page.
-    _filter, _filter_form, a,b, c = build_filter(tables_configuration['user'])
+    _filter, _filter_form, a,b, c = build_filter_and_filter_data(tables_configuration['user'])
     config = tables_configuration['user']
     #floating menu depends if current user is admin or not
     if current_user.is_admin:

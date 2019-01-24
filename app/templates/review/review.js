@@ -28,12 +28,12 @@ $(document).ready(function(){
             });
             var data = {};
             data.oid_list = oids;
-            //replace newline characters with %0a so it can be put inside a GET request
-            extra_measure = $('#modal_extra_measure').val().replace(/\n/g, '%0a');
-            $.getJSON(Flask.url_for('review.add_measure', {'oids': JSON.stringify(oids), 'em' : extra_measure }), function(data) {
+            message = encodeURIComponent($('#modal_extra_measure').val().replace(/\//g, '&47;'));
+            $.getJSON(Flask.url_for('review.add_measure', {'oids': JSON.stringify(oids), 'em' : message }), function(data) {
                 if(data.status) {
                     button_extra_measure_visible(match_id, false);
                     $('#txt_extra_measure_' + match_id).html($('#modal_extra_measure').val());
+                    $('#txt_extra_measure_' + match_id).fadeIn('fast');
                 } else {
                     alert('Fout: kan de extra sanctie niet toevoegen');
                 }
@@ -74,6 +74,7 @@ function button_extra_measure_visible(match_id, status) {
 
 function extra_measure(mid) {
     match_id = mid;
+    $('modal_extra_measure').focus();
     $('#myModal').modal();
 }
 
@@ -118,6 +119,6 @@ function do_at_ready() {
     // iterate over all matches and show extra-measure-controls when the extra_measure-textbox is not empty
     $("input[id='match_id']").each(function() {
         var id = $(this).attr('value')
-        button_extra_measure_visible(id, ($('#txt_extra_measure_' + id).val() == ""));
+        button_extra_measure_visible(id, ($('#txt_extra_measure_' + id).html() == ""));
     });
 }

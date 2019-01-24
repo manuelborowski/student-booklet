@@ -167,7 +167,7 @@ class Classgroup(db.Model):
 
     @staticmethod
     def get_choices_with_empty_list():
-        return [(0, '')] + Classgroup.get_choices_list()
+        return [(-1, '')] + Classgroup.get_choices_list()
 
     @staticmethod
     def get_choices_filtered_by_teacher_list(teacher):
@@ -283,7 +283,7 @@ class Teacher(db.Model):
 
     @staticmethod
     def get_choices_with_empty_list():
-        return [(0, '')] + Teacher.get_choices_list()
+        return [(-1, '')] + Teacher.get_choices_list()
 
     def get_choice(self):
         return(self.id, self.code)
@@ -306,10 +306,18 @@ class ExtraMeasure(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     note = db.Column(db.String(1024), default='')
+    timestamp = db.Column(db.DateTime(timezone=True), server_default=func.now())
     offences = db.relationship('Offence', backref='extra_measure', lazy='dynamic')
 
+    def get_offences(self):
+        ol = []
+        for o in self.offences:
+            ol.append(o.ret_dict())
+        return ol
+
     def ret_dict(self):
-        return {'id':self.id, 'note':self.note}
+        return {'id':self.id, 'note':self.note, 'date':self.timestamp.strftime('%d-%m-%Y %H:%M'), 'offence' : self.offences[0].ret_dict(),
+                'offences' : self.get_offences()}
 
 
 class Offence(db.Model):
@@ -346,13 +354,18 @@ class Offence(db.Model):
         for t in self.measures:
             l += Measure.measures[t.measure]
             l +=', '
-        l += self.measure_note
+        if self.measure_note != '':
+            l = l + self.measure_note + ', '
         return l
+
+    def ret_extra_measure(self):
+        return self.extra_measure.note if self.measure_id else ''
 
     def ret_dict(self):
         return {'id':self.id, 'date':self.timestamp.strftime('%d-%m-%Y %H:%M'), 'measure_note': self.measure_note, 'type_note': self.type_note,
                 'teacher':self.teacher.ret_dict(), 'classgroup': self.classgroup.ret_dict(), 'lesson': self.lesson.ret_dict(), 'cb': '',
-                'types': self.ret_types(), 'measures': self.ret_measures(), 'student': self.student.ret_dict()}
+                'types': self.ret_types(), 'measures': self.ret_measures(), 'student': self.student.ret_dict(),
+                'extra_measure': self.ret_extra_measure(), 'measure_id': self.measure_id}
 
     def __repr__(self):
         return u'ID({}) TS({}) SDNT({})'.format(self.id, self.timestamp.strftime('%d-%m-%Y %H:%M'), self.student.first_name + ' ' + self.student.last_name)

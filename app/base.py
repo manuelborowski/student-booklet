@@ -6,9 +6,10 @@ from flask import flash,  request, get_flashed_messages, jsonify, url_for
 from flask_login import current_user
 from sqlalchemy import or_, func
 import time, datetime
-from operator import getitem
+from operator import getitem, attrgetter
+from toolz import unique
 
-from models import User, Settings, Teacher, Classmoment, Classgroup, Lesson, Student, Offence, Measure, Type
+from models import User, Settings, Teacher, Classmoment, Classgroup, Lesson, Student, Offence, Measure, Type, ExtraMeasure
 from .forms import ClassgroupFilter, TeacherFilter
 from . import log
 
@@ -64,20 +65,27 @@ def check_string_in_form(value_key, form):
             flash('Verkeerde tekst notatie')
     return ''
 
-def build_filter(table, paginate=True):
+def build_filter_and_filter_data(table, paginate=True):
     #depending on the table, multiple joins are required to get the necessary data
     _model = table['model']
     _filters_enabled = table['filter']
     _template = table['template']
     _filtered_list = _model.query
 
-    if 'classgroup' in  _filters_enabled:
+    if _model is Offence:
         _filtered_list = _filtered_list.join(Student)
         _filtered_list = _filtered_list.join(Classgroup)
-    if 'teacher' in _filters_enabled:
         _filtered_list = _filtered_list.join(Teacher)
-    if 'lesson' in _filters_enabled:
         _filtered_list = _filtered_list.join(Lesson)
+
+    if _model is ExtraMeasure:
+        _filtered_list = _filtered_list.join(Offence)
+        _filtered_list = _filtered_list.join(Student)
+        _filtered_list = _filtered_list.join(Classgroup)
+        _filtered_list = _filtered_list.join(Teacher)
+        _filtered_list = _filtered_list.join(Lesson)
+
+
 
     # if ('category' in _filters_enabled or 'device' in _filters_enabled) and _model is not Device:
     #     _filtered_list = _filtered_list.join(Device)
@@ -103,14 +111,22 @@ def build_filter(table, paginate=True):
     if 'teacher' in _filters_enabled:
         _filter_forms['teacher'] = TeacherFilter()
         value = check_value_in_form('teacher', request.values)
-        if value:
+        if value and int(value) > -1:
             _filtered_list = _filtered_list.filter(Teacher.id == value)
 
     if 'classgroup' in _filters_enabled:
         _filter_forms['classgroup'] = ClassgroupFilter()
         value = check_value_in_form('classgroup', request.values)
-        if value:
+        if value and int(value) > -1:
             _filtered_list = _filtered_list.filter(Classgroup.id == value)
+
+    if 'reviewed' in _filters_enabled:
+        value = check_string_in_form('reviewed', request.values)
+        if value == 'true':
+            _filtered_list = _filtered_list.filter(Offence.reviewed==True, Offence.measure_id != None).join(ExtraMeasure)
+        elif value == 'false':
+            _filtered_list = _filtered_list.filter(Offence.reviewed==False)
+
 
     # if 'lesson' in _filters_enabled:
     #     _filter_forms['category'] = CategoryFilter()
@@ -176,23 +192,32 @@ def build_filter(table, paginate=True):
 
     _filtered_list = _filtered_list.all()
 
+    if 'reviewed' in _filters_enabled and check_string_in_form('reviewed', request.values) == 'true':
+        _filtered_list = list(unique(_filtered_list, key=attrgetter('measure_id')))
+        _filtered_count = len(_filtered_list)
+
     return _filters_enabled,  _filter_forms, _filtered_list, _total_count, _filtered_count,
 
 
-def get_ajax_table(table, only_checkbox_for=None):
-    __filters_enabled,  _filter_forms, _filtered_list, _total_count, _filtered_count = build_filter(table)
-    _filtered_dict = [i.ret_dict() for i in _filtered_list]
-    for i in _filtered_dict:
+
+def prepare_data_for_html(table, only_checkbox_for=None):
+    _filters_enabled,  _filter_forms, _filtered_list, _total_count, _filtered_count = build_filter_and_filter_data(table)
+    _filtered_dict = [i.ret_dict() for i in _filtered_list] #objects to dictionary
+    for i in _filtered_dict: #some columns are links to other pages
         for h in table['href']:
             exec("i" + h['attribute'] + "= \"<a href=\\\"{}\\\">{}</a>\".format(url_for(" + h['route'] + ", id=i" + h['id'] + "), i" + h['attribute'] + ')')
         i['DT_RowId'] = i['id']
-    if _filtered_dict and 'cb' in _filtered_dict[0]:
+    if _filtered_dict and 'cb' in _filtered_dict[0]: #rows in the table have a checkbox to select them
         for i in _filtered_dict:
             if only_checkbox_for:
                 if only_checkbox_for==i['teacher']['code']:
                     i['cb'] = "<input type='checkbox' class='cb_all' name='cb' value='{}'>".format(i['id'], i['id'])
             else:
                 i['cb'] = "<input type='checkbox' class='cb_all' name='cb' value='{}'>".format(i['id'], i['id'])
+    if 'reviewed' in _filters_enabled and check_string_in_form('reviewed', request.values) == 'true': #specific for offences with an extra measure
+        for i in _filtered_dict:
+            i['measures'] = i['extra_measure']
+            i['types'] = ''
 
     # #order, if required, 2nd stage
     _template = table['template']
@@ -200,6 +225,8 @@ def get_ajax_table(table, only_checkbox_for=None):
     if column_number and _template[int(column_number)]['order_by'] and  callable(_template[int(column_number)]['order_by']):
         reverse = False if check_string_in_form('order[0][dir]', request.values) == 'desc' else True
         _filtered_dict = sorted(_filtered_dict, key= _template[int(column_number)]['order_by'], reverse=reverse)
+
+    #prepare for json/ajax
     output = {}
     output['draw'] = str(int(request.values['draw']))
     output['recordsTotal'] = str(_total_count)

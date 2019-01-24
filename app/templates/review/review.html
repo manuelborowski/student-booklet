@@ -4,6 +4,13 @@
 
 
 {% block content2 %}
+<style>
+.extra_measure {
+    border-radius: 5px;
+    border: 2px solid #f7c655;
+    margin-left: 25px;
+}
+</style>
 <div class="content-section">
     {{ utils.flashed_messages() }}
     <!-- begin message block -->
@@ -42,12 +49,15 @@
                 </tr>
                 {% endfor %}
             </table>
-            <div class="btn-group" role="group" aria-label="...">
-                <a class="btn btn-default" id="btn_match_reviewed_{{mid}}" onclick="match_reviewed('{{mid}}')">Controle afronden</a>
-                <a class="btn btn-default" id="btn_extra_measure_{{mid}}" onclick="extra_measure('{{mid}}')">Extra sanctie</a>
-                <a class="btn btn-default" id="btn_delete_extra_measure_{{mid}}"  onclick="delete_measure('{{mid}}')">Verwijder sanctie</a>
-                <textarea rows="3" cols="40" id="txt_extra_measure_{{mid}}" readonly>{{extra_measure.note}}</textarea>
-           </div>
+            <div class="flex-container">
+                    <div class="btn btn-default default-hidden" id="btn_match_reviewed_{{mid}}"
+                       onclick="match_reviewed('{{mid}}')">Controle afronden</div>
+                    <div class="btn btn-default" id="btn_extra_measure_{{mid}}" onclick="extra_measure('{{mid}}')">Extra
+                        sanctie</div>
+                    <div class="btn btn-default default-hidden" id="btn_delete_extra_measure_{{mid}}"
+                       onclick="delete_measure('{{mid}}')">Verwijder sanctie</div>
+                <div class="extra_measure" id="txt_extra_measure_{{mid}}">{{extra_measure.note}}</div>
+            </div>
             <br>
             <br>
         </form>
@@ -97,7 +107,7 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="modal_extra_measure">Sanctie</label>
-                        <textarea class="form-control" rows="5" id="modal_extra_measure" name="extra_measure"></textarea>
+                        <input type="text" class="form-control" id="modal_extra_measure" name="extra_measure">
                     </div>
                 </div>
                 <div class="modal-footer">
