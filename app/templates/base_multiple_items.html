@@ -48,10 +48,7 @@
                             <label><input type="radio" id="rbn_reviewed_false" name="rbn_reviewed" value="false" checked>Nog niet gecontroleerd</label>
                         </div>
                         <div class="radio">
-                            <label><input type="radio" id="rbn_reviewed_true" name="rbn_reviewed" value="true">Reeds gecontroleerd</label>
-                        </div>
-                        <div class="radio">
-                            <label><input type="radio" id="rbn_reviewed_all" name="rbn_reviewed" value="all" >Allemaal</label>
+                            <label><input type="radio" id="rbn_reviewed_all" name="rbn_reviewed" value="all">Allemaal</label>
                         </div>
                     </td>
                     {% endif %}
@@ -90,7 +87,9 @@
             <table cellspacing="0" class="table table-striped table-bordered wrap" id="datatable" width="100%">
                 <thead>
                 <tr>
+                    {% if 'row_detail' in config %}
                     <th></th>
+                    {% endif %}
                     {% for h in config.template %}
                     {% if h.name=='cb' %}
                     <th><input type='checkbox' id="select_all"></th>

@@ -60,6 +60,7 @@ function confirm_before_delete() {
     }
 }
 
+//An offence is about to be edited
 function edit_offences() {
     if (is_checkbox_selected()) {
         document.getElementById('button_form').action = Flask.url_for('{{config.subject}}' + ".edit");
@@ -67,8 +68,9 @@ function edit_offences() {
     }
 }
 
+//Review starts
 function start_review() {
-    document.getElementById('button_form').action = Flask.url_for("review.start_review");
+    document.getElementById('button_form').action = Flask.url_for("offences.start_review");
     document.getElementById('button_form').submit();
 }
 
@@ -86,18 +88,18 @@ $(document).ready(function() {
     });
 
      var filter_settings
-//    //Get content from localstorage and store in fields
-//    try {
-//        filter_settings = JSON.parse(localStorage.getItem("Filter"));
-//        $('#date_before').val(filter_settings['date_before']);
-//        $('#date_after').val(filter_settings['date_after']);
-//        $('#teacher').val(filter_settings['teacher']);
-//        $('#classgroup').val(filter_settings['classgroup']);
-//        $('#rbn_reviewed_' + filter_settings['reviewed']).prop("checked", true);
-//
-//
-//    } catch (err) {
-//    }
+    //Get content from localstorage and store in fields
+    try {
+        filter_settings = JSON.parse(localStorage.getItem("Filter"));
+        $('#date_before').val(filter_settings['date_before']);
+        $('#date_after').val(filter_settings['date_after']);
+        $('#teacher').val(filter_settings['teacher']);
+        $('#classgroup').val(filter_settings['classgroup']);
+        $('#rbn_reviewed_' + filter_settings['reviewed']).prop("checked", true);
+
+
+    } catch (err) {
+    }
 
     //The filter button of the filter is pushed
     $('#filter').click(function() {
@@ -108,7 +110,7 @@ $(document).ready(function() {
                    "classgroup" : $('#classgroup').val(),
                    "reviewed" : $('input[name=rbn_reviewed]:checked').val()
                    };
-//        localStorage.setItem("Filter", JSON.stringify(filter_settings));
+        localStorage.setItem("Filter", JSON.stringify(filter_settings));
         table.ajax.reload();
     });
 
@@ -125,10 +127,11 @@ $(document).ready(function() {
            }
        },
        pagingType: "full_numbers",
-       lengthMenu: [20, 50, 100, 200],
+       lengthMenu: [50, 100, 200],
        "buttons": [{extend: 'pdfHtml5', text: 'Exporteer naar PDF'}],
        "order" : [[1, 'desc']],
        "columns": [
+       {% if 'row_detail' in config %}
         {
             "class":          "details-control",
             "orderable":      false,
@@ -136,7 +139,7 @@ $(document).ready(function() {
             "defaultContent": "",
             "width": "1%"
         },
-
+        {% endif %}
        {% for h in config.template %}
             {data: "{{h.data}}", width: "{{h.width}}", orderable: {{h.orderable}} },
        {% endfor %}
@@ -146,8 +149,12 @@ $(document).ready(function() {
         "url" : "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Dutch.json"
       },
     });
+    //$('#datatable').attr('data-page-length',50);
 
-    var d_table_start = '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'
+    {% if 'row_detail' in config %}
+
+    //For an extra-measure, show the associated offences as a sub-table
+    var d_table_start = '<table cellpadding="5" cellspacing="0" border="2" style="padding-left:50px;">'
     var d_table_stop = '</table>'
     var d_header = '<tr><td>Datum</td><td>Leerling</td><td>LKR</td><td>KL</td><td>Les</td><td>Opmerking</td><td>Maatregel</td></tr>'
     var d_row    = '<tr><td>%s</td><td>{}</td><td>LKR</td><td>KL</td><td>Les</td><td>Opmerking</td><td>Maatregel</td></tr>'
@@ -196,6 +203,8 @@ $(document).ready(function() {
         }
     } );
 
+    {% endif %}
+
 
      //flash messages, if required
      table.on( 'draw', function () {
@@ -209,10 +218,14 @@ $(document).ready(function() {
                 $("#flash-list").html(flash_string);
         }
 
+    {% if 'row_detail' in config %}
+
         //Row details
         $.each( detailRows, function ( i, id ) {
             $('#'+id+' td.details-control').trigger( 'click' );
         } );
+
+    {% endif %}
 
      });
 

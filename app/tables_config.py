@@ -7,7 +7,7 @@ from floating_menu import default_menu_config, offence_menu_config
 tables_configuration = {
     'offence' : {
         'model' : Offence,
-        'title' : 'Opmerking',
+        'title' : 'Boekje',
         'subject' :'offences',
         'buttons' : ['delete', 'edit', 'start_check'],
         'delete_message' : 'Wilt u deze opmerking(en) verwijderen?',
@@ -34,9 +34,8 @@ tables_configuration = {
     },
     'extra_measure' : {
         'model' : ExtraMeasure,
-        'title' : 'Extra opmerking',
+        'title' : 'Afgewerkt',
         'subject' :'review',
-        'buttons' : ['start_check'],
         'delete_message' : 'Wilt u deze opmerking(en) verwijderen?',
         'template' : [
                       {'name': 'Datum', 'data':'date', 'order_by': ExtraMeasure.timestamp, 'width': '12%', 'orderable' : True},
@@ -46,16 +45,12 @@ tables_configuration = {
                       {'name': 'Les', 'data':'offence.lesson.name', 'order_by': Lesson.name, 'width': '5%', 'orderable' : True},
                       {'name': 'Maatregel', 'data':'note', 'order_by': lambda k: k['measures'], 'width': '30%', 'orderable' : True},
                       ],
-        'filter' :  ['date', 'teacher', 'classgroup', 'lesson', 'reviewed'],
+        'filter' :  ['date', 'teacher', 'classgroup', 'lesson'],
         'href': [],
-        # 'href': [{'attribute': '["name"]', 'route': '"asset.view"', 'id': '["id"]'},
-        #          {'attribute': '["purchase"]["since"]', 'route': '"purchase.view"', 'id': '["purchase"]["id"]'},
-        #          {'attribute': '["purchase"]["supplier"]["name"]', 'route': '"supplier.view"', 'id': '["purchase"]["supplier"]["id"]'},
-        #          {'attribute': '["purchase"]["device"]["brandtype"]', 'route': '"device.view"', 'id': '["purchase"]["device"]["id"]'}
-        #          ],
         'floating_menu' : [],
         'disable_add_button' : True,
         #'export' : 'asset.exportcsv',
+        'row_detail' : 'reviewed',
     },
     'user': {
         'model': User,

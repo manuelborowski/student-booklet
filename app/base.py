@@ -124,7 +124,7 @@ def build_filter_and_filter_data(table, paginate=True):
         value = check_string_in_form('reviewed', request.values)
         if value == 'true':
             _filtered_list = _filtered_list.filter(Offence.reviewed==True, Offence.measure_id != None).join(ExtraMeasure)
-        elif value == 'false':
+        elif value == 'false' or value == '': #default
             _filtered_list = _filtered_list.filter(Offence.reviewed==False)
 
 
@@ -192,10 +192,6 @@ def build_filter_and_filter_data(table, paginate=True):
 
     _filtered_list = _filtered_list.all()
 
-    if 'reviewed' in _filters_enabled and check_string_in_form('reviewed', request.values) == 'true':
-        _filtered_list = list(unique(_filtered_list, key=attrgetter('measure_id')))
-        _filtered_count = len(_filtered_list)
-
     return _filters_enabled,  _filter_forms, _filtered_list, _total_count, _filtered_count,
 
 
@@ -214,10 +210,6 @@ def prepare_data_for_html(table, only_checkbox_for=None):
                     i['cb'] = "<input type='checkbox' class='cb_all' name='cb' value='{}'>".format(i['id'], i['id'])
             else:
                 i['cb'] = "<input type='checkbox' class='cb_all' name='cb' value='{}'>".format(i['id'], i['id'])
-    if 'reviewed' in _filters_enabled and check_string_in_form('reviewed', request.values) == 'true': #specific for offences with an extra measure
-        for i in _filtered_dict:
-            i['measures'] = i['extra_measure']
-            i['types'] = ''
 
     # #order, if required, 2nd stage
     _template = table['template']
