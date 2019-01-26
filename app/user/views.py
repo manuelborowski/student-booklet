@@ -9,7 +9,7 @@ from .. import db, log, admin_required
 from . import user
 from ..models import User
 
-from ..base import build_filter_and_filter_data, prepare_data_for_html
+from ..base_multiple_items import build_filter_and_filter_data, prepare_data_for_html
 from ..tables_config import  tables_configuration
 from ..floating_menu import user_menu_config, admin_menu_config
 

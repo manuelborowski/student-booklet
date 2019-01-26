@@ -8,27 +8,16 @@ function confirm_before_delete(url) {
     });
 }
 
-
-function import_students() {
-    if ({{ students_already_in_database|lower }}) {
-        bootbox.confirm("Er zijn al leerlingen van {{schoolyear}} in de database, wilt u verder gaan?", function(result) {
-            if (result) {
-                $('#import_fileid').click();
-            }
-        });
-    } else {
-        $('#import_fileid').click();
+var upload_type;
+$('#mdl_select_schoolyear').on('hide.bs.modal', function (e) {
+    if (document.activeElement.id == 'close_modal') {
+        $('#' + upload_type).click();
     }
+});
+
+function upload_file(type) {
+    upload_type = type;
+    $('#mdl_select_schoolyear').modal();
 }
 
-function import_timetable() {
-    if ({{ timetable_already_in_database|lower }}) {
-        bootbox.confirm("Er is al een lesrooster van {{schoolyear}} in de database, wilt u verder gaan?", function(result) {
-            if (result) {
-                $('#import_fileid3').click();
-            }
-        });
-    } else {
-        $('#import_fileid3').click();
-    }
-}
+

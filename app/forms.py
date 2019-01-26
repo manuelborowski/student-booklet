@@ -5,20 +5,27 @@ from flask_wtf import FlaskForm
 from wtforms import SelectField, IntegerField
 from wtforms.widgets import HiddenInput
 from models import Classgroup, Teacher, Type, Measure
+from .base import get_all_schoolyears_from_database, calculate_current_schoolyear
 
+
+class SchoolyearFilter(FlaskForm):
+    def __init__(self, *args, **kwargs):
+        super(SchoolyearFilter, self).__init__(*args, **kwargs)
+        sys = get_all_schoolyears_from_database()
+        self.schoolyear.choices=zip(sys, sys)
+
+    schoolyear = SelectField(default = calculate_current_schoolyear(), label='')
 
 class ClassgroupFilter(FlaskForm):
     def __init__(self, *args, **kwargs):
         super(ClassgroupFilter, self).__init__(*args, **kwargs)
         self.classgroup.choices=Classgroup.get_choices_with_empty_list()
-
     classgroup = SelectField('')
 
 class TeacherFilter(FlaskForm):
     def __init__(self, *args, **kwargs):
         super(TeacherFilter, self).__init__(*args, **kwargs)
         self.teacher.choices=Teacher.get_choices_with_empty_list()
-
     teacher = SelectField('')
 
 class OffenceForm(FlaskForm):

@@ -9,44 +9,25 @@
 <div class="content-section">
   {{ utils.flashed_messages() }}
     <div class="center">
-        <form method="post" enctype=multipart/form-data id="settings_form" action="{{ url_for('settings.save') }}">
-        <h2>Huidig schooljaar : </h2>
-        <div class="container">
-            <div class="row">
-                <div class="col-sm-2">
-                    <div class="form-group">
-                        <label for="select_schoolyear">Selecteer schooljaar</label>
-                        <select class="form-control" id="select_schoolyear" name="select_schoolyear"
-                                onchange="document.getElementById('settings_form').submit();"
-                                >
-                            {% for i in schoolyear_list %}
-                                {% if i == schoolyear|int %}
-                                    <option val="{{i}}" selected="selected">{{i}}</option>
-                                {% else %}
-                                    <option val="{{i}}">{{i}}</option>
-                                {% endif %}
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <form method="post" enctype=multipart/form-data id="settings_form" action="{{ url_for('settings.upload_file') }}">
         <h2>Database : </h2>
-            <input id="upload_trigger" type="submit" value="Import" style="display:none" formaction="{{ url_for('settings.upload_file') }}">
+            <input id="upload_trigger" type="submit" value="Import" style="display:none">
             <div class="container">
                 <div class="row">
                     <div class="col-sm-3">
-                        <input class="btn btn-default" type="button" id="import" value="1) Importeer studenten" onclick="import_students();">
-                        <input id='import_fileid' type='file' name='upload_students' style="display:none" accept=".csv" onchange="$('#upload_trigger').click();">
-                    </div>
-                    <div class="col-sm-2">
-                        <input class="btn btn-default" type="button" value="Wis studenten"  onclick="confirm_before_delete('settings.delete_students')">
+                        <input class="btn btn-default" type="button" id="import2" value="1) Importeer leerkrachten"  onclick="$('#import_fileid2').click();">
+                        <input id='import_fileid2' type='file' name='upload_teachers' style="display:none" accept=".csv" onchange="$('#upload_trigger').click();">
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-sm-3">
-                        <input class="btn btn-default" type="button" id="import2" value="2) Importeer leerkrachten"  onclick="$('#import_fileid2').click();">
-                        <input id='import_fileid2' type='file' name='upload_teachers' style="display:none" accept=".csv" onchange="$('#upload_trigger').click();">
+                        <input class="btn btn-default" type="button" id="import" value="2) Importeer studenten" onclick="upload_file('import_fileid')">
+                        <input id='import_fileid' type='file' name='upload_students' style="display:none" accept=".csv" onchange="$('#upload_trigger').click();">
+                    </div>
+                    <div class="col-sm-2">
+                        <input class="btn btn-default" type="button" value="Wis studenten"
+                               onclick="$('#settings_form').attr('action', &quot;{{ url_for('settings.delete_students')}}&quot);
+                                upload_file('upload_trigger');">
                     </div>
                 </div>
                 <div class="row">
@@ -55,7 +36,9 @@
                         <input id='import_fileid3' type='file' name='upload_timetable' style="display:none" accept=".csv" onchange="$('#upload_trigger').click();">
                     </div>
                     <div class="col-sm-2">
-                        <input class="btn btn-default" type="button" value="Wis lesrooster"  onclick="confirm_before_delete('settings.delete_timetable')">
+                        <input class="btn btn-default" type="button" value="Wis lesrooster"
+                               onclick="$('#settings_form').attr('action', &quot;{{ url_for('settings.delete_timetable')}}&quot);
+                                upload_file('upload_trigger');">
                     </div>
                 </div>
                 <div class="row">
@@ -65,9 +48,37 @@
                     </div>
                 </div>
             </div>
-        </form>
+            <!-- Modal (pop-up window) -->
+            <div class="modal fade" id="mdl_select_schoolyear" role="dialog">
+                <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" id="dismiss_modal" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title" id="modal_title">Welke schooljaar?</h4>
+                        </div>
+                        <div class="modal-body">
+                            <select class="form-control" name="select_schoolyear">
+                                {% for i in schoolyear_list %}
+                                    {% if i == schoolyear|int %}
+                                        <option val="{{i}}" selected="selected">{{i}}</option>
+                                    {% else %}
+                                        <option val="{{i}}">{{i}}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="modal-footer">
+                            <button id="close_modal" type="button" class="btn btn-default" data-dismiss="modal">Ga verder</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         <h2>Testen : </h2>
-        <a class="btn btn-default" type=button" id="select_all" onclick="window.location.assign(&quot;{{ url_for('settings.add_test_students')}}&quot;)">Voeg testleerlingen toe</a>
+        <a class="btn btn-default" type=button" id="select_all"
+           onclick="$('#settings_form').attr('action', &quot;{{ url_for('settings.add_test_students')}}&quot);
+           upload_file('upload_trigger');">Voeg testleerlingen toe</a>
+        </form>
 
         <br/>
         <br/>

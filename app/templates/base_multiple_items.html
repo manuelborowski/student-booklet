@@ -22,6 +22,9 @@
                     {% if 'date' in filter %}
                     <th>Datum</th>
                     {% endif %}
+                    {% if 'schoolyear' in filter %}
+                    <th>Schooljaar</th>
+                    {% endif %}
                     {% if 'teacher' in filter %}
                     <th>Leerkracht</th>
                     {% endif %}
@@ -35,6 +38,9 @@
                 <tr>
                     {% if 'date' in filter %}
                     <td><input id="date_after" class="filter" name="date_after" type="text" size="12"></td>
+                    {% endif %}
+                    {% if 'schoolyear' in filter %}
+                    <td rowspan="2">{{ wtf.form_field(filter_form.schoolyear.schoolyear) }}</td>
                     {% endif %}
                     {% if 'teacher' in filter %}
                     <td rowspan="2">{{ wtf.form_field(filter_form.teacher.teacher) }}</td>

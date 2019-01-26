@@ -7,7 +7,8 @@ from .. import db, log, app
 from . import offences
 from ..models import Offence, Type, Measure, Student, ExtraMeasure
 from ..forms import OffenceForm
-from ..base import build_filter_and_filter_data, prepare_data_for_html, get_global_setting_current_schoolyear
+from ..base_multiple_items import build_filter_and_filter_data, prepare_data_for_html
+from ..base import calculate_current_schoolyear
 from ..tables_config import  tables_configuration
 
 import datetime, json
@@ -15,7 +16,7 @@ import datetime, json
 #This will make the variable 'schoolyear' default available in all templates
 @app.context_processor
 def inject_schoolyear():
-    return dict(schoolyear=get_global_setting_current_schoolyear())
+    return dict(schoolyear=calculate_current_schoolyear())
 
 #This will make the variable 'schoolyear' default available in all templates
 @app.context_processor

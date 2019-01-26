@@ -7,7 +7,7 @@ from .. import db, log, app
 from . import review
 from ..models import Offence, Type, Measure, Student, ExtraMeasure
 from ..forms import OffenceForm
-from ..base import build_filter_and_filter_data, prepare_data_for_html, get_global_setting_current_schoolyear
+from ..base_multiple_items import build_filter_and_filter_data, prepare_data_for_html
 from ..tables_config import  tables_configuration
 
 import datetime, json, base64
@@ -104,7 +104,7 @@ def start_review():
         log.error('Could not prepare the review : {}'.format(e))
         flash('Kan de review niet voorbereiden')
 
-    return render_template('review/review.html',
+    return render_template('offence/review.html',
                            matched_offences=matched_offences,
                            non_matched_offences=non_matched_offences)
 

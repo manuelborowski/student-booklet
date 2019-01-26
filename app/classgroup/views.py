@@ -7,7 +7,8 @@ from .forms import ViewForm
 from .. import db, log
 from . import classgroup
 from ..models import Classgroup, Student, Offence, Type, Measure, Teacher, Classmoment, Lesson
-from ..base import get_global_setting_current_schoolyear, filter_overview, filter_duplicates_out
+from ..base_settings import get_global_setting_current_schoolyear
+from ..base import  filter_overview, filter_duplicates_out, calculate_current_schoolyear
 from ..forms import OffenceForm
 import datetime
 
@@ -19,19 +20,18 @@ def filter_classgroup():
             classmoment = filter_overview(0, 0, 0, 0) #default settings
 
         students = Student.query.join(Classgroup).\
-            filter(Classgroup.id==classmoment.classgroup.id, Student.schoolyear==get_global_setting_current_schoolyear()).all()
-        if students:
-            teacher_classgroups = Classgroup.get_choices_filtered_by_teacher_list(classmoment.teacher)
-            teacher_lessons = Lesson.get_choices_filtered_by_teacher_list(classmoment.teacher)
+            filter(Classgroup.id==classmoment.classgroup.id, Student.schoolyear==calculate_current_schoolyear()).all()
+        teacher_classgroups = Classgroup.get_choices_filtered_by_teacher_list(classmoment.teacher)
+        teacher_lessons = Lesson.get_choices_filtered_by_teacher_list(classmoment.teacher)
 
-            #update default option
-            form = ViewForm()
-            form.teacher.data=str(classmoment.teacher.id)
-            form.dayhour.data=classmoment.get_data_day_hour()
-            form.classgroup.data=str(classmoment.classgroup.id)
-            form.classgroup.choices = filter_duplicates_out(teacher_classgroups + form.classgroup.choices)
-            form.lesson.data=str(classmoment.lesson.id)
-            form.lesson.choices = filter_duplicates_out(teacher_lessons + form.lesson.choices)
+        #update default option
+        form = ViewForm()
+        form.teacher.data=str(classmoment.teacher.id)
+        form.dayhour.data=classmoment.get_data_day_hour()
+        form.classgroup.data=str(classmoment.classgroup.id)
+        form.classgroup.choices = filter_duplicates_out(teacher_classgroups + form.classgroup.choices)
+        form.lesson.data=str(classmoment.lesson.id)
+        form.lesson.choices = filter_duplicates_out(teacher_lessons + form.lesson.choices)
     except Exception as e:
         log.error('Cannot filter the classgroup {}'.format(e))
         return ViewForm(), []

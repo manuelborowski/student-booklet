@@ -74,7 +74,7 @@ function button_extra_measure_visible(match_id, status) {
 
 function extra_measure(mid) {
     match_id = mid;
-    $('modal_extra_measure').focus();
+    $('#modal_extra_measure').focus();
     $('#myModal').modal();
 }
 

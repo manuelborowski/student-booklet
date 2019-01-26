@@ -1,46 +1,32 @@
 # -*- coding: utf-8 -*-
 # app/settings/views.py
 
-from flask import render_template, redirect, url_for, request, flash, send_file, abort, jsonify
-from flask_login import login_required, current_user
-from ..base import get_global_setting_current_schoolyear, set_global_setting_current_schoolyear, get_setting_simulate_dayhour, set_setting_simulate_dayhour
+from flask import render_template, redirect, url_for, request, flash
+from flask_login import login_required
+from ..base_settings import get_global_setting_current_schoolyear, set_global_setting_current_schoolyear, \
+    get_setting_simulate_dayhour, set_setting_simulate_dayhour
+from ..base import calculate_current_schoolyear, get_all_schoolyears_from_database
 from . import settings
 from .. import db, app, log, admin_required
 from ..models import Settings, Classgroup, Student, Teacher, Lesson, Classmoment, Offence, Type, Measure, ExtraMeasure
-from flask_login import current_user
-from ..documents import  get_doc_path, get_doc_list, upload_doc, get_doc_select, get_doc_download, get_doc_reference
+from ..documents import  get_doc_path, get_doc_reference
 
 import os, datetime, random
 import unicodecsv  as  csv
 import zipfile
 
 def get_settings_and_show():
-    schoolyear = get_global_setting_current_schoolyear()
-    find_student = None
     try:
-        find_student = Student.query.filter(Student.schoolyear == schoolyear).first()
-        find_timetable = Classmoment.query.filter(Classmoment.schoolyear == schoolyear).first()
-        schoolyears = Student.query.with_entities(Student.schoolyear).distinct().order_by(Student.schoolyear).all()
-        if schoolyears:
-            schoolyear_list = [int(i) for i,  in schoolyears]
-        else:
-            now = datetime.datetime.now()
-            reference = datetime.datetime(year=now.year, month=9, day=1)
-            now_year = int(str(now.year)[2:4])
-            if now < reference:
-                year = (now_year-1)*100 + now_year
-            else:
-                year = now_year*100 + now_year+1
-            schoolyear_list = [year]
+        schoolyear_list = get_all_schoolyears_from_database()
+        schoolyear_list = schoolyear_list if schoolyear_list else [calculate_current_schoolyear()]
+        first = schoolyear_list[0]
+        schoolyear_list.insert(0, first-101)
         last = schoolyear_list[-1]
         schoolyear_list.append(last+101)
     except Exception as e:
         log.error('Could not check the database for students or timetables, error {}'.format(e))
 
     return render_template('settings/settings.html',
-                            students_already_in_database = True if find_student else False,
-                            timetable_already_in_database = True if find_timetable else False,
-                            schoolyear = schoolyear,
                             simulate_dayhour = get_setting_simulate_dayhour(),
                             schoolyear_list = schoolyear_list,
                             title='settings')
@@ -123,7 +109,7 @@ def import_students(rfile):
 
         nbr_students = 0
         nbr_classgroups = 0
-        schoolyear = get_global_setting_current_schoolyear()
+        schoolyear = request.form['select_schoolyear']
 
         for s in students_file:
             #skip empy records
@@ -205,7 +191,7 @@ def import_timetable(rfile):
 
         nbr_classmoments = 0
         nbr_lessons = 0
-        schoolyear = get_global_setting_current_schoolyear()
+        schoolyear = request.form['select_schoolyear']
 
         for t in timetable_file:
             #skip empy records
@@ -246,8 +232,11 @@ def import_timetable(rfile):
 @admin_required
 @login_required
 def delete_students():
-    schoolyear = get_global_setting_current_schoolyear()
+    schoolyear = request.form['select_schoolyear']
     try:
+        extra_measures = ExtraMeasure.query.join(Offence, Student).filter(Student.schoolyear==schoolyear).all()
+        for em in extra_measures:
+            db.session.delete(em)
         students = Student.query.filter(Student.schoolyear==schoolyear).all()
         for s in students:
             db.session.delete(s)
@@ -264,7 +253,7 @@ def delete_students():
 @admin_required
 @login_required
 def delete_timetable():
-    schoolyear = get_global_setting_current_schoolyear()
+    schoolyear = request.form['select_schoolyear']
     try:
         classmoments = Classmoment.query.filter(Classmoment.schoolyear==schoolyear).all()
         for c in classmoments:
@@ -292,7 +281,7 @@ offence_dates = [
 @admin_required
 @login_required
 def add_test_students():
-    schoolyear = get_global_setting_current_schoolyear()
+    schoolyear = request.form['select_schoolyear']
     random.seed()
     try:
         #fetch the first classmoment
