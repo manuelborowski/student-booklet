@@ -14,19 +14,20 @@ class SchoolyearFilter(FlaskForm):
         sys = get_all_schoolyears_from_database()
         self.schoolyear.choices=zip(sys, sys)
 
-    schoolyear = SelectField(default = calculate_current_schoolyear(), label='')
+    schoolyear = SelectField(default=calculate_current_schoolyear(), label='Schooljaar')
+    default_schoolyear = calculate_current_schoolyear()
 
 class ClassgroupFilter(FlaskForm):
     def __init__(self, *args, **kwargs):
         super(ClassgroupFilter, self).__init__(*args, **kwargs)
         self.classgroup.choices=Classgroup.get_choices_with_empty_list()
-    classgroup = SelectField('')
+    classgroup = SelectField(default='', label='Klas')
 
 class TeacherFilter(FlaskForm):
     def __init__(self, *args, **kwargs):
         super(TeacherFilter, self).__init__(*args, **kwargs)
         self.teacher.choices=Teacher.get_choices_with_empty_list()
-    teacher = SelectField('')
+    teacher = SelectField(default='', label='leerkracht')
 
 class OffenceForm(FlaskForm):
     type = SelectField('Overtreding', choices=Type.get_choices_list())

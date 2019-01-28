@@ -136,7 +136,9 @@ dummy_extra_match = {'id' : -1, 'note': ''}
 @login_required
 def start_review():
     try:
-        students = db.session.query(Student).join(Offence).filter(Offence.reviewed==False).distinct(Offence.student_id).order_by(Student.last_name, Student.first_name).all()
+        schoolyear = request.form['schoolyear']
+        students = db.session.query(Student).join(Offence).filter(Offence.reviewed==False, Student.schoolyear==schoolyear). \
+            distinct(Offence.student_id).order_by(Student.last_name, Student.first_name).all()
         matched_offences = []
         non_matched_offences = []
         reviewed_offences = []

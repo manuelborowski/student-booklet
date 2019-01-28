@@ -187,11 +187,14 @@ def import_timetable(rfile):
     try:
         # format csv file :
         log.info('Import timetable from : {}'.format(rfile))
-        timetable_file = csv.DictReader(rfile,  delimiter=';', encoding='utf-8-sig')
+        schoolyear = request.form['select_schoolyear']
 
+        #first, delete current timetable
+        delete_classmoments(schoolyear)
+
+        timetable_file = csv.DictReader(rfile,  delimiter=';', encoding='utf-8-sig')
         nbr_classmoments = 0
         nbr_lessons = 0
-        schoolyear = request.form['select_schoolyear']
 
         for t in timetable_file:
             #skip empy records
@@ -249,16 +252,19 @@ def delete_students():
     flash("Studenten van jaar {} zijn gewist".format(schoolyear))
     return redirect(url_for('settings.show'))
 
+def delete_classmoments(schoolyear):
+    classmoments = Classmoment.query.filter(Classmoment.schoolyear==schoolyear).all()
+    for c in classmoments:
+        db.session.delete(c)
+    db.session.commit()
+
 @settings.route('/settings/delete_timetable', methods=['GET', 'POST'])
 @admin_required
 @login_required
 def delete_timetable():
     schoolyear = request.form['select_schoolyear']
     try:
-        classmoments = Classmoment.query.filter(Classmoment.schoolyear==schoolyear).all()
-        for c in classmoments:
-            db.session.delete(c)
-        db.session.commit()
+        delete_classmoments()
     except Exception as e:
         log.error('Could not not delete classmoments from {}, error {}'.format(schoolyear, e))
         flash("Kan lesrooster van jaar {} niet wissen".format(schoolyear))
@@ -286,35 +292,34 @@ def add_test_students():
     try:
         #fetch the first classmoment
         classmoments = Classmoment.query.join(Classgroup).join(Lesson).join(Teacher).all()
-        if classmoments:
-            students = Student.query.join(Offence).filter(Student.first_name.like('TEST%'),
-                                            Student.last_name.like('TEST%'), Student.schoolyear==schoolyear).all()
-            for s in students:
-                for o in s.offences:
-                    if o.extra_measure:
-                        db.session.delete(o.extra_measure)
-                #delete students/...
-                db.session.delete(s)
-            students = []
-            for i, dates in enumerate(offence_dates):
-                classmoment = random.choice(classmoments)
-                student = Student(first_name='TEST{}'.format(i), last_name='TEST{}'.format(i), schoolyear=schoolyear,
-                                  classgroup=classmoment.classgroup)
-                db.session.add(student)
-                students.append(student)
-                for d in dates:
-                    h = random.randint(10, 16)
-                    m = random.randint(1, 50)
-                    timestamp = datetime.datetime.strptime('{}/2018 {}:{}'.format(d, h, m), '%d/%m/%Y %H:%M')
-                    offence = Offence(student=student, classgroup=student.classgroup, timestamp=timestamp,
-                                      lesson=classmoment.lesson, teacher=classmoment.teacher, measure_note='', type_note='')
-                    t = random.randint(0, 5)
-                    m = random.randint(0, 4)
-                    type = Type(type=t, offence=offence)
-                    measure = Measure(measure=m, offence=offence)
-                    db.session.add(type)
-                    db.session.add(measure)
-                    db.session.add(offence)
+        students = Student.query.join(Offence).filter(Student.first_name.like('TEST%'),
+                                        Student.last_name.like('TEST%'), Student.schoolyear==schoolyear).all()
+        for s in students:
+            for o in s.offences:
+                if o.extra_measure:
+                    db.session.delete(o.extra_measure)
+            #delete students/...
+            db.session.delete(s)
+        students = []
+        for i, dates in enumerate(offence_dates):
+            classmoment = random.choice(classmoments)
+            student = Student(first_name='TEST{}'.format(i), last_name='TEST{}'.format(i), schoolyear=schoolyear,
+                              classgroup=classmoment.classgroup)
+            db.session.add(student)
+            students.append(student)
+            for d in dates:
+                h = random.randint(10, 16)
+                m = random.randint(1, 50)
+                timestamp = datetime.datetime.strptime('{}/2018 {}:{}'.format(d, h, m), '%d/%m/%Y %H:%M')
+                offence = Offence(student=student, classgroup=student.classgroup, timestamp=timestamp,
+                                  lesson=classmoment.lesson, teacher=classmoment.teacher, measure_note='', type_note='')
+                t = random.randint(0, 5)
+                m = random.randint(0, 4)
+                type = Type(type=t, offence=offence)
+                measure = Measure(measure=m, offence=offence)
+                db.session.add(type)
+                db.session.add(measure)
+                db.session.add(offence)
         db.session.commit()
 
         pass
@@ -324,5 +329,30 @@ def add_test_students():
 
     log.info('Added test students/offences')
     flash("Test studenten toegevoegd voor jaar {} ".format(schoolyear))
+    return redirect(url_for('settings.show'))
+
+@settings.route('/settings/delete_test_students', methods=['GET', 'POST'])
+@admin_required
+@login_required
+def delete_test_students():
+    schoolyear = request.form['select_schoolyear']
+    try:
+        students = Student.query.join(Offence).filter(Student.first_name.like('TEST%'),
+                                        Student.last_name.like('TEST%'), Student.schoolyear==schoolyear).all()
+        for s in students:
+            for o in s.offences:
+                if o.extra_measure:
+                    db.session.delete(o.extra_measure)
+            #delete students/...
+            db.session.delete(s)
+        db.session.commit()
+
+        pass
+    except Exception as e:
+        log.error('Could not delete test students error {}'.format(e))
+        flash("Kan test studenten voor jaar {} niet verwijderen".format(schoolyear))
+
+    log.info('Removed test students/offences')
+    flash("Test studenten verwijderd voor jaar {} ".format(schoolyear))
     return redirect(url_for('settings.show'))
 

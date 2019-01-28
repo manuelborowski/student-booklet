@@ -15,42 +15,22 @@
     </div>
     <!-- end message block -->
     <div class="center">
-        {% if filter %}
-        <form method="post" enctype=multipart/form-data>
+        <form method="post" id="filter_form" enctype=multipart/form-data>
             <table class="table-condensed ">
                 <tr>
-                    {% if 'date' in filter %}
-                    <th>Datum</th>
-                    {% endif %}
                     {% if 'schoolyear' in filter %}
-                    <th>Schooljaar</th>
+                    <td>{{ wtf.form_field(filter_form.schoolyear.schoolyear) }}</td>
                     {% endif %}
                     {% if 'teacher' in filter %}
-                    <th>Leerkracht</th>
+                    <td>{{ wtf.form_field(filter_form.teacher.teacher) }}</td>
                     {% endif %}
                     {% if 'classgroup' in filter %}
-                    <th>Klas</th>
+                    <td>{{ wtf.form_field(filter_form.classgroup.classgroup) }}</td>
                     {% endif %}
                     {% if 'reviewed' in filter %}
-                    <th>Welke opmerkingen</th>
-                    {% endif %}
-                </tr>
-                <tr>
-                    {% if 'date' in filter %}
-                    <td><input id="date_after" class="filter" name="date_after" type="text" size="12"></td>
-                    {% endif %}
-                    {% if 'schoolyear' in filter %}
-                    <td rowspan="2">{{ wtf.form_field(filter_form.schoolyear.schoolyear) }}</td>
-                    {% endif %}
-                    {% if 'teacher' in filter %}
-                    <td rowspan="2">{{ wtf.form_field(filter_form.teacher.teacher) }}</td>
-                    {% endif %}
-                    {% if 'classgroup' in filter %}
-                    <td rowspan="2">{{ wtf.form_field(filter_form.classgroup.classgroup) }}</td>
-                    {% endif %}
-                    {% if 'reviewed' in filter %}
-                    <td rowspan="2">
-                        <div class="radio">
+                    <td>
+                        <label for="rbn_reviewed">Welke opmerkingen</label>
+                        <div class="radio" id = rbn_reviewed>
                             <label><input type="radio" id="rbn_reviewed_false" name="rbn_reviewed" value="false" checked>Nog niet gecontroleerd</label>
                         </div>
                         <div class="radio">
@@ -58,35 +38,30 @@
                         </div>
                     </td>
                     {% endif %}
-                </tr>
-                <tr>
-                    {% if 'date' in filter %}
-                    <td><input id="date_before" class="filter" name="date_before" type="text" size="12"></td>
+                    {% if filter %}
+                    <td>
+                        <a class="btn btn-default" id="filter">Filter</a>
+                    </td>
+                    <td>
+                        <a class="btn btn-default" id="clear">Wis filter</a>
+                    </td>
+                    {% endif %}
+                    {% if 'start_check' in config.buttons %}
+                    <td>
+                        <a class="btn btn-default" onclick="start_review()">Start controle</a>
+                    </td>
                     {% endif %}
                 </tr>
-
             </table>
-
-            <div class="btn-group" role="group" aria-label="...">
-                <a class="btn btn-default" id="filter">Filter</a>
-                <a class="btn btn-default" id="clear">Wissen</a>
-                <br>
-                <br>
-            </div>
-
         </form>
-        {% endif %}
+        <hr style="border-top: 10px solid #d1dc9c; margin-top: -5px; margin-bottom: 10px;"/>
         <form method="post" id="button_form">
-            <hr/>
             <div class="btn-group" role="group" aria-label="...">
                 {% if 'delete' in config.buttons %}
                 <a class="btn btn-default" onclick="confirm_before_delete()">Verwijder</a>
                 {% endif %}
                 {% if 'edit' in config.buttons %}
                 <a class="btn btn-default" onclick="edit_offences()">Pas aan</a>
-                {% endif %}
-                {% if 'start_check' in config.buttons %}
-                <a class="btn btn-default" onclick="start_review()">Start controle</a>
                 {% endif %}
             </div>
 

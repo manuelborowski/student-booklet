@@ -70,8 +70,9 @@ function edit_offences() {
 
 //Review starts
 function start_review() {
-    document.getElementById('button_form').action = Flask.url_for("offences.start_review");
-    document.getElementById('button_form').submit();
+    //window.location.href = Flask.url_for("offences.start_review");
+    document.getElementById('filter_form').action = Flask.url_for("offences.start_review");
+    document.getElementById('filter_form').submit();
 }
 
 
@@ -80,9 +81,18 @@ $(document).ready(function() {
     //The clear button of the filter is pushed
     $('#clear').click(function() {
         $('.filter').val('');
+        {% if 'schoolyear' in filter %}
+        $('#schoolyear').val('{{filter_form.schoolyear.default_schoolyear}}');
+        {% endif %}
+        {% if 'teacher' in filter %}
         $('#teacher').val('');
+        {% endif %}
+        {% if 'classgroup' in filter %}
         $('#classgroup').val('');
+        {% endif %}
+        {% if 'reviewed' in filter %}
         $('#rbn_reviewed_false').prop("checked", true);
+        {% endif %}
         //emulate click on trigger button
         $('#filter').trigger('click');
     });
@@ -91,11 +101,18 @@ $(document).ready(function() {
     //Get content from localstorage and store in fields
     try {
         filter_settings = JSON.parse(localStorage.getItem("Filter"));
-        $('#date_before').val(filter_settings['date_before']);
-        $('#date_after').val(filter_settings['date_after']);
+        {% if 'schoolyear' in filter %}
+        $('#schoolyear').val(filter_settings['schoolyear']);
+        {% endif %}
+        {% if 'teacher' in filter %}
         $('#teacher').val(filter_settings['teacher']);
+        {% endif %}
+        {% if 'classgroup' in filter %}
         $('#classgroup').val(filter_settings['classgroup']);
+        {% endif %}
+        {% if 'reviewed' in filter %}
         $('#rbn_reviewed_' + filter_settings['reviewed']).prop("checked", true);
+        {% endif %}
 
 
     } catch (err) {
@@ -104,12 +121,20 @@ $(document).ready(function() {
     //The filter button of the filter is pushed
     $('#filter').click(function() {
         //Store filter in localstorage
-        filter_settings = {"date_before" : $('#date_before').val(),
-                   "date_after" : $('#date_after').val(),
-                   "teacher" : $('#teacher').val(),
-                   "classgroup" : $('#classgroup').val(),
-                   "reviewed" : $('input[name=rbn_reviewed]:checked').val()
-                   };
+        filter_settings = {
+            {% if 'schoolyear' in filter %}
+            "schoolyear" : $('#schoolyear').val(),
+            {% endif %}
+            {% if 'teacher' in filter %}
+            "teacher" : $('#teacher').val(),
+            {% endif %}
+            {% if 'classgroup' in filter %}
+            "classgroup" : $('#classgroup').val(),
+            {% endif %}
+            {% if 'reviewed' in filter %}
+            "reviewed" : $('input[name=rbn_reviewed]:checked').val()
+            {% endif %}
+        };
         localStorage.setItem("Filter", JSON.stringify(filter_settings));
         table.ajax.reload();
     });

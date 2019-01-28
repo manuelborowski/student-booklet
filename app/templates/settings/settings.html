@@ -32,7 +32,7 @@
                 </div>
                 <div class="row">
                     <div class="col-sm-3">
-                        <input class="btn btn-default" type="button" id="import3" value="3) Importeer lesrooster"  onclick="import_timetable();">
+                        <input class="btn btn-default" type="button" id="import3" value="3) Importeer lesrooster"  onclick="upload_file('import_fileid3');">
                         <input id='import_fileid3' type='file' name='upload_timetable' style="display:none" accept=".csv" onchange="$('#upload_trigger').click();">
                     </div>
                     <div class="col-sm-2">
@@ -48,6 +48,20 @@
                     </div>
                 </div>
             </div>
+        <h2>Testen : </h2>
+             <div class="container">
+                <div class="row">
+                    <div class="col-sm-3">
+                       <a class="btn btn-default" type="button" id="select_all"
+                           onclick="$('#settings_form').attr('action', &quot;{{ url_for('settings.add_test_students')}}&quot);
+                           upload_file('upload_trigger');">Voeg teststudenten toe</a>
+                    </div>
+                    <div class="col-sm-2">
+                        <input class="btn btn-default" type="button" value="Wis teststudenten"
+                               onclick="$('#settings_form').attr('action', &quot;{{ url_for('settings.delete_test_students')}}&quot);
+                                upload_file('upload_trigger');">
+                    </div>
+                </div>
             <!-- Modal (pop-up window) -->
             <div class="modal fade" id="mdl_select_schoolyear" role="dialog">
                 <div class="modal-dialog">
@@ -74,38 +88,6 @@
                     </div>
                 </div>
             </div>
-        <h2>Testen : </h2>
-        <a class="btn btn-default" type=button" id="select_all"
-           onclick="$('#settings_form').attr('action', &quot;{{ url_for('settings.add_test_students')}}&quot);
-           upload_file('upload_trigger');">Voeg testleerlingen toe</a>
-        </form>
-
-        <br/>
-        <br/>
-        <br/>
-        <form action="{{ url_for('settings.save')}}" method="post" class="form" role="form"  enctype=multipart/form-data>
-            {% if current_user.is_admin %}
-                <div class="form-group">
-                    <div class="row">
-                        <div class="col-sm-1">
-                            <input type="text" class="form-control" id="schoolyear" name="schoolyear" value="{{ schoolyear }}">
-                        </div>
-                        <label for="schoolyear" class="col-sm-2 control-label">: Huidig schooljaar </label>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-1">
-                            <input type="text" class="form-control" id="simulate_dayhour" name="simulate_dayhour" value="{{ simulate_dayhour }}">
-                        </div>
-                        <label for="simulate_dayhour" class="col-sm-2 control-label">Simuleer een lesuur </label>
-                    </div>
-                </div>
-            {% endif %}
-
-<!--
-             <input id='purge_database' type="submit" name='purge_database' style="display:none"  formaction="{{ url_for('settings.purge_database') }}"/>
--->        <input class="btn btn-default" id="submit" name="save_settings" type="submit" value="Bewaar">
-
-
         </form>
     </div>
 </div>
