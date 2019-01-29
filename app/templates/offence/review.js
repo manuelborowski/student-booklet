@@ -1,23 +1,6 @@
 var match_id;
 
 $(document).ready(function(){
-    $("#teacher").change(function(){$('#change_id').val('teacher');$("#filter_form").submit();});
-    $("#dayhour").change(function(){$('#change_id').val('dayhour');$("#filter_form").submit();});
-    $("#classgroup").change(function(){$('#change_id').val('classgroup');$("#filter_form").submit();});
-    $("#lesson").change(function(){$('#change_id').val('lesson');$("#filter_form").submit();});
-
-
-    $('figure').click(function() {
-        $(this).toggleClass('selected');
-        var name = $(this).find('#id').attr('name');
-        if(name == 'student_id') {
-            $(this).find('#id').attr('name', '');
-        } else {
-            $(this).find('#id').attr('name', 'student_id');
-        }
-    });
-
-
     $('#myModal').on('hide.bs.modal', function (e) {
         if (document.activeElement.id == 'close_modal') {
             var oids = [];
@@ -29,7 +12,7 @@ $(document).ready(function(){
             var data = {};
             data.oid_list = oids;
             message = encodeURIComponent($('#modal_extra_measure').val().replace(/\//g, '&47;'));
-            $.getJSON(Flask.url_for('review.add_measure', {'oids': JSON.stringify(oids), 'em' : message }), function(data) {
+            $.getJSON(Flask.url_for('offences.add_measure', {'oids': JSON.stringify(oids), 'em' : message }), function(data) {
                 if(data.status) {
                     button_extra_measure_visible(match_id, false);
                     $('#txt_extra_measure_' + match_id).html($('#modal_extra_measure').val());
@@ -38,37 +21,15 @@ $(document).ready(function(){
                     alert('Fout: kan de extra sanctie niet toevoegen');
                 }
             });
-
         }
     });
-
-    //Standard value
-    $("#select_all").html("Iedereen");
-
-    do_at_ready();
-
+    //do_at_ready();
 });
-
-function select_all_students() {
-    if ($("#select_all").html() == "Iedereen") {
-        $('figure').addClass('selected');
-        $('#students input').each(function(i){
-            $(this).attr('name', 'student_id');
-        });
-        $("#select_all").html("Niemand");
-    } else {
-        $('figure').removeClass('selected');
-        $('#students input').each(function(i){
-            $(this).attr('name', '');
-        });
-        $("#select_all").html("Iedereen");
-    }
-}
 
 function button_extra_measure_visible(match_id, status) {
     $('#btn_extra_measure_' + match_id).css('display', (status) ? 'inherit' : 'none');
     $('#btn_delete_extra_measure_' + match_id).css('display', (status) ? 'none' : 'inherit');
-    $('#btn_match_reviewed_' + match_id).css('display', (status) ? 'none' : 'inherit');
+    //$('#btn_match_reviewed_' + match_id).css('display', (status) ? 'none' : 'inherit');
     $('#txt_extra_measure_' + match_id).css('display', (status) ? 'none' : 'inherit');
 }
 
@@ -89,7 +50,7 @@ function delete_measure(mid) {
                     return false;
                 }
             });
-            $.getJSON(Flask.url_for('review.delete_measure', {'offence_id': offence_id}), function(data) {
+            $.getJSON(Flask.url_for('offences.delete_measure', {'offence_id': offence_id}), function(data) {
                 if(data.status) {
                     button_extra_measure_visible(mid, true);
                 } else {
@@ -99,6 +60,26 @@ function delete_measure(mid) {
         }
     });
 }
+
+function review_done() {
+    var all_reviewed = true;
+    $("input[id='match_id']").each(function() {
+        var id = $(this).attr('value')
+        if ($('#txt_extra_measure_' + id).html() == "") {
+            all_reviewed = false;
+            $('#btn_extra_measure_' + id).css('background-color', '#c94e1e')
+        }
+    });
+    if(all_reviewed) {
+        bootbox.confirm("Bent u zeker dat u de controle wil beëindigen?", function (result) {
+            //window.location.href = Flask.url_for('offences.review_done');
+            $("#form_review_done").submit();
+        });
+    } else {
+        bootbox.alert("Opgepast, nog niet alle leerlingen zijn gecontroleerd!");
+    }
+}
+
 function match_reviewed(mid) {
     bootbox.confirm("De controle is in orde?", function (result) {
         if (result) {
@@ -110,7 +91,7 @@ function match_reviewed(mid) {
                     return false;
                 }
             });
-            window.location.href = Flask.url_for('review.match_reviewed', {'offence_id': offence_id});
+            window.location.href = Flask.url_for('offences.match_reviewed', {'offence_id': offence_id});
         }
     });
 }

@@ -27,7 +27,7 @@
               {% if current_user.is_authenticated %}
                   <li ><a name="test" href="{{ url_for('classgroup.show') }}">Klas</a></li>
                   <li><a href="{{ url_for('offences.show') }}">Boekje</a></li>
-                  <li><a href="{{ url_for('review.show') }}">Afgewerkt</a></li>
+                  <li><a href="{{ url_for('reviewed.show') }}">Afgewerkt</a></li>
                   {% if current_user.is_admin %}
                       <li><a href="{{ url_for('user.users') }}">Gebruikers</a></li>
                       <li><a href="{{ url_for('settings.show') }}">Instellingen</a></li>

@@ -19,8 +19,6 @@ def get_settings_and_show():
     try:
         schoolyear_list = get_all_schoolyears_from_database()
         schoolyear_list = schoolyear_list if schoolyear_list else [calculate_current_schoolyear()]
-        first = schoolyear_list[0]
-        schoolyear_list.insert(0, first-101)
         last = schoolyear_list[-1]
         schoolyear_list.append(last+101)
     except Exception as e:

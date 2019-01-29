@@ -35,7 +35,7 @@ tables_configuration = {
     'extra_measure' : {
         'model' : ExtraMeasure,
         'title' : 'Afgewerkt',
-        'subject' :'review',
+        'subject' :'reviewed',
         'delete_message' : 'Wilt u deze opmerking(en) verwijderen?',
         'template' : [
                       {'name': 'Datum', 'data':'date', 'order_by': ExtraMeasure.timestamp, 'width': '12%', 'orderable' : True},

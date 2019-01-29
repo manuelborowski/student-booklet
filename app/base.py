@@ -4,7 +4,7 @@ from base_settings import get_setting_simulate_dayhour
 
 def get_all_schoolyears_from_database():
     schoolyears = Student.query.with_entities(Student.schoolyear).distinct().order_by(Student.schoolyear).all()
-    return [''] + [i for i, in schoolyears]
+    return [int(i) for i, in schoolyears]
 
 
 def calculate_current_schoolyear():

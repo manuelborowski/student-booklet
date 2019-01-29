@@ -46,24 +46,20 @@
                         <a class="btn btn-default" id="clear">Wis filter</a>
                     </td>
                     {% endif %}
-                    {% if 'start_check' in config.buttons %}
-                    <td>
-                        <a class="btn btn-default" onclick="start_review()">Start controle</a>
-                    </td>
-                    {% endif %}
                 </tr>
             </table>
         </form>
         <hr style="border-top: 10px solid #d1dc9c; margin-top: -5px; margin-bottom: 10px;"/>
         <form method="post" id="button_form">
-            <div class="btn-group" role="group" aria-label="...">
                 {% if 'delete' in config.buttons %}
                 <a class="btn btn-default" onclick="confirm_before_delete()">Verwijder</a>
                 {% endif %}
                 {% if 'edit' in config.buttons %}
                 <a class="btn btn-default" onclick="edit_offences()">Pas aan</a>
                 {% endif %}
-            </div>
+                {% if 'start_check' in config.buttons %}
+                    <a class="btn btn-default" onclick="start_review()">Start controle</a>
+                {% endif %}
 
             <table cellspacing="0" class="table table-striped table-bordered wrap" id="datatable" width="100%">
                 <thead>
@@ -82,6 +78,8 @@
                 </thead>
             </table>
         </form>
+        <br>
+        <hr style="border-top: 10px solid #d1dc9c; margin-top: -5px; margin-bottom: 10px;"/>
     </div>
 </div>
 

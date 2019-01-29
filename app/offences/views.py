@@ -136,7 +136,7 @@ dummy_extra_match = {'id' : -1, 'note': ''}
 @login_required
 def start_review():
     try:
-        schoolyear = request.form['schoolyear']
+        schoolyear = calculate_current_schoolyear() if request.form['schoolyear'] == '' else request.form['schoolyear']
         students = db.session.query(Student).join(Offence).filter(Offence.reviewed==False, Student.schoolyear==schoolyear). \
             distinct(Offence.student_id).order_by(Student.last_name, Student.first_name).all()
         matched_offences = []
@@ -170,7 +170,8 @@ def start_review():
                     o_match = []
                 offences = o_temp
             non_matched_offences += offences
-            matched_offences.append((s, match_temp))
+            if match_temp:
+                matched_offences.append((s, match_temp))
             #check if some offences need their reviewed_flag set to TRUE
             if offences:
                 first_date = (offences[-1].timestamp - datetime.timedelta(days=30)).replace(hour=0, minute=1)
@@ -184,23 +185,25 @@ def start_review():
              non_matched_offences.remove(o)
         db.session.commit()
 
-        for s, oll in matched_offences:
-            for id, extra_measure, ol in oll:
-                for o in ol:
-                    o.print_date = o.timestamp.strftime('%d-%m-%Y %H:%M')
-                    o.print_types = o.ret_types()
-                    o.print_measures = o.ret_measures()
-        for o in  non_matched_offences:
-            o.print_date = o.timestamp.strftime('%d-%m-%Y %H:%M')
-            o.print_types = o.ret_types()
-            o.print_measures = o.ret_measures()
+        if matched_offences:
+            for s, oll in matched_offences:
+                for id, extra_measure, ol in oll:
+                    for o in ol:
+                        o.print_date = o.timestamp.strftime('%d-%m-%Y %H:%M')
+                        o.print_types = o.ret_types()
+                        o.print_measures = o.ret_measures()
+            for o in  non_matched_offences:
+                o.print_date = o.timestamp.strftime('%d-%m-%Y %H:%M')
+                o.print_types = o.ret_types()
+                o.print_measures = o.ret_measures()
     except Exception as e:
         log.error('Could not prepare the review : {}'.format(e))
         flash('Kan de review niet voorbereiden')
 
     return render_template('offence/review.html',
-                           matched_offences=matched_offences,
-                           non_matched_offences=non_matched_offences)
+                        matched_offences=matched_offences,
+                        non_matched_offences=non_matched_offences,
+                        selected_schoolyear=schoolyear)
 
 
 @offences.route('/offences/add_measure/<string:oids>/<string:em>', methods=['GET', 'POST'])
@@ -255,4 +258,17 @@ def match_reviewed(offence_id):
     return redirect(url_for('review.start_review'))
     return jsonify({"status" : True})
 
+
+@offences.route('/offences/review_done', methods=['GET', 'POST'])
+@login_required
+def review_done():
+    try:
+        offences = Offence.query.filter(Offence.measure_id != None, Offence.reviewed == False).all()
+        for o in offences:
+            o.reviewed = True
+        db.session.commit()
+    except Exception as e:
+         log.error('Could not set the offences in reviewed state : {}'.format(e))
+
+    return redirect(url_for('reviewed.show'), code=307)
 

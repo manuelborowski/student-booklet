@@ -12,6 +12,7 @@ class SchoolyearFilter(FlaskForm):
     def __init__(self, *args, **kwargs):
         super(SchoolyearFilter, self).__init__(*args, **kwargs)
         sys = get_all_schoolyears_from_database()
+        sys = [''] + sys
         self.schoolyear.choices=zip(sys, sys)
 
     schoolyear = SelectField(default=calculate_current_schoolyear(), label='Schooljaar')
