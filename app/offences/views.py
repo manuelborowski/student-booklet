@@ -27,10 +27,7 @@ def inject_url_rule():
 @login_required
 def source_data():
     only_checkbox_for = current_user.username if current_user.is_strict_user else None
-    start = datetime.datetime.now()
     ajax_table =  prepare_data_for_html(tables_configuration['offence'], only_checkbox_for=only_checkbox_for)
-    stop = datetime.datetime.now()
-    print('ajax data call {}'.format(stop-start))
     return ajax_table
 
 @offences.route('/offences', methods=['GET', 'POST'])
@@ -48,7 +45,6 @@ def show():
                     for m in request.form.getlist('measure'): db.session.add(Measure(measure=int(m), offence=offence))
                     offence.measure_note = request.form['comment_measure']
                     offence.type_note = request.form['comment_offence']
-
             db.session.commit()
         except Exception as e:
             log.error("Could not edit offences {}".format(e))
@@ -71,7 +67,6 @@ def delete():
     except Exception as e:
         log.error('Could not delete offence : {}'.format(e))
         flash('Kan de opmerkingen niet verwijderen')
-
     #The following line is required only to build the filter-fields on the page.
     _filter, _filter_form, a,b, c = build_filter_and_filter_data(tables_configuration['offence'])
     return render_template('base_multiple_items.html',
@@ -93,6 +88,7 @@ def edit():
     except Exception as e:
         log.error('Could not edit offences : {}'.format(e))
         flash('Kan de opmerkingen niet aanpassen')
+        return redirect(url_for('offences.show'))
 
     form_offence = OffenceForm()
     return render_template('offence/offence.html',
@@ -102,13 +98,8 @@ def edit():
                            form_offence=form_offence,
                            students=students)
 
-
-
 MAX_OFFENCES_PER_MONTH = 5
 MAX_OFFENCES_PER_WEEK = 3
-
-class Match_period():
-    pass
 
 match_periods = [
     (MAX_OFFENCES_PER_MONTH, lambda i : (i.timestamp + datetime.timedelta(days=29)).replace(hour=23, minute=59)),
@@ -184,7 +175,6 @@ def start_review():
         for o in reviewed_offences:
              non_matched_offences.remove(o)
         db.session.commit()
-
         if matched_offences:
             for s, oll in matched_offences:
                 for id, extra_measure, ol in oll:
@@ -198,7 +188,8 @@ def start_review():
                 o.print_measures = o.ret_measures()
     except Exception as e:
         log.error('Could not prepare the review : {}'.format(e))
-        flash('Kan de review niet voorbereiden')
+        flash('Kan de controle niet voorbereiden')
+        return redirect(url_for('offences.show'))
 
     return render_template('offence/review.html',
                         matched_offences=matched_offences,

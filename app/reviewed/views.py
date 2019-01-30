@@ -16,10 +16,7 @@ import datetime, json, base64
 @login_required
 def source_data():
     only_checkbox_for = current_user.username if current_user.is_strict_user else None
-    start = datetime.datetime.now()
     ajax_table =  prepare_data_for_html(tables_configuration['extra_measure'])
-    stop = datetime.datetime.now()
-    print('ajax data call {}'.format(stop-start))
     return ajax_table
 
 

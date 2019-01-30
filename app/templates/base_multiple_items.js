@@ -172,7 +172,13 @@ $(document).ready(function() {
        "language" : {
         /*"url" : "static/DataTables/nl_nl.lang"*/
         "url" : "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Dutch.json"
-      },
+        },
+        "initComplete": function(settings, json) { //intercept flash messages when the table is loaded
+            if ('flash' in json) {
+                bootbox.alert(json['flash'].toString());
+            }
+        },
+
     });
     //$('#datatable').attr('data-page-length',50);
 

@@ -108,6 +108,17 @@
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.40/vfs_fonts.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 <script type="text/javascript"> {% include "base.js" %}</script>
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <script>
+    var list = ({{ messages|safe}});
+    for (var i=0; i<list.length; i++){
+        bootbox.alert(list[i]);
+    }
+    </script>
+    {% endif %}
+{% endwith %}
+
 {% block scripts2 %}
 {% endblock %}
 {% endblock %}

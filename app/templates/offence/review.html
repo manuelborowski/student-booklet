@@ -13,14 +13,6 @@
 }
 </style>
 <div class="content-section">
-    {{ utils.flashed_messages() }}
-    <!-- begin message block -->
-    <div class="container flashed-messages">
-        <div class="row">
-            <div class="col-md-12" id="flash-list"></div>
-        </div>
-    </div>
-    <!-- end message block -->
     <div class="center">
         {% if matched_offences %}
         {% for s, offence_lists in matched_offences %}

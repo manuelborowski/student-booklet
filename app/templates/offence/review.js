@@ -18,7 +18,7 @@ $(document).ready(function(){
                     $('#txt_extra_measure_' + match_id).html($('#modal_extra_measure').val());
                     $('#txt_extra_measure_' + match_id).fadeIn('fast');
                 } else {
-                    alert('Fout: kan de extra sanctie niet toevoegen');
+                    bootbox.alert('Fout: kan de extra sanctie niet toevoegen');
                 }
             });
         }
@@ -54,7 +54,7 @@ function delete_measure(mid) {
                 if(data.status) {
                     button_extra_measure_visible(mid, true);
                 } else {
-                    alert('Fout: kan de extra sanctie verwijderen');
+                    bootbox.alert('Fout: kan de extra sanctie niet verwijderen');
                 }
             });
         }

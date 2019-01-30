@@ -1,5 +1,5 @@
 {#
-    Show a single offence page
+Show a single offence page
 #}
 
 {% import "bootstrap/wtf.html" as wtf %}
@@ -9,50 +9,53 @@
 
 {% block content2 %}
 <div class="content-section">
-    <form action={{redirect_url}} method="post" class="form" role="form" id="filter_form" enctype=multipart/form-data>
-        <div class="hidden">
-            {% if save_filters %}
+    <div class="center">
+        <form action={{redirect_url}} method="post" class="form" role="form" id="filter_form"
+              enctype=multipart/form-data>
+            <div class="hidden">
+                {% if save_filters %}
                 {{ wtf.form_field(save_filters.teacher) }}
                 {{ wtf.form_field(save_filters.classgroup) }}
                 {{ wtf.form_field(save_filters.dayhour) }}
                 {{ wtf.form_field(save_filters.lesson) }}
                 <input type="hidden" id="change_id" name="change_id" value="teacher">
-            {% endif %}
-            {% if save_offences %}
+                {% endif %}
+                {% if save_offences %}
                 {% for o in save_offences %}
-                    <input type="hidden" name="offence_id" value="{{ o.id|string }}">
+                <input type="hidden" name="offence_id" value="{{ o.id|string }}">
                 {% endfor %}
-            {% endif %}
-        </div>
-        <div class="container-fluid">
-        {% for s in students %}
-            <figure class="imagecaption" style="text-align:center;">
-                <img src="../../static/photo/{{ s.photo }}" height="120">
-                <figcaption>{{s.first_name}}<br>{{s.last_name}}</figcaption>
-                <input type="hidden" id="id" name="student_id" value="{{ s.id|string }}">
-            </figure>
-        {% endfor %}
-        </div>
-        <div class="container-fluid">
-            <div class="form-group row">
-                {{ mywtf.select_multiple(form_offence.type, grid_class = 'col-sm-5') }}
-                {{ mywtf.select_multiple(form_offence.measure, grid_class = 'col-sm-5') }}
+                {% endif %}
             </div>
-            <div class="form-group row">
-                <div class="col-sm-5">
-                  <label for="comment_offence">Notitie bij opmerking</label>
-                  <textarea class="form-control" rows="5" id="comment_offence" name="comment_offence"></textarea>
+            <div class="container-fluid">
+                {% for s in students %}
+                <figure class="imagecaption" style="text-align:center;">
+                    <img src="../../static/photo/{{ s.photo }}" height="120">
+                    <figcaption>{{s.first_name}}<br>{{s.last_name}}</figcaption>
+                    <input type="hidden" id="id" name="student_id" value="{{ s.id|string }}">
+                </figure>
+                {% endfor %}
+            </div>
+            <div class="container-fluid">
+                <div class="form-group row">
+                    {{ mywtf.select_multiple(form_offence.type, grid_class = 'col-sm-5') }}
+                    {{ mywtf.select_multiple(form_offence.measure, grid_class = 'col-sm-5') }}
                 </div>
-                <div class="col-sm-5">
-                  <label for="comment_measure">Notitie bij maatregel</label>
-                  <textarea class="form-control" rows="5" id="comment_measure" name="comment_measure"></textarea>
+                <div class="form-group row">
+                    <div class="col-sm-5">
+                        <label for="comment_offence">Notitie bij opmerking</label>
+                        <textarea class="form-control" rows="5" id="comment_offence" name="comment_offence"></textarea>
+                    </div>
+                    <div class="col-sm-5">
+                        <label for="comment_measure">Notitie bij maatregel</label>
+                        <textarea class="form-control" rows="5" id="comment_measure" name="comment_measure"></textarea>
+                    </div>
                 </div>
             </div>
-        </div>
-        <br/>
-        <input class="btn btn-default" id="dummy_offence" name="button" type="submit" value="Bewaar">
-         <a class="btn btn-default" href="javascript:history.back()">Annuleer</a>
-    </form>
+            <br/>
+            <input class="btn btn-default" id="dummy_offence" name="button" type="submit" value="Bewaar">
+            <a class="btn btn-default" href="javascript:history.back()">Annuleer</a>
+        </form>
+    </div>
 </div>
 {% endblock %}
 

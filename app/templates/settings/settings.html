@@ -7,7 +7,6 @@
 
 {% block content2 %}
 <div class="content-section">
-  {{ utils.flashed_messages() }}
     <div class="center">
         <form method="post" enctype=multipart/form-data id="settings_form" action="{{ url_for('settings.upload_file') }}">
         <h2>Database : </h2>

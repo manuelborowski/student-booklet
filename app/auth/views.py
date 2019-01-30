@@ -96,6 +96,6 @@ def smartschool_profile(token):
 def logout():
     log.info('User logged out')
     logout_user()
-    flash('U bent uitgelogd')
+    #flash('U bent uitgelogd')
     return redirect(url_for('auth.login'))
 

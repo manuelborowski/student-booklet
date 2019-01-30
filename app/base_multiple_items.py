@@ -7,6 +7,7 @@ from sqlalchemy import or_
 import time
 from models import User, Teacher, Classgroup, Lesson, Student, Offence, ExtraMeasure
 from .forms import ClassgroupFilter, TeacherFilter, SchoolyearFilter
+from . import log
 
 class InlineButtonWidget(object):
     """
@@ -198,26 +199,32 @@ def build_filter_and_filter_data(table, paginate=True):
 
 
 def prepare_data_for_html(table, only_checkbox_for=None):
-    _filters_enabled,  _filter_forms, _filtered_list, _total_count, _filtered_count = build_filter_and_filter_data(table)
-    _filtered_dict = [i.ret_dict() for i in _filtered_list] #objects to dictionary
-    for i in _filtered_dict: #some columns are links to other pages
-        for h in table['href']:
-            exec("i" + h['attribute'] + "= \"<a href=\\\"{}\\\">{}</a>\".format(url_for(" + h['route'] + ", id=i" + h['id'] + "), i" + h['attribute'] + ')')
-        i['DT_RowId'] = i['id']
-    if _filtered_dict and 'cb' in _filtered_dict[0]: #rows in the table have a checkbox to select them
-        for i in _filtered_dict:
-            if only_checkbox_for:
-                if only_checkbox_for==i['teacher']['code']:
+    try:
+        _filters_enabled,  _filter_forms, _filtered_list, _total_count, _filtered_count = build_filter_and_filter_data(table)
+        _filtered_dict = [i.ret_dict() for i in _filtered_list] #objects to dictionary
+        for i in _filtered_dict: #some columns are links to other pages
+            for h in table['href']:
+                exec("i" + h['attribute'] + "= \"<a href=\\\"{}\\\">{}</a>\".format(url_for(" + h['route'] + ", id=i" + h['id'] + "), i" + h['attribute'] + ')')
+            i['DT_RowId'] = i['id']
+        if _filtered_dict and 'cb' in _filtered_dict[0]: #rows in the table have a checkbox to select them
+            for i in _filtered_dict:
+                if only_checkbox_for:
+                    if only_checkbox_for==i['teacher']['code']:
+                        i['cb'] = "<input type='checkbox' class='cb_all' name='cb' value='{}'>".format(i['id'], i['id'])
+                else:
                     i['cb'] = "<input type='checkbox' class='cb_all' name='cb' value='{}'>".format(i['id'], i['id'])
-            else:
-                i['cb'] = "<input type='checkbox' class='cb_all' name='cb' value='{}'>".format(i['id'], i['id'])
 
-    # #order, if required, 2nd stage
-    _template = table['template']
-    column_number = check_value_in_form('order[0][column]', request.values)
-    if column_number and _template[int(column_number)]['order_by'] and  callable(_template[int(column_number)]['order_by']):
-        reverse = False if check_string_in_form('order[0][dir]', request.values) == 'desc' else True
-        _filtered_dict = sorted(_filtered_dict, key= _template[int(column_number)]['order_by'], reverse=reverse)
+        #order, if required, 2nd stage
+        _template = table['template']
+        column_number = check_value_in_form('order[0][column]', request.values)
+        if column_number and _template[int(column_number)]['order_by'] and  callable(_template[int(column_number)]['order_by']):
+            reverse = False if check_string_in_form('order[0][dir]', request.values) == 'desc' else True
+            _filtered_dict = sorted(_filtered_dict, key= _template[int(column_number)]['order_by'], reverse=reverse)
+    except Exception as e:
+        log.error('could not prepare data for html : {}'.format(e))
+        flash('Er is een fout opgetreden en de tabel kan niet getoond worden.')
+        _total_count = _filtered_list = 0
+        _filtered_dict = []
 
     #prepare for json/ajax
     output = {}
