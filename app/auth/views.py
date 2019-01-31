@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 # app/auth/views.py
 
-from flask import flash, redirect, render_template, url_for, request, session
-from flask_login import login_required, login_user, logout_user, current_user
+from flask import flash, redirect, render_template, url_for, request
+from flask_login import login_required, login_user, logout_user
 
 from .. import log, db, app
 from . import auth
 from forms import LoginForm
 from ..models import User
+from ..base import flash_plus
 import datetime, json
 from authlib.flask.client import OAuth
 
@@ -39,19 +40,19 @@ def login():
         user = User.query.filter_by(username=form.username.data).first()
         if user is not None and user.is_local and user.verify_password(form.password.data):
             login_user(user)
-            log.info('LOCAL user {} logged in'.format(user.username))
+            log.info(u'LOCAL user {} logged in'.format(user.username))
             user.last_login = datetime.datetime.now()
             try:
                 db.session.commit()
             except Exception as e:
-                log.error('Could not save timestamp : {}'.format(e))
-                flash('Fout in database : {}'.format(e))
+                log.error(u'Could not save timestamp : {}'.format(e))
+                flash_plus(u'Fout in database', e)
                 return redirect(url_for('auth.login'))
             # Ok, continue
             return redirect(url_for('classgroup.show'))
         else:
-            flash('Ongeldige gebruikersnaam of paswoord')
-            log.error("Invalid username/password")
+            flash_plus(u'Ongeldige gebruikersnaam of paswoord')
+            log.error(u'Invalid username/password')
     return render_template('auth/login.html', form=form, title='Login')
 
 #OAUTH specific
@@ -62,8 +63,8 @@ def smartschool_profile(token):
     profile = resp.json()
 
     if  not 'username' in profile: #not good
-        flash('Smartschool geeft een foutcode terug: {}'.format(profile['error']))
-        log.error("OAUTH step 3 error : {}".format(profile['error']))
+        flash_plus(u'Smartschool geeft een foutcode terug: {}'.format(profile['error']))
+        log.error(u'OAUTH step 3 error : {}'.format(profile['error']))
         return redirect(url_for('auth.login'))
 
     if profile['basisrol'] in SMARTSCHOOL_ALLOWED_BASE_ROLES:
@@ -76,26 +77,26 @@ def smartschool_profile(token):
             db.session.flush() #user.id is filled in
         user.last_login = datetime.datetime.now()
         login_user(user)
-        log.info('OAUTH user {} logged in'.format(user.username))
+        log.info(u'OAUTH user {} logged in'.format(user.username))
         try:
             db.session.commit()
         except Exception as e:
-            log.error('Could not save user : {}'.format(e))
-            flash('Fout in database : {}'.format(e))
+            log.error(u'Could not save user : {}'.format(e))
+            flash_plus(u'Fout in database', e)
             return redirect(url_for('auth.login'))
         #Ok, continue
         return redirect(url_for('classgroup.show'))
 
-    flash('Geen geldige smartschoolaccount, alleen leerkrachten, directie of personeel')
-    log.error('Invalid smartschool account : {}'.format(profile['username']))
+    flash_plus(u'Geen geldige smartschoolaccount, alleen leerkrachten, directie of personeel')
+    log.error(u'Invalid smartschool account : {}'.format(profile['username']))
     return redirect(url_for('auth.login'))
 
 
 @auth.route('/logout')
 @login_required
 def logout():
-    log.info('User logged out')
+    log.info(u'User logged out')
     logout_user()
-    #flash('U bent uitgelogd')
+    #flash(u'U bent uitgelogd')
     return redirect(url_for('auth.login'))
 

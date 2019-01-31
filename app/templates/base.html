@@ -11,6 +11,40 @@
 {% endblock %}
 
 {% block navbar %}
+<style>
+.loader {
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+  position: fixed; /* Sit on top of the page content */
+  display: none; /* Hidden by default */
+  width: 100px; /* Full width (cover the whole page) */
+  height: 100px; /* Full height (cover the whole page) */
+  top: 50%;
+  left: 50%;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0); /* Black background with opacity */
+  z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
+  cursor: pointer; /* Add a pointer on hover */
+}
+
+/* Safari */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>
+<div class="loader"></div>
 <nav class="navbar navbar-default navbar-static-top navbar-fixed-top" role="navigation">
     <div class="container topnav">
       <div class="navbar-header">
@@ -27,7 +61,7 @@
               {% if current_user.is_authenticated %}
                   <li ><a name="test" href="{{ url_for('classgroup.show') }}">Klas</a></li>
                   <li><a href="{{ url_for('offences.show') }}">Boekje</a></li>
-                  <li><a href="{{ url_for('reviewed.show') }}">Afgewerkt</a></li>
+                  <li><a href="{{ url_for('reviewed.show') }}">Gecontroleerd</a></li>
                   {% if current_user.is_admin %}
                       <li><a href="{{ url_for('user.users') }}">Gebruikers</a></li>
                       <li><a href="{{ url_for('settings.show') }}">Instellingen</a></li>
@@ -110,12 +144,7 @@
 <script type="text/javascript"> {% include "base.js" %}</script>
 {% with messages = get_flashed_messages() %}
     {% if messages %}
-    <script>
-    var list = ({{ messages|safe}});
-    for (var i=0; i<list.length; i++){
-        bootbox.alert(list[i]);
-    }
-    </script>
+    <script>flash_messages({{messages|safe}});</script>
     {% endif %}
 {% endwith %}
 

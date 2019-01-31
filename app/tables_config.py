@@ -10,7 +10,7 @@ tables_configuration = {
         'title' : 'Boekje',
         'subject' :'offences',
         'buttons' : ['delete', 'edit', 'start_check'],
-        'delete_message' : 'Wilt u deze opmerking(en) verwijderen?',
+        'delete_message' : u'Wilt u deze opmerking(en) verwijderen?',
         'template' : [{'name': 'cb', 'data':'cb', 'order_by': Offence.timestamp, 'width': '1%', 'orderable' : False},
                       {'name': 'Datum', 'data':'date', 'order_by': Offence.timestamp, 'width': '12%', 'orderable' : True},
                       {'name': 'Leerling', 'data':'student.full_name', 'order_by': Student.last_name, 'width': '10%', 'orderable' : True},
@@ -36,7 +36,7 @@ tables_configuration = {
         'model' : ExtraMeasure,
         'title' : 'Afgewerkt',
         'subject' :'reviewed',
-        'delete_message' : 'Wilt u deze opmerking(en) verwijderen?',
+        'delete_message' : u'Wilt u deze opmerking(en) verwijderen?',
         'template' : [
                       {'name': 'Datum', 'data':'date', 'order_by': ExtraMeasure.timestamp, 'width': '12%', 'orderable' : True},
                       {'name': 'Leerling', 'data':'offence.student.full_name', 'order_by': Student.last_name, 'width': '10%', 'orderable' : True},
@@ -57,7 +57,7 @@ tables_configuration = {
         'title' : 'gebruiker',
         'subject' :'user',
         'buttons' : ['delete'],
-        'delete_message' : 'Wilt u deze gebruiker(s) verwijderen?',
+        'delete_message' : u'Wilt u deze gebruiker(s) verwijderen?',
         'template': [
             {'name': 'cb', 'data':'cb', 'order_by': User.username, 'width': '2%', 'orderable' : False},
             {'name': 'Gebruikersnaam', 'data': 'username', 'order_by': User.username, 'orderable' : True},

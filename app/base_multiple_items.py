@@ -2,12 +2,13 @@
 from wtforms.widgets.core import html_params
 from wtforms.widgets import HTMLString
 from wtforms import BooleanField
-from flask import flash,  request, get_flashed_messages, jsonify, url_for
+from flask import request, get_flashed_messages, jsonify, url_for
 from sqlalchemy import or_
 import time
 from models import User, Teacher, Classgroup, Lesson, Student, Offence, ExtraMeasure
 from .forms import ClassgroupFilter, TeacherFilter, SchoolyearFilter
 from . import log
+from .base import flash_plus
 
 class InlineButtonWidget(object):
     """
@@ -39,8 +40,8 @@ def check_date_in_form(date_key, form):
         try:
             time.strptime(form[date_key].strip(), '%d-%M-%Y')
             return form[date_key].strip()
-        except:
-            flash('Verkeerd datumformaat, moet in de vorm zijn : d-m-y')
+        except Exception as e:
+            flash_plus('Verkeerd datumformaat, moet in de vorm zijn : d-m-y', e)
     return ''
 
 def check_value_in_form(value_key, form):
@@ -48,8 +49,8 @@ def check_value_in_form(value_key, form):
         try:
             float(form[value_key])
             return form[value_key]
-        except:
-            flash('Verkeerde getal notatie')
+        except Exception as e:
+            flash_plus('Verkeerde getal notatie', e)
     return ''
 
 def check_string_in_form(value_key, form):
@@ -57,8 +58,8 @@ def check_string_in_form(value_key, form):
         try:
             str(form[value_key])
             return form[value_key]
-        except:
-            flash('Verkeerde tekst notatie')
+        except Exception as e:
+            flash_plus('Verkeerde tekst notatie', e)
     return ''
 
 def build_filter_and_filter_data(table, paginate=True):
@@ -213,7 +214,6 @@ def prepare_data_for_html(table, only_checkbox_for=None):
                         i['cb'] = "<input type='checkbox' class='cb_all' name='cb' value='{}'>".format(i['id'], i['id'])
                 else:
                     i['cb'] = "<input type='checkbox' class='cb_all' name='cb' value='{}'>".format(i['id'], i['id'])
-
         #order, if required, 2nd stage
         _template = table['template']
         column_number = check_value_in_form('order[0][column]', request.values)
@@ -222,7 +222,7 @@ def prepare_data_for_html(table, only_checkbox_for=None):
             _filtered_dict = sorted(_filtered_dict, key= _template[int(column_number)]['order_by'], reverse=reverse)
     except Exception as e:
         log.error('could not prepare data for html : {}'.format(e))
-        flash('Er is een fout opgetreden en de tabel kan niet getoond worden.')
+        flash_plus('Er is een fout opgetreden en de tabel kan niet getoond worden.', e)
         _total_count = _filtered_list = 0
         _filtered_dict = []
 

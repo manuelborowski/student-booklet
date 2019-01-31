@@ -1,4 +1,7 @@
+# -*- coding: utf-8 -*-
+
 import datetime
+from flask import flash
 from models import Teacher, Classmoment, Classgroup, Lesson, Student
 from base_settings import get_setting_simulate_dayhour
 
@@ -109,7 +112,7 @@ def filter_overview(teacher_id, dayhour_str, classgroup_id, lesson_id, changed_i
             lesson = Lesson.query.distinct(Lesson.name).order_by(Lesson.name).first()
 
     #create a dummy classmoment
-    classmoment = Classmoment(day=d, hour=h, schoolyear = get_global_setting_current_schoolyear(), teacher=teacher, lesson=lesson, classgroup=classgroup)
+    classmoment = Classmoment(day=d, hour=h, schoolyear = calculate_current_schoolyear(), teacher=teacher, lesson=lesson, classgroup=classgroup)
     return classmoment
 
 def filter_duplicates_out(in_list):
@@ -120,3 +123,11 @@ def filter_duplicates_out(in_list):
             out_list.append(val)
             added.add(val)
     return out_list
+
+#It is possible to give an extra (exception) message
+#The python UTF-8 string is encoded to html UTF-8
+def flash_plus(message, e=None):
+    if e:
+        flash((u'{}<br><br>Details:<br>{}'.format(message, e)).encode('ascii', 'xmlcharrefreplace'))
+    else:
+        flash((u'{}'.format(message)).encode('ascii', 'xmlcharrefreplace'))

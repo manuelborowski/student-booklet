@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # app/user/views.py
 
-from flask import render_template, redirect, url_for, request, flash
+from flask import render_template, redirect, url_for, request
 from flask_login import login_required, current_user
 
 from .forms import AddForm, EditForm, ViewForm, ChangePasswordForm
@@ -10,6 +10,7 @@ from . import user
 from ..models import User
 
 from ..base_multiple_items import build_filter_and_filter_data, prepare_data_for_html
+from ..base import flash_plus
 from ..tables_config import  tables_configuration
 from ..floating_menu import user_menu_config, admin_menu_config
 
@@ -34,8 +35,8 @@ def users():
         else:
             config['floating_menu'] = user_menu_config
     except Exception as e:
-        log.error("Could not show users {}".format(e))
-        flash('Kan gebruikers niet tonen')
+        log.error(u'Could not show users {}'.format(e))
+        flash_plus(u'Kan gebruikers niet tonen', e)
 
     return render_template('base_multiple_items.html',
                            title='users',
@@ -69,14 +70,14 @@ def add(id=-1):
             db.session.add(user)
             db.session.commit()
             log.info('add : {}'.format(user.log()))
-            #flash('You have added user {}'.format(user.username))
+            #flash_plus('You have added user {}'.format(user.username))
             return redirect(url_for('user.users'))
     except Exception as e:
-        log.error("Could not add user {}".format(e))
-        flash('Kan gebruikers niet toevoegen')
+        log.error(u'Could not add user {}'.format(e))
+        flash_plus(u'Kan gebruikers niet toevoegen', e)
         return redirect(url_for('user.users'))
 
-    return render_template('user/user.html', form=form, title='Add a user', role='add', route='user.users', subject='user')
+    return render_template('user/user.html', form=form, title='Voeg een gebruiker toe', role='add', route='user.users', subject='user')
 
 
 #edit a user
@@ -91,13 +92,13 @@ def edit(id):
             if request.form['button'] == 'Bewaar':
                 form.populate_obj(user)
                 db.session.commit()
-                #flash('You have edited user {}'.format(user.username))
+                #flash_plus('You have edited user {}'.format(user.username))
             return redirect(url_for('user.users'))
     except Exception as e:
-        log.error("Could not edit user {}".format(e))
-        flash('Kan gebruiker niet aanpassen')
+        log.error(u'Could not edit user {}'.format(e))
+        flash_plus(u'Kan gebruiker niet aanpassen', e)
         return redirect(url_for('user.users'))
-    return render_template('user/user.html', form=form, title='Edit a user', role='edit', route='user.users', subject='user')
+    return render_template('user/user.html', form=form, title='Pas een gebruiker aan', role='edit', route='user.users', subject='user')
 
 #no login required
 @user.route('/user/view/<int:id>', methods=['GET', 'POST'])
@@ -109,10 +110,10 @@ def view(id):
         if form.validate_on_submit():
             return redirect(url_for('user.users'))
     except Exception as e:
-        log.error("Could not view user {}".format(e))
-        flash('Kan gebruiker niet bekijken')
+        log.error(u'Could not view user {}'.format(e))
+        flash_plus(u'Kan gebruiker niet bekijken', e)
         return redirect(url_for('user.users'))
-    return render_template('user/user.html', form=form, title='View a user', role='view', route='user.users', subject='user')
+    return render_template('user/user.html', form=form, title='Bekijk een gebruiker', role='view', route='user.users', subject='user')
 
 #delete a user
 @user.route('/user/delete/<int:id>', methods=['GET', 'POST'])
@@ -122,8 +123,8 @@ def view(id):
 def delete(id=-1):
     try:
         if id == 1:
-            log.error('cannot delete this user')
-            flash('Kan de gebruiker admin niet verwijderen')
+            log.error(u'cannot delete this user')
+            flash_plus(u'Kan de gebruiker admin niet verwijderen')
         elif id > -1:
             user = User.query.get(id)
             db.session.delete(user)
@@ -132,15 +133,15 @@ def delete(id=-1):
             cb_id_list = request.form.getlist('cb')
             for id in cb_id_list:
                 if int(id) == 1:
-                    log.error('cannot delete this user')
-                    flash('Kan de gebruiker admin niet verwijderen')
+                    log.error(u'cannot delete this user')
+                    flash_plus(u'Kan de gebruiker admin niet verwijderen')
                     continue
                 user = User.query.get(int(id))
                 db.session.delete(user)
             db.session.commit()
     except Exception as e:
-        log.error('Could not delete user : {}'.format(e))
-        flash('Kan de gebruikers niet verwijderen')
+        log.error(u'Could not delete user : {}'.format(e))
+        flash_plus(u'Kan de gebruikers niet verwijderen', e)
     return redirect(url_for('user.users'))
 
 @user.route('/user/change-password/<int:id>', methods=['GET', 'POST'])
@@ -154,11 +155,11 @@ def change_pwd(id):
             if user.verify_password(form.old_password.data):
                 user.password = form.new_password.data
                 db.session.commit()
-                flash('Je paswoord is aangepast.')
+                flash_plus(u'Je paswoord is aangepast.')
                 return redirect(url_for('user.users'))
-            flash('Ongeldige gebruikersnaam of paswoord.')
+            flash_plus(u'Ongeldige gebruikersnaam of paswoord.')
     except Exception as e:
-        log.error('Could not change password : {}'.format(e))
-        flash('Kan het paswoord niet aanpassen')
+        log.erroru('Could not change password : {}'.format(e))
+        flash_plus(u'Kan het paswoord niet aanpassen', e)
         return redirect(url_for('user.users'))
-    return render_template('user/user.html', form=form, title='Change password', role='change_password', route='user.users', subject='user')
+    return render_template('user/user.html', form=form, title='Verander paswoord', role='change_password', route='user.users', subject='user')

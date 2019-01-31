@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-# app/settings/views.py
 
-from flask import render_template, redirect, url_for, request, flash
+from flask import render_template, redirect, url_for, request
 from flask_login import login_required
-from ..base_settings import get_global_setting_current_schoolyear, set_global_setting_current_schoolyear, \
-    get_setting_simulate_dayhour, set_setting_simulate_dayhour
-from ..base import calculate_current_schoolyear, get_all_schoolyears_from_database
+from ..base_settings import set_global_setting_current_schoolyear, get_setting_simulate_dayhour, set_setting_simulate_dayhour
+from ..base import calculate_current_schoolyear, get_all_schoolyears_from_database, flash_plus
 from . import settings
-from .. import db, app, log, admin_required
-from ..models import Settings, Classgroup, Student, Teacher, Lesson, Classmoment, Offence, Type, Measure, ExtraMeasure
+from .. import db, log, admin_required
+from ..models import Classgroup, Student, Teacher, Lesson, Classmoment, Offence, Type, Measure, ExtraMeasure
 from ..documents import  get_doc_path, get_doc_reference
 
 import os, datetime, random
@@ -22,10 +20,10 @@ def get_settings_and_show():
         last = schoolyear_list[-1]
         schoolyear_list.append(last+101)
     except Exception as e:
-        log.error('Could not check the database for students or timetables, error {}'.format(e))
-        flash('Er is een fout opgetreden bij het ophalen van de instellingen')
+        log.error(u'Could not check the database for students or timetables, error {}'.format(e))
+        flash_plus(u'Er is een fout opgetreden bij het ophalen van de instellingen', e)
 
-    return render_template('settings/settings.html',
+    return render_template(u'settings/settings.html',
                             simulate_dayhour = get_setting_simulate_dayhour(),
                             schoolyear_list = schoolyear_list,
                             title='settings')
@@ -69,11 +67,11 @@ def upload_photos(rfile):
         zip_ref = zipfile.ZipFile(zip_file, 'r')
         zip_ref.extractall(get_doc_path('photo'))
         zip_ref.close()
-        log.info('Uploaded photos')
-        flash('Foto\'s zijn geimporteerd')
+        log.info(u'Uploaded photos')
+        flash_plus(u'Foto\'s zijn geïmporteerd')
     except Exception as e:
-        log.error('Cannot import photos : {}'.format(e))
-        flash('Kan bestand niet importeren')
+        log.error(u'Cannot import photos : {}'.format(e))
+        flash_plus(u'Kan bestand niet importeren', e)
     return
 
 #NAAM           last_name
@@ -85,7 +83,7 @@ def upload_photos(rfile):
 def import_students(rfile):
     try:
         # format csv file :
-        log.info('Import students from : {}'.format(rfile))
+        log.info(u'Import students from : {}'.format(rfile))
         students_file = csv.DictReader(rfile,  delimiter=';', encoding='utf-8-sig')
 
         nbr_students = 0
@@ -116,12 +114,12 @@ def import_students(rfile):
                     db.session.add(student)
                     nbr_students += 1
         db.session.commit()
-        log.info('import: added {} students and {} classgroups'.format(nbr_students, nbr_classgroups))
-        flash('Leerlingen zijn geimporteerd')
+        log.info(u'import: added {} students and {} classgroups'.format(nbr_students, nbr_classgroups))
+        flash_plus(u'Leerlingen zijn geïmporteerd')
 
     except Exception as e:
-        flash('Kan bestand niet importeren')
-        log.error('cannot import : {}'.format(e))
+        flash_plus(u'Kan bestand niet importeren', e)
+        log.error(u'cannot import : {}'.format(e))
     return
 
 #FAMILIENAAM    last_name
@@ -131,8 +129,8 @@ def import_students(rfile):
 def import_teachers(rfile):
     try:
         # format csv file :
-        log.info('Import teachers from : {}'.format(rfile))
-        teachers_file = csv.DictReader(rfile,  delimiter=';', encoding='utf-8-sig')
+        log.info(u'Import teachers from : {}'.format(rfile))
+        teachers_fsile = csv.DictReader(rfile,  delimiter=';', encoding='utf-8-sig')
         nbr_teachers = 0
         for t in teachers_file:
             #skip empy records
@@ -146,11 +144,11 @@ def import_teachers(rfile):
                     nbr_teachers += 1
 
         db.session.commit()
-        log.info('import: added {} teachers'.format(nbr_teachers))
-        flash('Leerkrachten zijn geimporteerd')
+        log.info(u'import: added {} teachers'.format(nbr_teachers))
+        flash_plus(u'Leerkrachten zijn geïmporteerd')
 
     except Exception as e:
-        flash('Kan bestand niet importeren')
+        flash_plus(u'Kan bestand niet importeren', e)
     return
 
 #VOLGNUMMER
@@ -164,7 +162,7 @@ def import_teachers(rfile):
 def import_timetable(rfile):
     try:
         # format csv file :
-        log.info('Import timetable from : {}'.format(rfile))
+        log.info(u'Import timetable from : {}'.format(rfile))
         schoolyear = request.form['select_schoolyear']
 
         #first, delete current timetable
@@ -173,6 +171,7 @@ def import_timetable(rfile):
         timetable_file = csv.DictReader(rfile,  delimiter=';', encoding='utf-8-sig')
         nbr_classmoments = 0
         nbr_lessons = 0
+        error_message = ''
 
         for t in timetable_file:
             #skip empy records
@@ -197,16 +196,21 @@ def import_timetable(rfile):
                             nbr_classmoments += 1
 
                     else:
-                        log.info('import timetable: classgroup not found {}'.format(t['KLAS']))
+                        log.info(u'import timetable: classgroup not found {}'.format(t['KLAS']))
+                        error_message += u'{} : niet gevondend<br>'.format(t['KLAS'])
                 else:
-                    log.info('import timetable: teacher not found: {}'.format(t['LEERKRACHT']))
+                    log.info(u'import timetable: teacher not found: {}'.format(t['LEERKRACHT']))
+                    error_message += u'{} : niet gevondend<br>'.format(t['LEERKRACHT'])
 
         db.session.commit()
-        log.info('import: added {} classmoments and {} lessons'.format(nbr_classmoments, nbr_lessons))
-        flash('Lesrooster is geimporteerd')
+        log.info(u'import: added {} classmoments and {} lessons'.format(nbr_classmoments, nbr_lessons))
+        if error_message == '':
+            flash_plus(u'Lesrooster is geïmporteerd, {} lestijden en {} lessen toegevoegd'.format(nbr_classmoments, nbr_lessons))
+        else:
+            flash_plus(u'Lesrooster kan niet worden geïmporteerd', format(error_message))
 
     except Exception as e:
-        flash('Kan bestand niet importeren')
+        flash_plus(u'Kan bestand niet importeren', e)
     return
 
 @settings.route('/settings/delete_students', methods=['GET', 'POST'])
@@ -222,11 +226,11 @@ def delete_students():
         for s in students:
             db.session.delete(s)
         db.session.commit()
-        log.info('Deleted students')
-        flash("Studenten van jaar {} zijn gewist".format(schoolyear))
+        log.info(u'Deleted students')
+        flash_plus(u'Studenten van jaar {} zijn gewist'.format(schoolyear))
     except Exception as e:
-        log.error('Could not not delete students from {}, error {}'.format(schoolyear, e))
-        flash("Kan studenten van jaar {} niet wissen".format(schoolyear))
+        log.error(u'Could not not delete students from {}, error {}'.format(schoolyear, e))
+        flash_plus(u'Kan studenten van jaar {} niet wissen'.format(schoolyear), e)
     return redirect(url_for('settings.show'))
 
 def delete_classmoments(schoolyear):
@@ -241,22 +245,22 @@ def delete_classmoments(schoolyear):
 def delete_timetable():
     schoolyear = request.form['select_schoolyear']
     try:
-        delete_classmoments()
-        log.info('Deleted timetable')
-        flash("Lesrooster van jaar {} is gewist".format(schoolyear))
+        delete_classmoments(request.form['select_schoolyear'])
+        log.info(u'Deleted timetable')
+        flash_plus(u'Lesrooster van jaar {} is gewist'.format(schoolyear))
     except Exception as e:
-        log.error('Could not not delete classmoments from {}, error {}'.format(schoolyear, e))
-        flash("Kan lesrooster van jaar {} niet wissen".format(schoolyear))
+        log.error(u'Could not not delete classmoments from {}, error {}'.format(schoolyear, e))
+        flash_plus(u'Kan lesrooster van jaar {} niet wissen'.format(schoolyear), e)
     return redirect(url_for('settings.show'))
 
 offence_dates = [
     ['5/1', '15/1', '16/1', '22/1', '24/1', '8/2', '1/3', '13/3', '15/3'],
     ['5/1', '15/1', '16/1', '22/1', '24/1', '8/2', '1/3', '13/3'],
-    ['5/1', '15/1', '16/1', '22/1', '24/1', '8/2', '9/2', '13/3', '15/3', '19/3', '21/3'],
-    ['5/1', '15/1', '16/1', '22/1', '24/1', '8/2', '9/2', '1/3'],
-    ['5/1', '15/1', '16/1', '22/1', '24/1', '8/2', '9/2', '1/3', '2/3'],
-    ['5/1', '15/1', '16/1', '22/1', '24/1', '8/2', '9/2', '10/2', '11/3', '19/3', '21/3'],
-    ['5/1', '15/1', '16/1', '22/1', '24/1', '8/2', '10/2', '15/2', '16/2', '23/3', '27/3'],
+    #['5/1', '15/1', '16/1', '22/1', '24/1', '8/2', '9/2', '13/3', '15/3', '19/3', '21/3'],
+    #['5/1', '15/1', '16/1', '22/1', '24/1', '8/2', '9/2', '1/3'],
+    #['5/1', '15/1', '16/1', '22/1', '24/1', '8/2', '9/2', '1/3', '2/3'],
+    #['5/1', '15/1', '16/1', '22/1', '24/1', '8/2', '9/2', '10/2', '11/3', '19/3', '21/3'],
+    #['5/1', '15/1', '16/1', '22/1', '24/1', '8/2', '10/2', '15/2', '16/2', '23/3', '27/3'],
 ]
 
 @settings.route('/settings/add_test_students', methods=['GET', 'POST'])
@@ -297,11 +301,11 @@ def add_test_students():
                 db.session.add(measure)
                 db.session.add(offence)
         db.session.commit()
-        log.info('Added test students/offences')
-        flash("Test studenten toegevoegd voor jaar {} ".format(schoolyear))
+        log.info(u'Added test students/offences')
+        flash_plus(u'Test studenten toegevoegd voor jaar {} '.format(schoolyear))
     except Exception as e:
-        log.error('Could not add test students error {}'.format(e))
-        flash("Kan test studenten voor jaar {} niet toevoegen".format(schoolyear))
+        log.error(u'Could not add test students error {}'.format(e))
+        flash_plus(u'Kan test studenten voor jaar {} niet toevoegen'.format(schoolyear), e)
     return redirect(url_for('settings.show'))
 
 @settings.route('/settings/delete_test_students', methods=['GET', 'POST'])
@@ -319,10 +323,10 @@ def delete_test_students():
             #delete students/...
             db.session.delete(s)
         db.session.commit()
-        log.info('Removed test students/offences')
-        flash("Test studenten verwijderd voor jaar {} ".format(schoolyear))
+        log.info(u'Removed test students/offences')
+        flash_plus(u'Test studenten verwijderd voor jaar {} '.format(schoolyear))
     except Exception as e:
-        log.error('Could not delete test students error {}'.format(e))
-        flash("Kan test studenten voor jaar {} niet verwijderen".format(schoolyear))
+        log.error(u'Could not delete test students error {}'.format(e))
+        flash_plus(u'Kan test studenten voor jaar {} niet verwijderen'.format(schoolyear), e)
     return redirect(url_for('settings.show'))
 

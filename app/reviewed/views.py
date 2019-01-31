@@ -1,21 +1,15 @@
 # -*- coding: utf-8 -*-
 
-from flask import render_template, url_for, request, flash, redirect, jsonify
-from flask_login import login_required, current_user
+from flask import render_template
+from flask_login import login_required
 
-from .. import db, log, app
 from . import reviewed
-from ..models import Offence, Type, Measure, Student, ExtraMeasure
-from ..forms import OffenceForm
 from ..base_multiple_items import build_filter_and_filter_data, prepare_data_for_html
 from ..tables_config import  tables_configuration
-
-import datetime, json, base64
 
 @reviewed.route('/reviewed/data', methods=['GET', 'POST'])
 @login_required
 def source_data():
-    only_checkbox_for = current_user.username if current_user.is_strict_user else None
     ajax_table =  prepare_data_for_html(tables_configuration['extra_measure'])
     return ajax_table
 

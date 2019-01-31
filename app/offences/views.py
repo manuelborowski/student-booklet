@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask import render_template, url_for, request, flash, redirect, jsonify
+from flask import render_template, url_for, request, redirect, jsonify
 from flask_login import login_required, current_user
 
 from .. import db, log, app
@@ -8,7 +8,7 @@ from . import offences
 from ..models import Offence, Type, Measure, Student, ExtraMeasure
 from ..forms import OffenceForm
 from ..base_multiple_items import build_filter_and_filter_data, prepare_data_for_html
-from ..base import calculate_current_schoolyear
+from ..base import calculate_current_schoolyear, flash_plus
 from ..tables_config import  tables_configuration
 
 import datetime, json
@@ -47,8 +47,8 @@ def show():
                     offence.type_note = request.form['comment_offence']
             db.session.commit()
         except Exception as e:
-            log.error("Could not edit offences {}".format(e))
-            flash('Kan opmerkingen niet aanpassen')
+            log.error(u'Could not edit offences {}'.format(e))
+            flash_plus(u'Kan opmerkingen niet aanpassen', e)
     #The following line is required only to build the filter-fields on the page.
     _filter, _filter_form, a,b, c = build_filter_and_filter_data(tables_configuration['offence'])
     return render_template('base_multiple_items.html',
@@ -65,8 +65,8 @@ def delete():
             if offence: db.session.delete(offence)
         db.session.commit()
     except Exception as e:
-        log.error('Could not delete offence : {}'.format(e))
-        flash('Kan de opmerkingen niet verwijderen')
+        log.error(u'Could not delete offence : {}'.format(e))
+        flash_plusu('Kan de opmerkingen niet verwijderen', e)
     #The following line is required only to build the filter-fields on the page.
     _filter, _filter_form, a,b, c = build_filter_and_filter_data(tables_configuration['offence'])
     return render_template('base_multiple_items.html',
@@ -86,8 +86,8 @@ def edit():
                 offences.append(offence)
                 students.append(offence.student)
     except Exception as e:
-        log.error('Could not edit offences : {}'.format(e))
-        flash('Kan de opmerkingen niet aanpassen')
+        log.error(u'Could not edit offences : {}'.format(e))
+        flash_plus(u'Kan de opmerkingen niet aanpassen', e)
         return redirect(url_for('offences.show'))
 
     form_offence = OffenceForm()
@@ -187,8 +187,8 @@ def start_review():
                 o.print_types = o.ret_types()
                 o.print_measures = o.ret_measures()
     except Exception as e:
-        log.error('Could not prepare the review : {}'.format(e))
-        flash('Kan de controle niet voorbereiden')
+        log.error(u'Could not prepare the review : {}'.format(e))
+        flash_plus(u'Kan de controle niet voorbereiden', e)
         return redirect(url_for('offences.show'))
 
     return render_template('offence/review.html',
@@ -215,10 +215,10 @@ def add_measure(oids, em):
                 o.extra_measure = extra_measure
         db.session.commit()
     except Exception as e:
-        log.error('Could not add extra measure : {}'.format(e))
-        return jsonify({"status" : False})
+        log.error(u'Could not add extra measure : {}'.format(e))
+        return jsonify({'status' : False})
 
-    return jsonify({"status" : True})
+    return jsonify({'status' : True})
 
 @offences.route('/offences/delete_measure/<int:offence_id>', methods=['GET', 'POST'])
 @login_required
@@ -228,10 +228,10 @@ def delete_measure(offence_id):
         db.session.delete(o.extra_measure)
         db.session.commit()
     except Exception as e:
-        log.error('Could not delete extra measure : {}'.format(e))
-        return jsonify({"status" : False})
+        log.error(u'Could not delete extra measure : {}'.format(e))
+        return jsonify({'status' : False})
 
-    return jsonify({"status" : True})
+    return jsonify({'status' : True})
 
 @offences.route('/offences/match_reviewed/<int:offence_id>', methods=['GET', 'POST'])
 @login_required
@@ -243,11 +243,11 @@ def match_reviewed(offence_id):
                 o.reviewed = True
         db.session.commit()
     except Exception as e:
-        log.error('Could not set the offences in reviewed state : {}'.format(e))
-        return jsonify({"status" : False})
+        log.error(u'Could not set the offences in reviewed state : {}'.format(e))
+        return jsonify({'status' : False})
 
     return redirect(url_for('review.start_review'))
-    return jsonify({"status" : True})
+    return jsonify({'status' : True})
 
 
 @offences.route('/offences/review_done', methods=['GET', 'POST'])
@@ -259,7 +259,7 @@ def review_done():
             o.reviewed = True
         db.session.commit()
     except Exception as e:
-         log.error('Could not set the offences in reviewed state : {}'.format(e))
+         log.error(u'Could not set the offences in reviewed state : {}'.format(e))
 
     return redirect(url_for('reviewed.show'), code=307)
 

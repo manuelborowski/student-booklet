@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from flask import render_template, url_for, request, flash
+from flask import render_template, url_for, request
 from flask_login import login_required
 
 from .forms import ViewForm
 from .. import db, log
 from . import classgroup
 from ..models import Classgroup, Student, Offence, Type, Measure, Teacher, Classmoment, Lesson
-from ..base_settings import get_global_setting_current_schoolyear
-from ..base import  filter_overview, filter_duplicates_out, calculate_current_schoolyear
+from ..base import  filter_overview, filter_duplicates_out, calculate_current_schoolyear, flash_plus
 from ..forms import OffenceForm
 import datetime
 
@@ -33,7 +32,8 @@ def filter_classgroup():
         form.lesson.data=str(classmoment.lesson.id)
         form.lesson.choices = filter_duplicates_out(teacher_lessons + form.lesson.choices)
     except Exception as e:
-        log.error('Cannot filter the classgroup {}'.format(e))
+        log.error(u'Cannot filter the classgroup {}'.format(e))
+        flash_plus(u'Er is een probleem met de filter', e)
         return ViewForm(), []
     return form, students
 
@@ -65,8 +65,8 @@ def show():
                     db.session.add(offence)
             db.session.commit()
     except Exception as e:
-        flash('Kan overtredingen niet opslaan')
-        log.error('Cannot save remarks {}'.format(e))
+        flash_plus(u'Kan overtredingen niet opslaan', e)
+        log.error(u'Cannot save remarks {}'.format(e))
     form, students = filter_classgroup()
     return render_template('classgroup/classgroup.html', form=form, students=students)
 

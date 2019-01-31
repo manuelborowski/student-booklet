@@ -48,7 +48,7 @@
                 {% if 'edit' in config.buttons %}
                 <a class="btn btn-default" onclick="edit_offences()">Pas aan</a>
                 {% endif %}
-                {% if 'start_check' in config.buttons %}
+                {% if 'start_check' in config.buttons and current_user.is_supervisor %}
                     <a class="btn btn-default" onclick="start_review()">Start controle</a>
                 {% endif %}
 
