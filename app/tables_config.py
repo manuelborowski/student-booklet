@@ -1,27 +1,27 @@
 # -*- coding: utf-8 -*-
 
-from models import User, Offence, Teacher, Student, Classgroup, Lesson, Type, Measure, ExtraMeasure
+from models import User, Remark, Teacher, Student, Grade, Lesson, RemarkSubject, RemarkMeasure, ExtraMeasure
 import user.extra_filtering
 from floating_menu import default_menu_config, offence_menu_config
 
 tables_configuration = {
-    'offence' : {
-        'model' : Offence,
+    'remark' : {
+        'model' : Remark,
         'title' : 'Boekje',
-        'subject' :'offences',
+        'subject' :'remarks',
         'buttons' : ['delete', 'edit', 'start_check'],
         'delete_message' : u'Wilt u deze opmerking(en) verwijderen?',
-        'template' : [{'name': 'cb', 'data':'cb', 'order_by': Offence.timestamp, 'width': '1%', 'orderable' : False},
-                      {'name': 'Datum', 'data':'date', 'order_by': Offence.timestamp, 'width': '12%', 'orderable' : True},
+        'template' : [{'name': 'cb', 'data':'cb', 'order_by': Remark.timestamp, 'width': '1%', 'orderable' : False},
+                      {'name': 'Datum', 'data':'date', 'order_by': Remark.timestamp, 'width': '12%', 'orderable' : True},
                       {'name': 'Leerling', 'data':'student.full_name', 'order_by': Student.last_name, 'width': '10%', 'orderable' : True},
                       {'name': '#', 'data':'student.number', 'order_by': lambda k: k['student']['number'], 'width': '1%', 'orderable' : True},
                       {'name': 'LKR', 'data':'teacher.code', 'order_by': Teacher.code, 'width': '1%', 'orderable' : True},
-                      {'name': 'KL', 'data':'classgroup.name', 'order_by': Classgroup.name, 'width': '1%', 'orderable' : True},
-                      {'name': 'Les', 'data':'lesson.name', 'order_by': Lesson.name, 'width': '5%', 'orderable' : True},
-                      {'name': 'Opmerking', 'data':'types', 'order_by': lambda k: k['types'], 'width': '30%', 'orderable' : True},
+                      {'name': 'KL', 'data':'grade.code', 'order_by': Grade.code, 'width': '1%', 'orderable' : True},
+                      {'name': 'Les', 'data':'lesson.code', 'order_by': Lesson.code, 'width': '5%', 'orderable' : True},
+                      {'name': 'Opmerking', 'data':'subjects', 'order_by': lambda k: k['subjects'], 'width': '30%', 'orderable' : True},
                       {'name': 'Maatregel', 'data':'measures', 'order_by': lambda k: k['measures'], 'width': '30%', 'orderable' : True},
                       ],
-        'filter' :  ['schoolyear', 'teacher', 'classgroup', 'lesson', 'reviewed'],
+        'filter' :  ['schoolyear', 'teacher', 'grade', 'lesson', 'reviewed'],
         'href': [],
         # 'href': [{'attribute': '["name"]', 'route': '"asset.view"', 'id': '["id"]'},
         #          {'attribute': '["purchase"]["since"]', 'route': '"purchase.view"', 'id': '["purchase"]["id"]'},
@@ -39,13 +39,11 @@ tables_configuration = {
         'delete_message' : u'Wilt u deze opmerking(en) verwijderen?',
         'template' : [
                       {'name': 'Datum', 'data':'date', 'order_by': ExtraMeasure.timestamp, 'width': '12%', 'orderable' : True},
-                      {'name': 'Leerling', 'data':'offence.student.full_name', 'order_by': Student.last_name, 'width': '10%', 'orderable' : True},
-                      {'name': 'LKR', 'data':'offence.teacher.code', 'order_by': Teacher.code, 'width': '1%', 'orderable' : True},
-                      {'name': 'KL', 'data':'offence.classgroup.name', 'order_by': Classgroup.name, 'width': '1%', 'orderable' : True},
-                      {'name': 'Les', 'data':'offence.lesson.name', 'order_by': Lesson.name, 'width': '5%', 'orderable' : True},
+                      {'name': 'Leerling', 'data':'remark.student.full_name', 'order_by': Student.last_name, 'width': '10%', 'orderable' : True},
+                      {'name': 'KL', 'data':'remark.grade.code', 'order_by': Grade.code, 'width': '1%', 'orderable' : True},
                       {'name': 'Maatregel', 'data':'note', 'order_by': lambda k: k['measures'], 'width': '30%', 'orderable' : True},
                       ],
-        'filter' :  ['schoolyear', 'teacher', 'classgroup', 'lesson'],
+        'filter' :  ['schoolyear', 'teacher', 'grade', 'lesson'],
         'href': [],
         'floating_menu' : [],
         'disable_add_button' : True,

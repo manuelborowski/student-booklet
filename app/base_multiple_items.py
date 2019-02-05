@@ -4,9 +4,9 @@ from wtforms.widgets import HTMLString
 from wtforms import BooleanField
 from flask import request, get_flashed_messages, jsonify, url_for
 from sqlalchemy import or_
-import time
-from models import User, Teacher, Classgroup, Lesson, Student, Offence, ExtraMeasure
-from .forms import ClassgroupFilter, TeacherFilter, SchoolyearFilter
+import time, cgi
+from models import User, Teacher, Grade, Lesson, Student, Remark, ExtraMeasure
+from .forms import GradeFilter, TeacherFilter, SchoolyearFilter
 from . import log
 from .base import flash_plus
 
@@ -69,16 +69,16 @@ def build_filter_and_filter_data(table, paginate=True):
     _template = table['template']
     _filtered_list = _model.query
 
-    if _model is Offence:
+    if _model is Remark:
         _filtered_list = _filtered_list.join(Student)
-        _filtered_list = _filtered_list.join(Classgroup)
+        _filtered_list = _filtered_list.join(Grade)
         _filtered_list = _filtered_list.join(Teacher)
         _filtered_list = _filtered_list.join(Lesson)
 
     if _model is ExtraMeasure:
-        _filtered_list = _filtered_list.join(Offence)
+        _filtered_list = _filtered_list.join(Remark)
         _filtered_list = _filtered_list.join(Student)
-        _filtered_list = _filtered_list.join(Classgroup)
+        _filtered_list = _filtered_list.join(Grade)
         _filtered_list = _filtered_list.join(Teacher)
         _filtered_list = _filtered_list.join(Lesson)
 
@@ -100,10 +100,10 @@ def build_filter_and_filter_data(table, paginate=True):
     if 'date' in _filters_enabled:
         date = check_date_in_form('date_after', request.values)
         if date:
-            _filtered_list = _filtered_list.filter(Offence.timestamp >= Offence.reverse_date(date))
+            _filtered_list = _filtered_list.filter(Remark.timestamp >= Remark.reverse_date(date))
         date = check_date_in_form('date_before', request.values)
         if date:
-            _filtered_list = _filtered_list.filter(Offence.timestamp <= Offence.reverse_date(date))
+            _filtered_list = _filtered_list.filter(Remark.timestamp <= Remark.reverse_date(date))
 
     if 'schoolyear' in _filters_enabled:
         _filter_forms['schoolyear'] = SchoolyearFilter()
@@ -118,17 +118,17 @@ def build_filter_and_filter_data(table, paginate=True):
             _filtered_list = _filtered_list.filter(Teacher.id == value)
 
     if 'classgroup' in _filters_enabled:
-        _filter_forms['classgroup'] = ClassgroupFilter()
+        _filter_forms['classgroup'] = GradeFilter()
         value = check_value_in_form('classgroup', request.values)
         if value and int(value) > -1:
-            _filtered_list = _filtered_list.filter(Classgroup.id == value)
+            _filtered_list = _filtered_list.filter(Grade.id == value)
 
     if 'reviewed' in _filters_enabled:
         value = check_string_in_form('reviewed', request.values)
         if value == 'true':
-            _filtered_list = _filtered_list.filter(Offence.reviewed==True, Offence.measure_id != None).join(ExtraMeasure)
+            _filtered_list = _filtered_list.filter(Remark.reviewed == True, Remark.extra_measure_id != None).join(ExtraMeasure)
         elif value == 'false' or value == '': #default
-            _filtered_list = _filtered_list.filter(Offence.reviewed==False)
+            _filtered_list = _filtered_list.filter(Remark.reviewed == False)
 
 
     # if 'lesson' in _filters_enabled:
@@ -155,10 +155,10 @@ def build_filter_and_filter_data(table, paginate=True):
             search_constraints.append(Student.first_name.like(search_value))
         if Teacher.code in column_list:
             search_constraints.append(Teacher.code.like (search_date))
-        if Classgroup.name in column_list:
-            search_constraints.append(Classgroup.name.like(search_value))
-        if Lesson.name in column_list:
-            search_constraints.append(Lesson.name.like(search_value))
+        if Grade.code in column_list:
+            search_constraints.append(Grade.code.like(search_value))
+        if Lesson.code in column_list:
+            search_constraints.append(Lesson.code.like(search_value))
         if User.username in column_list:
             search_constraints.append(User.username.like(search_value))
         if User.first_name in column_list:
@@ -236,4 +236,4 @@ def prepare_data_for_html(table, only_checkbox_for=None):
     fml = get_flashed_messages()
     if not not fml:
         output['flash'] = fml
-    return jsonify(output)
+    return  jsonify(output)

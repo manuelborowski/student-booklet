@@ -60,8 +60,8 @@ function confirm_before_delete() {
     }
 }
 
-//An offence is about to be edited
-function edit_offences() {
+//An remark is about to be edited
+function edit_remarks() {
     if (is_checkbox_selected()) {
         document.getElementById('button_form').action = Flask.url_for('{{config.subject}}' + ".edit");
         document.getElementById('button_form').submit();
@@ -70,8 +70,8 @@ function edit_offences() {
 
 //Review starts
 function start_review() {
-    //window.location.href = Flask.url_for("offences.start_review");
-    document.getElementById('filter_form').action = Flask.url_for("offences.start_review");
+    //window.location.href = Flask.url_for("remarks.start_review");
+    document.getElementById('filter_form').action = Flask.url_for("remarks.start_review");
     document.getElementById('filter_form').submit();
 }
 
@@ -184,7 +184,7 @@ $(document).ready(function() {
 
     {% if 'row_detail' in config %}
 
-    //For an extra-measure, show the associated offences as a sub-table
+    //For an extra-measure, show the associated remarks as a sub-table
     var d_table_start = '<table cellpadding="5" cellspacing="0" border="2" style="padding-left:50px;">'
     var d_table_stop = '</table>'
     var d_header = '<tr><td>Datum</td><td>Leerling</td><td>LKR</td><td>KL</td><td>Les</td><td>Opmerking</td><td>Maatregel</td></tr>'
@@ -193,15 +193,15 @@ $(document).ready(function() {
     function format ( d ) {
         s = d_table_start;
         s += d_header;
-        for (i=0; i < d.offences.length; i++) {
+        for (i=0; i < d.remarks.length; i++) {
             s += '<tr>'
-            s = s + '<td>' + d.offences[i].date + '</td>';
-            s = s + '<td>' + d.offences[i].student.full_name + '</td>';
-            s = s + '<td>' + d.offences[i].teacher.code + '</td>';
-            s = s + '<td>' + d.offences[i].classgroup.name + '</td>';
-            s = s + '<td>' + d.offences[i].lesson.name + '</td>';
-            s = s + '<td>' + d.offences[i].types + '</td>';
-            s = s + '<td>' + d.offences[i].measures + '</td>';
+            s = s + '<td>' + d.remarks[i].date + '</td>';
+            s = s + '<td>' + d.remarks[i].student.full_name + '</td>';
+            s = s + '<td>' + d.remarks[i].teacher.code + '</td>';
+            s = s + '<td>' + d.remarks[i].grade.code + '</td>';
+            s = s + '<td>' + d.remarks[i].lesson.code + '</td>';
+            s = s + '<td>' + d.remarks[i].subjects + '</td>';
+            s = s + '<td>' + d.remarks[i].measures + '</td>';
             s += '</tr>'
         }
         s += d_table_stop;
@@ -237,28 +237,15 @@ $(document).ready(function() {
     {% endif %}
 
 
-     //flash messages, if required
-     table.on( 'draw', function () {
-        var j = table.ajax.json();
-        $("#flash-list").html('');
-        if(j.flash && j.flash.length) {
-            var flash_string="";
-            for(let s of j.flash) {
-                flash_string += "<div class=\"alert alert-info\" role=\"alert\">" + s +"</div>";
-            }
-                $("#flash-list").html(flash_string);
-        }
-
+    //flash messages, if required
+    table.on( 'draw', function () {
     {% if 'row_detail' in config %}
-
         //Row details
         $.each( detailRows, function ( i, id ) {
             $('#'+id+' td.details-control').trigger( 'click' );
         } );
-
     {% endif %}
-
-     });
+    });
 
 
     //right click on an item in the table.  A menu pops up to execute an action on the selected row/item

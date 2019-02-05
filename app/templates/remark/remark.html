@@ -1,5 +1,5 @@
 {#
-Show a single offence page
+Show a single remark page
 #}
 
 {% import "bootstrap/wtf.html" as wtf %}
@@ -15,14 +15,14 @@ Show a single offence page
             <div class="hidden">
                 {% if save_filters %}
                 {{ wtf.form_field(save_filters.teacher) }}
-                {{ wtf.form_field(save_filters.classgroup) }}
+                {{ wtf.form_field(save_filters.grade) }}
                 {{ wtf.form_field(save_filters.dayhour) }}
                 {{ wtf.form_field(save_filters.lesson) }}
                 <input type="hidden" id="change_id" name="change_id" value="teacher">
                 {% endif %}
-                {% if save_offences %}
-                {% for o in save_offences %}
-                <input type="hidden" name="offence_id" value="{{ o.id|string }}">
+                {% if save_remarks %}
+                {% for r in save_remarks %}
+                <input type="hidden" name="remark_id" value="{{ r.id|string }}">
                 {% endfor %}
                 {% endif %}
             </div>
@@ -37,22 +37,22 @@ Show a single offence page
             </div>
             <div class="container-fluid">
                 <div class="form-group row">
-                    {{ mywtf.select_multiple(form_offence.type, grid_class = 'col-sm-5') }}
-                    {{ mywtf.select_multiple(form_offence.measure, grid_class = 'col-sm-5') }}
+                    {{ mywtf.select_multiple(form_remark.subject, grid_class = 'col-sm-5') }}
+                    {{ mywtf.select_multiple(form_remark.measure, grid_class = 'col-sm-5') }}
                 </div>
                 <div class="form-group row">
                     <div class="col-sm-5">
-                        <label for="comment_offence">Notitie bij opmerking</label>
-                        <textarea class="form-control" rows="5" id="comment_offence" name="comment_offence"></textarea>
+                        <label for="subject_note">Notitie bij opmerking</label>
+                        <textarea class="form-control" rows="5" id="subject_note" name="subject_note"></textarea>
                     </div>
                     <div class="col-sm-5">
-                        <label for="comment_measure">Notitie bij maatregel</label>
-                        <textarea class="form-control" rows="5" id="comment_measure" name="comment_measure"></textarea>
+                        <label for="measure_note">Notitie bij maatregel</label>
+                        <textarea class="form-control" rows="5" id="measure_note" name="measure_note"></textarea>
                     </div>
                 </div>
             </div>
             <br/>
-            <input class="btn btn-default" id="dummy_offence" name="button" type="submit" value="Bewaar">
+            <input class="btn btn-default" id="dummy_remark" name="button" type="submit" value="Bewaar">
             <a class="btn btn-default" href="javascript:history.back()">Annuleer</a>
         </form>
     </div>

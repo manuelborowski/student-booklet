@@ -2,8 +2,9 @@
 
 import datetime
 from flask import flash
-from models import Teacher, Classmoment, Classgroup, Lesson, Student
+from models import Teacher, Schedule, Grade, Lesson, Student
 from base_settings import get_setting_simulate_dayhour
+from . import db
 
 def get_all_schoolyears_from_database():
     schoolyears = Student.query.with_entities(Student.schoolyear).distinct().order_by(Student.schoolyear).all()
@@ -42,7 +43,7 @@ def get_timeslot_from_current_time():
 
     simulate_dayhour = get_setting_simulate_dayhour()
     if simulate_dayhour != '0/0':
-        return Classmoment.decode_dayhour(simulate_dayhour)
+        return Schedule.decode_dayhour(simulate_dayhour)
 
     now = datetime.datetime.now()
     day = now.weekday()+1
@@ -55,65 +56,66 @@ def get_timeslot_from_current_time():
 
 
 
-def filter_overview(teacher_id, dayhour_str, classgroup_id, lesson_id, changed_item=None):
-    #filter on teacher, timeslot , classgroup and lesson
+def filter_overview(teacher_id, dayhour_str, grade_id, lesson_id, changed_item=None):
+    #filter on teacher, timeslot , grade and lesson
     #priority is as follows:
-    #- if teacher is changed: determine timeslot from current time and find classgroup and lesson from timetable
-    #- if timeslot is changed: from teacher and timeslot determine classgroup and lesson from timetable
-    #                             If this does not work, pick first classgroup for that teacher
-    #- if classgroup is changed : from teacher, timeslot and classgroup, try to determine lesson from timetable.
-    #                             If this does not work, pick first available lesson for that classgroup
+    #- if teacher is changed: determine timeslot from current time and find grade and lesson from timetable
+    #- if timeslot is changed: from teacher and timeslot determine grade and lesson from timetable
+    #                             If this does not work, pick first grade for that teacher
+    #- if grade is changed : from teacher, timeslot and grade, try to determine lesson from timetable.
+    #                             If this does not work, pick first available lesson for that grade
     #- if lesson is changed : go with the flow... :-)
     teacher = None
-    classgroup = None
+    grade = None
     lesson = None
     d = 0
     h = 0
 
     if changed_item:
         teacher = Teacher.query.get(teacher_id)
-        classgroup = Classgroup.query.get(classgroup_id)
+        grade = Grade.query.get(grade_id)
         lesson = Lesson.query.get(lesson_id)
-        d, h = Classmoment.decode_dayhour(dayhour_str)
+        d, h = Schedule.decode_dayhour(dayhour_str)
     else:
-        teacher = Teacher.query.distinct(Teacher.code).order_by(Teacher.code).first()
+        #teacher = Teacher.query.distinct(Teacher.code).order_by(Teacher.code).first()
+        schedule = db.session.query(Schedule.teacher_id).distinct().first()
+        teacher = Teacher.query.filter(Teacher.id==schedule.teacher_id).first()
         changed_item = 'teacher'
 
     if changed_item == 'teacher':
         d, h = get_timeslot_from_current_time()
         #if default day and hour (1, 1) is returned, try to find the first avaible lesmoment for given teacher
-        classmoment = Classmoment.query.join(Teacher).filter(Teacher.id == teacher.id).order_by(Classmoment.day, Classmoment.hour).first()
-        if classmoment:
-            d = classmoment.day
-            h = classmoment.hour
+        schedule = Schedule.query.join(Teacher).filter(Teacher.id == teacher.id).order_by(Schedule.day, Schedule.hour).first()
+        if schedule:
+            d = schedule.day
+            h = schedule.hour
         #dayhour_str = '{}/{}'.format(d,h)
         changed_item = 'dayhour'
 
     if changed_item == 'dayhour':
-        #fetch classgroup from timetable
-        classmoment = Classmoment.query.join(Teacher).filter(Classmoment.day == d, Classmoment.hour == h, Teacher.id == teacher.id).first()
-        if classmoment:
-            #the classmoment points to a single teacher, classgroup and lesson
-            print(classmoment)
-            return classmoment
-        # find the first classgroup, teached by given teacher
-        classgroup = Classgroup.query.join(Classmoment).join(Teacher).filter(Teacher.id == teacher.id).distinct(Classgroup.name).order_by(Classgroup.name).first()
-        if not classgroup:
-            #just pick the first classgroup from all classgroups
-            classgroup = Classgroup.query.distinct(Classgroup.name).order_by(Classgroup.name).first()
-        changed_item = 'classgroup'
+        #fetch grade from timetable
+        schedule = Schedule.query.join(Teacher).filter(Schedule.day == d, Schedule.hour == h, Teacher.id == teacher.id).first()
+        if schedule:
+            #the classmoment points to a single teacher, grade and lesson
+            return schedule
+        # find the first grade, teached by given teacher
+        grade = Grade.query.join(Schedule).join(Teacher).filter(Teacher.id == teacher.id).distinct(Grade.code).order_by(Grade.code).first()
+        if not grade:
+            #just pick the first grade from all grades
+            grade = Grade.query.distinct(Grade.code).order_by(Grade.code).first()
+        changed_item = 'grade'
 
-    if changed_item == 'classgroup':
-        #find the first lesson, taken by given classgroup
-        lesson = Lesson.query.join(Classmoment).join(Classgroup).join(Teacher).filter(Classgroup.id == classgroup.id, Teacher.id == teacher.id)\
-                .distinct(Lesson.name).order_by(Lesson.name).first()
+    if changed_item == 'grade':
+        #find the first lesson, taken by given grade
+        lesson = Lesson.query.join(Schedule).join(Grade).join(Teacher).filter(Grade.id == grade.id, Teacher.id == teacher.id)\
+                .distinct(Lesson.code).order_by(Lesson.code).first()
         if not lesson:
             #just pick the first lesson
-            lesson = Lesson.query.distinct(Lesson.name).order_by(Lesson.name).first()
+            lesson = Lesson.query.distinct(Lesson.code).order_by(Lesson.code).first()
 
     #create a dummy classmoment
-    classmoment = Classmoment(day=d, hour=h, schoolyear = calculate_current_schoolyear(), teacher=teacher, lesson=lesson, classgroup=classgroup)
-    return classmoment
+    schedule = Schedule(day=d, hour=h, schoolyear = calculate_current_schoolyear(), teacher=teacher, lesson=lesson, grade=grade)
+    return schedule
 
 def filter_duplicates_out(in_list):
     out_list = []

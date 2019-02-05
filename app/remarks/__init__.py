@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
+# app/home/__init__.py
 
 from flask import Blueprint
 
-classgroup = Blueprint('classgroup', __name__)
+remarks = Blueprint('remarks', __name__)
 
 from . import views

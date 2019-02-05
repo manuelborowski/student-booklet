@@ -3,10 +3,11 @@
 
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-
 from app import db, login_manager
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.sql import func
+
+import cgi
 
 class User(UserMixin, db.Model):
     # Ensures table will be named in plural and not in singular
@@ -138,17 +139,17 @@ class Student(db.Model):
     number = db.Column(db.Integer)
     photo = db.Column(db.String(256))
     schoolyear = db.Column(db.String(256))  #e.g. 1718, 1819
-    offences = db.relationship('Offence', cascade='all, delete', backref='student', lazy='dynamic')
-    classgroup_id = db.Column(db.Integer, db.ForeignKey('classgroups.id', ondelete='CASCADE'))
+    remarks = db.relationship('Remark', cascade='all, delete', backref='student', lazy='dynamic')
+    grade_id = db.Column(db.Integer, db.ForeignKey('grades.id', ondelete='CASCADE'))
 
 
     def __repr__(self):
         return '<Student: {}/{}/{}>'.format(self.id, self.first_name, self.last_name)
 
     def ret_dict(self):
-        return {'id':self.id, 'first_name':self.first_name, 'last_name': self.last_name, 'classgroup': self.classgroup.ret_dict(),
+        return {'id':self.id, 'first_name':self.first_name, 'last_name': self.last_name, 'grade': self.grade.ret_dict(),
                 'full_name': u'{} {}'.format(self.first_name, self.last_name),
-                'number' : Offence.query.join(Student).filter(Student.id == self.id).count()}
+                'number' : Remark.query.join(Student).filter(Student.id == self.id).count()}
 
     # def log(self):
     #     return '<Asset: {}/{}/{}/{}/{}>'.format(self.id, self.name, self.qr_code, self.purchase.since, self.purchase.value)
@@ -157,44 +158,44 @@ class Student(db.Model):
     #     return {'id':self.id, 'name':self.name, 'qr_code':self.qr_code, 'status':self.status, 'location':self.location,
     #             'db_status':self.db_status,  'serial':self.serial, 'description':self.description,'purchase':self.purchase.ret_dict()}
 
-class Classgroup(db.Model):
-    __tablename__= 'classgroups'
+class Grade(db.Model):
+    __tablename__= 'grades'
 
     @staticmethod
     def get_choices_list():
-        l = [i for i in db.session.query(Classgroup.id, Classgroup.name).distinct(Classgroup.name).order_by(Classgroup.name).all()]
+        l = [i for i in db.session.query(Grade.id, Grade.code).distinct(Grade.code).order_by(Grade.code).all()]
         return l
 
     @staticmethod
     def get_choices_with_empty_list():
-        return [(-1, '')] + Classgroup.get_choices_list()
+        return [(-1, '')] + Grade.get_choices_list()
 
     @staticmethod
     def get_choices_filtered_by_teacher_list(teacher):
-        l = [i for i in db.session.query(Classgroup.id, Classgroup.name).join(Classmoment) \
-            .join(Teacher).filter(Teacher.id == teacher.id).distinct(Classgroup.name).order_by(Classgroup.name).all()]
+        l = [i for i in db.session.query(Grade.id, Grade.code).join(Schedule) \
+            .join(Teacher).filter(Teacher.id == teacher.id).distinct(Grade.code).order_by(Grade.code).all()]
         return l
 
     def get_choice(self):
-        return(self.id, self.name)
+        return(self.id, self.code)
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(256))
-    students = db.relationship('Student', cascade='all, delete', backref='classgroup', lazy='dynamic')
-    offences = db.relationship('Offence', cascade='all, delete', backref='classgroup', lazy='dynamic')
-    classmoments = db.relationship('Classmoment', cascade='all, delete', backref='classgroup', lazy='dynamic')
+    code = db.Column(db.String(256))
+    students = db.relationship('Student', cascade='all, delete', backref='grade', lazy='dynamic')
+    remarks = db.relationship('Remark', cascade='all, delete', backref='grade', lazy='dynamic')
+    schedules = db.relationship('Schedule', cascade='all, delete', backref='grade', lazy='dynamic')
 
     def __repr__(self):
-        return 'Classgroup: {}/{}'.format(self.id, self.name)
+        return 'Grade: {}/{}'.format(self.id, self.code)
     #
     # def log(self):
     #     return '<Purchase: {}/{}/{}/{}/{}/{}>'.format(self.id, self.since, self.value, self.device.brand, self.device.type, self.supplier.name)
     #
     def ret_dict(self):
-         return {'id':self.id, 'name': self.name}
+         return {'id':self.id, 'code': self.code}
 
-class Classmoment(db.Model):
-    __tablename__ = 'classmoments'
+class Schedule(db.Model):
+    __tablename__ = 'schedules'
 
     WEEK_DAYS = ['MA', 'DI', 'WO', 'DO', 'VR']
 
@@ -202,7 +203,7 @@ class Classmoment(db.Model):
     def get_choices_day_hour():
         l = []
         day_count=1
-        for d in Classmoment.WEEK_DAYS:
+        for d in Schedule.WEEK_DAYS:
             lh = 6 if d == 'WO' else 10
             for h in range(1,lh):
                 l.append(('{}/{}'.format(day_count, h), '{} : {}'.format(d, h)))
@@ -211,6 +212,16 @@ class Classmoment(db.Model):
 
     def get_data_day_hour(self):
         return '{}/{}'.format(self.day, self.hour)
+
+    @staticmethod
+    def get_teacher_choices_list():
+        l = db.session.query(Schedule.teacher_id, Teacher.code).join(Teacher).distinct().order_by(Teacher.code).all()
+        return l
+
+    @staticmethod
+    def get_grade_choices_list():
+        l = db.session.query(Schedule.grade_id, Grade.code).join(Grade).distinct().order_by(Grade.code).all()
+        return l
 
     @staticmethod
     def decode_dayhour(dayhour):
@@ -224,12 +235,12 @@ class Classmoment(db.Model):
     day = db.Column(db.Integer)
     hour = db.Column(db.Integer)
     schoolyear = db.Column(db.String(256))  #e.g. 1718, 1819
-    classgroup_id = db.Column(db.Integer, db.ForeignKey('classgroups.id', ondelete='CASCADE'))
+    grade_id = db.Column(db.Integer, db.ForeignKey('grades.id', ondelete='CASCADE'))
     teacher_id = db.Column(db.Integer, db.ForeignKey('teachers.id', ondelete='CASCADE'))
     lesson_id = db.Column(db.Integer, db.ForeignKey('lessons.id', ondelete='CASCADE'))
 
     def __repr__(self):
-        return 'Classmoment: {}/{}/{}/{}/{}/{}/{}'.format(self.id, self.day, self.hour, self.schoolyear, self.classgroup.name, self.teacher.code, self.lesson.name)
+        return 'Schedule: {}/{}/{}/{}/{}/{}/{}'.format(self.id, self.day, self.hour, self.schoolyear, self.grade.code, self.teacher.code, self.lesson.code)
     #
     # def log(self):
     #     return '<Device: {}/{}/{}>'.format(self.id, self.brand, self.type)
@@ -244,28 +255,28 @@ class Lesson(db.Model):
 
     @staticmethod
     def get_choices_list():
-        l = [i for i in db.session.query(Lesson.id, Lesson.name).distinct(Lesson.name).order_by(Lesson.name).all()]
+        l = [i for i in db.session.query(Lesson.id, Lesson.code).distinct(Lesson.code).order_by(Lesson.code).all()]
         return l
 
     @staticmethod
     def get_choices_filtered_by_teacher_list(teacher):
-        l = [i for i in db.session.query(Lesson.id, Lesson.name).join(Classmoment) \
-            .join(Teacher).filter(Teacher.id == teacher.id).distinct(Lesson.name).order_by(Lesson.name).all()]
+        l = [i for i in db.session.query(Lesson.id, Lesson.code).join(Schedule) \
+            .join(Teacher).filter(Teacher.id == teacher.id).distinct(Lesson.code).order_by(Lesson.code).all()]
         return l
 
     def get_choice(self):
-        return (self.id, self.name)
+        return (self.id, self.code)
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(256), unique=True)
-    offences = db.relationship('Offence', cascade='all, delete', backref='lesson', lazy='dynamic')
-    classmoments = db.relationship('Classmoment', cascade='all, delete', backref='lesson', lazy='dynamic')
+    code = db.Column(db.String(256), unique=True)
+    remarks = db.relationship('Remark', cascade='all, delete', backref='lesson', lazy='dynamic')
+    schedules = db.relationship('Schedule', cascade='all, delete', backref='lesson', lazy='dynamic')
 
     def __repr__(self):
-        return 'Lesson: {}/{}'.format(self.id, self.name)
+        return 'Lesson: {}/{}'.format(self.id, self.code)
 
     def ret_dict(self):
-        return {'id':self.id, 'name': self.name}
+        return {'id':self.id, 'code': self.code}
     #
     # def log(self):
     #     return '<Supplier: {}/{}>'.format(self.id, self.name)
@@ -292,8 +303,8 @@ class Teacher(db.Model):
     first_name = db.Column(db.String(256))
     last_name = db.Column(db.String(256))
     code = db.Column(db.String(256))
-    offences = db.relationship('Offence', cascade='all, delete', backref='teacher', lazy='dynamic')
-    classmoments = db.relationship('Classmoment', cascade='all, delete', backref='teacher', lazy='dynamic')
+    remarks = db.relationship('Remark', cascade='all, delete', backref='teacher', lazy='dynamic')
+    schedules = db.relationship('Schedule', cascade='all, delete', backref='teacher', lazy='dynamic')
 
     def __repr__(self):
         return 'Teacher: {}/{}'.format(self.id, self.code)
@@ -307,65 +318,65 @@ class ExtraMeasure(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     note = db.Column(db.String(1024), default='')
     timestamp = db.Column(db.DateTime(timezone=True), server_default=func.now())
-    offences = db.relationship('Offence', backref='extra_measure', lazy='dynamic')
+    remarks = db.relationship('Remark', backref='extra_measure', lazy='dynamic')
 
-    def get_offences(self):
+    def get_remarks(self):
         ol = []
-        for o in self.offences:
+        for o in self.remarks:
             ol.append(o.ret_dict())
         return ol
 
     def ret_dict(self):
-        return {'id':self.id, 'note':self.note, 'date':self.timestamp.strftime('%d-%m-%Y %H:%M'), 'offence' : self.offences[0].ret_dict(),
-                'offences' : self.get_offences()}
+        return {'id':self.id, 'note':cgi.escape(self.note), 'date':self.timestamp.strftime('%d-%m-%Y %H:%M'), 'remark' : self.remarks[0].ret_dict(),
+                'remarks' : self.get_remarks()}
 
 
-class Offence(db.Model):
-    __tablename__ = 'offences'
+class Remark(db.Model):
+    __tablename__ = 'remarks'
 
     @staticmethod
     def reverse_date(date):
         return '-'.join(date.split('-')[::-1])
 
     id = db.Column(db.Integer, primary_key=True)
-    type_note = db.Column(db.String(1024), default='')
+    subject_note = db.Column(db.String(1024), default='')
     measure_note = db.Column(db.String(1024), default='')
     timestamp = db.Column(db.DateTime(timezone=True), server_default=func.now())
     student_id = db.Column(db.Integer, db.ForeignKey('students.id', ondelete='CASCADE'))
     lesson_id = db.Column(db.Integer, db.ForeignKey('lessons.id', ondelete='CASCADE'))
     teacher_id = db.Column(db.Integer, db.ForeignKey('teachers.id', ondelete='CASCADE'))
-    classgroup_id = db.Column(db.Integer, db.ForeignKey('classgroups.id', ondelete='CASCADE'))
-    types = db.relationship('Type', cascade='all, delete', backref='offence', lazy='dynamic')
-    measures = db.relationship('Measure', cascade='all, delete', backref='offence', lazy='dynamic')
+    grade_id = db.Column(db.Integer, db.ForeignKey('grades.id', ondelete='CASCADE'))
+    subjects = db.relationship('RemarkSubject', cascade='all, delete', backref='remark', lazy='dynamic')
+    measures = db.relationship('RemarkMeasure', cascade='all, delete', backref='remark', lazy='dynamic')
 
     reviewed = db.Column(db.Boolean, default=False)
-    measure_id = db.Column(db.Integer, db.ForeignKey('extra_measures.id'))
+    extra_measure_id = db.Column(db.Integer, db.ForeignKey('extra_measures.id'))
 
-    def ret_types(self):
+    def ret_subjects(self):
         l = ''
-        for t in self.types:
-            l += Type.types[t.type]
+        for s in self.subjects:
+            l += RemarkSubject.subjects[s.subject]
             l +=', '
-        l += self.type_note
+        l += self.subject_note
         return l
 
     def ret_measures(self):
         l = ''
-        for t in self.measures:
-            l += Measure.measures[t.measure]
+        for m in self.measures:
+            l += RemarkMeasure.measures[m.measure]
             l +=', '
         if self.measure_note != '':
             l = l + self.measure_note + ', '
         return l
 
     def ret_extra_measure(self):
-        return self.extra_measure.note if self.measure_id else ''
+        return self.extra_measure.note if self.extra_measure_id else ''
 
     def ret_dict(self):
-        return {'id':self.id, 'date':self.timestamp.strftime('%d-%m-%Y %H:%M'), 'measure_note': self.measure_note, 'type_note': self.type_note,
-                'teacher':self.teacher.ret_dict(), 'classgroup': self.classgroup.ret_dict(), 'lesson': self.lesson.ret_dict(), 'cb': '',
-                'types': self.ret_types(), 'measures': self.ret_measures(), 'student': self.student.ret_dict(),
-                'extra_measure': self.ret_extra_measure(), 'measure_id': self.measure_id}
+        return {'id':self.id, 'date':self.timestamp.strftime('%d-%m-%Y %H:%M'), 'measure_note': cgi.escape(self.measure_note), 'subject_note': cgi.escape(self.subject_note),
+                'teacher':self.teacher.ret_dict(), 'grade': self.grade.ret_dict(), 'lesson': self.lesson.ret_dict(), 'cb': '',
+                'subjects': self.ret_subjects(), 'measures': self.ret_measures(), 'student': self.student.ret_dict(),
+                'extra_measure': self.ret_extra_measure(), 'measure_id': self.extra_measure_id}
 
     def __repr__(self):
         return u'ID({}) TS({}) SDNT({})'.format(self.id, self.timestamp.strftime('%d-%m-%Y %H:%M'), self.student.first_name + ' ' + self.student.last_name)
@@ -373,10 +384,10 @@ class Offence(db.Model):
     def __str__(self):
         return self.__repr__()
 
-class Type(db.Model):
-    __tablename__ = 'offence_types'
+class RemarkSubject(db.Model):
+    __tablename__ = 'remark_subjects'
 
-    types = {
+    subjects = {
         0: 'Materiaal vergeten',
         1: 'Praten',
         2: 'Stoort de les',
@@ -386,23 +397,23 @@ class Type(db.Model):
     }
 
     #types_skip = (2, 4)
-    types_skip = ()
+    subjects_skip = ()
 
     @staticmethod
     def get_choices_list():
         l = []
-        for k, v in Type.types.iteritems():
-            if k in Type.types_skip: continue
+        for k, v in RemarkSubject.subjects.iteritems():
+            if k in RemarkSubject.subjects_skip: continue
             l.append((k, v))
         return l
 
     id = db.Column(db.Integer, primary_key=True)
-    type = db.Column(db.Integer)
-    offence_id = db.Column(db.Integer, db.ForeignKey('offences.id', ondelete='CASCADE'))
+    subject = db.Column(db.Integer)
+    remark_id = db.Column(db.Integer, db.ForeignKey('remarks.id', ondelete='CASCADE'))
 
 
-class Measure(db.Model):
-    __tablename__ = 'offence_measures'
+class RemarkMeasure(db.Model):
+    __tablename__ = 'remark_measures'
 
     measures =  {
         0: 'Taak maken',
@@ -418,11 +429,11 @@ class Measure(db.Model):
     @staticmethod
     def get_choices_list():
         l = []
-        for k, v in Measure.measures.iteritems():
-            if k in Measure.measures_skip: continue
+        for k, v in RemarkMeasure.measures.iteritems():
+            if k in RemarkMeasure.measures_skip: continue
             l.append((k, v))
         return l
 
     id = db.Column(db.Integer, primary_key=True)
     measure = db.Column(db.Integer)
-    offence_id = db.Column(db.Integer, db.ForeignKey('offences.id', ondelete='CASCADE'))
+    remark_id = db.Column(db.Integer, db.ForeignKey('remarks.id', ondelete='CASCADE'))

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # app/auth/views.py
 
-from flask import flash, redirect, render_template, url_for, request
+from flask import redirect, render_template, url_for, request
 from flask_login import login_required, login_user, logout_user
 
 from .. import log, db, app
@@ -49,7 +49,7 @@ def login():
                 flash_plus(u'Fout in database', e)
                 return redirect(url_for('auth.login'))
             # Ok, continue
-            return redirect(url_for('classgroup.show'))
+            return redirect(url_for('grade.show'))
         else:
             flash_plus(u'Ongeldige gebruikersnaam of paswoord')
             log.error(u'Invalid username/password')
@@ -85,7 +85,7 @@ def smartschool_profile(token):
             flash_plus(u'Fout in database', e)
             return redirect(url_for('auth.login'))
         #Ok, continue
-        return redirect(url_for('classgroup.show'))
+        return redirect(url_for('grade.show'))
 
     flash_plus(u'Geen geldige smartschoolaccount, alleen leerkrachten, directie of personeel')
     log.error(u'Invalid smartschool account : {}'.format(profile['username']))

@@ -1,8 +1,8 @@
 $(document).ready(function(){
-    $("#teacher").change(function(){$('#change_id').val('teacher');$("#filter_form").submit();});
-    $("#dayhour").change(function(){$('#change_id').val('dayhour');$("#filter_form").submit();});
-    $("#classgroup").change(function(){$('#change_id').val('classgroup');$("#filter_form").submit();});
-    $("#lesson").change(function(){$('#change_id').val('lesson');$("#filter_form").submit();});
+    $("#teacher").change(function(){$('#change_id').val('teacher');$("#form_filter").submit();});
+    $("#dayhour").change(function(){$('#change_id').val('dayhour');$("#form_filter").submit();});
+    $("#grade").change(function(){$('#change_id').val('grade');$("#form_filter").submit();});
+    $("#lesson").change(function(){$('#change_id').val('lesson');$("#form_filter").submit();});
 
 
     $('figure').click(function() {

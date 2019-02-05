@@ -59,8 +59,8 @@
       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <ul id="sb_navbar" class="nav navbar-nav navbar-right">
               {% if current_user.is_authenticated %}
-                  <li ><a name="test" href="{{ url_for('classgroup.show') }}">Klas</a></li>
-                  <li><a href="{{ url_for('offences.show') }}">Boekje</a></li>
+                  <li ><a name="test" href="{{ url_for('grade.show') }}">Klas</a></li>
+                  <li><a href="{{ url_for('remarks.show') }}">Boekje</a></li>
                   <li><a href="{{ url_for('reviewed.show') }}">Gecontroleerd</a></li>
                   {% if current_user.is_admin %}
                       <li><a href="{{ url_for('user.users') }}">Gebruikers</a></li>

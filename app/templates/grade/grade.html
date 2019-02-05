@@ -4,12 +4,12 @@
 
 {% block content2 %}
 <div class="content-section">
-    <form action="{{ url_for('classgroup.show')}}" method="post" class="form" role="form" id="filter_form" enctype=multipart/form-data>
+    <form action="{{ url_for('grade.show')}}" method="post" class="form" role="form" id="form_filter" enctype=multipart/form-data>
         <div id="filter_group">
-            {{ wtf.form_field(form.teacher, form_type="horizontal", horizontal_columns=("sm", 1, 1)) }}
-            {{ wtf.form_field(form.dayhour, form_type="horizontal", horizontal_columns=("sm", 1, 1)) }}
-            {{ wtf.form_field(form.classgroup, form_type="horizontal", horizontal_columns=("sm", 1, 1)) }}
-            {{ wtf.form_field(form.lesson, form_type="horizontal", horizontal_columns=("sm", 1, 1)) }}
+            {{ wtf.form_field(form_filter.teacher, form_type="horizontal", horizontal_columns=("sm", 1, 1)) }}
+            {{ wtf.form_field(form_filter.dayhour, form_type="horizontal", horizontal_columns=("sm", 1, 1)) }}
+            {{ wtf.form_field(form_filter.grade, form_type="horizontal", horizontal_columns=("sm", 1, 1)) }}
+            {{ wtf.form_field(form_filter.lesson, form_type="horizontal", horizontal_columns=("sm", 1, 1)) }}
             <input type="hidden" id="change_id" name="change_id" value="test">
             <br/>
             <br/>
@@ -23,7 +23,7 @@
             </figure>
         {% endfor %}
         </div>
-        <button class="btn btn-default" name="button" formaction="{{ url_for('classgroup.new_offence')}}">Volgende</button>
+        <button class="btn btn-default" name="button" formaction="{{ url_for('grade.new_remark')}}">Volgende</button>
         <a class="btn btn-default" type=button" id="select_all" onclick="select_all_students()">Iedereen</a>
 
     </form>
@@ -32,5 +32,5 @@
 
 {% block scripts %}
 {{ super() }}
-<script type="text/javascript" > {% include "classgroup/classgroup.js" %}</script>
+<script type="text/javascript" > {% include "grade/grade.js" %}</script>
 {% endblock %}

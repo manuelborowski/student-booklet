@@ -90,8 +90,8 @@ def create_app(config_name):
         #uncheck when migrating database
         #return app
 
-        from .classgroup import classgroup as classgroup_blueprint
-        app.register_blueprint(classgroup_blueprint)
+        from .grade import grade as grade_blueprint
+        app.register_blueprint(grade_blueprint)
 
         from .auth import auth as auth_blueprint
         app.register_blueprint(auth_blueprint)
@@ -102,8 +102,8 @@ def create_app(config_name):
         from .user import user as user_blueprint
         app.register_blueprint(user_blueprint)
 
-        from .offences import offences as offences_blueprint
-        app.register_blueprint(offences_blueprint)
+        from .remarks import remarks as remarks_blueprint
+        app.register_blueprint(remarks_blueprint)
 
         from .reviewed import reviewed as reviewed_blueprint
         app.register_blueprint(reviewed_blueprint)

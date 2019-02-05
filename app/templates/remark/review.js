@@ -3,19 +3,19 @@ var match_id;
 $(document).ready(function(){
     $('#myModal').on('hide.bs.modal', function (e) {
         if (document.activeElement.id == 'close_modal') {
-            var oids = [];
+            var remark_ids = [];
             $("form#form_" + match_id + " :input").each(function() {
-                if ($(this).attr('name')=='offence_id') {
-                    oids.push($(this).attr('value'));
+                if ($(this).attr('name')=='remark_id') {
+                    remark_ids.push($(this).attr('value'));
                 }
             });
             var data = {};
-            data.oid_list = oids;
+            data.remark_id_list = remark_ids;
             message = encodeURIComponent($('#modal_extra_measure').val().replace(/\//g, '&47;'));
-            $.getJSON(Flask.url_for('offences.add_measure', {'oids': JSON.stringify(oids), 'em' : message }), function(data) {
+            $.getJSON(Flask.url_for('remarks.add_extra_measure', {'remark_ids': JSON.stringify(remark_ids), 'em' : message }), function(data) {
                 if(data.status) {
                     button_extra_measure_visible(match_id, false);
-                    $('#txt_extra_measure_' + match_id).html($('#modal_extra_measure').val());
+                    $('#txt_extra_measure_' + match_id).text($('#modal_extra_measure').val());
                     $('#txt_extra_measure_' + match_id).fadeIn('fast');
                 } else {
                     bootbox.alert('Fout: kan de extra sanctie niet toevoegen');
@@ -39,18 +39,18 @@ function extra_measure(mid) {
     $('#myModal').modal();
 }
 
-function delete_measure(mid) {
+function delete_extra_measure(mid) {
     bootbox.confirm("Bent u zeker dat u deze maatregel wilt verwijderen?", function (result) {
         if (result) {
-            //Find the first offence and use that id
-            var offence_id = -1;
+            //Find the first remark and use that id
+            var remark_id = -1;
             $("form#form_" + mid + " :input").each(function() {
-                if ($(this).attr('name')=='offence_id') {
-                    offence_id = ($(this).attr('value'));
+                if ($(this).attr('name')=='remark_id') {
+                    remark_id = ($(this).attr('value'));
                     return false;
                 }
             });
-            $.getJSON(Flask.url_for('offences.delete_measure', {'offence_id': offence_id}), function(data) {
+            $.getJSON(Flask.url_for('remarks.delete_extra_measure', {'remark_id': remark_id}), function(data) {
                 if(data.status) {
                     button_extra_measure_visible(mid, true);
                 } else {
@@ -72,28 +72,12 @@ function review_done() {
     });
     if(all_reviewed) {
         bootbox.confirm("Bent u zeker dat u de controle wil beëindigen?", function (result) {
-            //window.location.href = Flask.url_for('offences.review_done');
+            //window.location.href = Flask.url_for('remarks.review_done');
             $("#form_review_done").submit();
         });
     } else {
         bootbox.alert("Opgepast, nog niet alle leerlingen zijn gecontroleerd!");
     }
-}
-
-function match_reviewed(mid) {
-    bootbox.confirm("De controle is in orde?", function (result) {
-        if (result) {
-            //Find the first offence and use that id
-            var offence_id = -1;
-            $("form#form_" + mid + " :input").each(function() {
-                if ($(this).attr('name')=='offence_id') {
-                    offence_id = ($(this).attr('value'));
-                    return false;
-                }
-            });
-            window.location.href = Flask.url_for('offences.match_reviewed', {'offence_id': offence_id});
-        }
-    });
 }
 
 function do_at_ready() {
