@@ -14,7 +14,10 @@ import datetime
 def filter_grade():
     try :
         if 'change_id' in request.form:
-            schedule = filter_overview(int(request.form['teacher']), request.form['dayhour'], int(request.form['grade']), int(request.form['lesson']), request.form['change_id'])
+            if request.form['dayhour'] == 'disabled' or request.form['grade'] == 'disabled' or request.form['lesson'] == 'disabled':
+                schedule = filter_overview(int(request.form['teacher']), '', 0, 0, 'teacher')
+            else:
+                schedule = filter_overview(int(request.form['teacher']), request.form['dayhour'], int(request.form['grade']), int(request.form['lesson']), request.form['change_id'])
         else:
             schedule = filter_overview(0, 0, 0, 0) #default settings
     except Exception as e:
@@ -34,9 +37,9 @@ def filter_grade():
         form_filter.dayhour.data=schedule.get_data_day_hour()
         form_filter.dayhour.choices = Schedule.get_choices_day_hour()
         form_filter.grade.data=str(schedule.grade.id)
-        form_filter.grade.choices = filter_duplicates_out(teacher_grades + Schedule.get_grade_choices_list())
+        form_filter.grade.choices = filter_duplicates_out(teacher_grades, Schedule.get_grade_choices_list())
         form_filter.lesson.data=str(schedule.lesson.id)
-        form_filter.lesson.choices = filter_duplicates_out(teacher_lessons + Lesson.get_choices_list())
+        form_filter.lesson.choices = filter_duplicates_out(teacher_lessons, Lesson.get_choices_list())
     except Exception as e:
         log.error(u'Cannot filter the grade {}'.format(e))
         flash_plus(u'Er is een probleem met de filter', e)

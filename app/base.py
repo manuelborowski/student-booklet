@@ -30,7 +30,7 @@ def get_timeslot_from_current_time():
         (12*60+5,  12*60+5+55,  5),
         (13*60+0,  13*60+0+50,  6),
         (13*60+50, 13*60+50+50, 7),
-        (14*60+55, 15*60+55+50, 8),
+        (14*60+55, 14*60+55+50, 8),
         (15*60+45, 15*60+45+50, 9),
     ]
 
@@ -73,9 +73,6 @@ def filter_overview(teacher_id, dayhour_str, grade_id, lesson_id, changed_item=N
 
     if changed_item:
         teacher = Teacher.query.get(teacher_id)
-        grade = Grade.query.get(grade_id)
-        lesson = Lesson.query.get(lesson_id)
-        d, h = Schedule.decode_dayhour(dayhour_str)
     else:
         #teacher = Teacher.query.distinct(Teacher.code).order_by(Teacher.code).first()
         schedule = db.session.query(Schedule.teacher_id).distinct().first()
@@ -94,6 +91,8 @@ def filter_overview(teacher_id, dayhour_str, grade_id, lesson_id, changed_item=N
             h = schedule.hour
         #dayhour_str = '{}/{}'.format(d,h)
         changed_item = 'dayhour'
+    else:
+        d, h = Schedule.decode_dayhour(dayhour_str)
 
     if changed_item == 'dayhour':
         #fetch grade from timetable
@@ -107,6 +106,8 @@ def filter_overview(teacher_id, dayhour_str, grade_id, lesson_id, changed_item=N
             #just pick the first grade from all grades
             grade = Grade.query.distinct(Grade.code).order_by(Grade.code).first()
         changed_item = 'grade'
+    else:
+        grade = Grade.query.get(grade_id)
 
     if changed_item == 'grade':
         #find the first lesson, taken by given grade
@@ -115,19 +116,19 @@ def filter_overview(teacher_id, dayhour_str, grade_id, lesson_id, changed_item=N
         if not lesson:
             #just pick the first lesson
             lesson = Lesson.query.distinct(Lesson.code).order_by(Lesson.code).first()
+    else:
+        lesson = Lesson.query.get(lesson_id)
 
     #create a dummy classmoment
     schedule = Schedule(day=d, hour=h, schoolyear = calculate_current_schoolyear(), teacher=teacher, lesson=lesson, grade=grade)
     return schedule
 
-def filter_duplicates_out(in_list):
-    out_list = []
-    added = set()
-    for val in in_list:
-        if not val in added:
-            out_list.append(val)
-            added.add(val)
-    return out_list
+def filter_duplicates_out(keep_list, filter_list):
+    keep_list.append(('disabled', '--------'))
+    for i in filter_list:
+        if not i in keep_list:
+            keep_list.append(i)
+    return keep_list
 
 #It is possible to give an extra (exception) message
 #The python UTF-8 string is encoded to html UTF-8
