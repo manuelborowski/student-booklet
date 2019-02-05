@@ -14,22 +14,39 @@ $(document).ready(function(){
             $(this).find('#id').attr('name', 'student_id');
         }
     });
-    $("#select_all").html("Iedereen");
+    $("#select_all").html("Selecteer iedereen");
 
 });
 
 function select_all_students() {
-    if ($("#select_all").html() == "Iedereen") {
+    if ($("#select_all").html() == "Selecteer iedereen") {
         $('figure').addClass('selected');
         $('#students input').each(function(i){
             $(this).attr('name', 'student_id');
         });
-        $("#select_all").html("Niemand");
+        $("#select_all").html("Selecteer niemand");
     } else {
         $('figure').removeClass('selected');
         $('#students input').each(function(i){
             $(this).attr('name', '');
         });
-        $("#select_all").html("Iedereen");
+        $("#select_all").html("Selecteer iedereen");
+    }
+}
+
+function add_remark() {
+    var student_selected = false;
+    $('#students input').each(function(i){
+        if($(this).attr('name') == 'student_id') {
+            student_selected = true;
+            return false;
+        }
+    });
+    if (student_selected) {
+        $("#form_filter").attr("action", "{{ url_for('grade.new_remark')}}");
+        $("#form_filter").submit();
+    } else {
+        bootbox.alert("U moet minstens 1 leerling selecteren");
+        console.log('test, eerst selecteren')
     }
 }

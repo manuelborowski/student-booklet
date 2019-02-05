@@ -117,9 +117,9 @@ def build_filter_and_filter_data(table, paginate=True):
         if value and int(value) > -1:
             _filtered_list = _filtered_list.filter(Teacher.id == value)
 
-    if 'classgroup' in _filters_enabled:
-        _filter_forms['classgroup'] = GradeFilter()
-        value = check_value_in_form('classgroup', request.values)
+    if 'grade' in _filters_enabled:
+        _filter_forms['grade'] = GradeFilter()
+        value = check_value_in_form('grade', request.values)
         if value and int(value) > -1:
             _filtered_list = _filtered_list.filter(Grade.id == value)
 

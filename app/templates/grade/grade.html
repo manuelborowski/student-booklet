@@ -3,34 +3,40 @@
 {% extends "base.html" %}
 
 {% block content2 %}
-<div class="content-section">
-    <form action="{{ url_for('grade.show')}}" method="post" class="form" role="form" id="form_filter" enctype=multipart/form-data>
+<div class="content-section center">
+    <h3>Klasoverzicht</h3>
+    <form action="{{ url_for('grade.show')}}" method="post" class="form" role="form" id="form_filter"
+          enctype=multipart/form-data>
         <div id="filter_group">
-            {{ wtf.form_field(form_filter.teacher, form_type="horizontal", horizontal_columns=("sm", 1, 1)) }}
-            {{ wtf.form_field(form_filter.dayhour, form_type="horizontal", horizontal_columns=("sm", 1, 1)) }}
-            {{ wtf.form_field(form_filter.grade, form_type="horizontal", horizontal_columns=("sm", 1, 1)) }}
-            {{ wtf.form_field(form_filter.lesson, form_type="horizontal", horizontal_columns=("sm", 1, 1)) }}
+            <table class="table-condensed ">
+                <tr>
+                    <td>{{ wtf.form_field(form_filter.teacher) }}</td>
+                    <td>{{ wtf.form_field(form_filter.dayhour) }}</td>
+                    <td>{{ wtf.form_field(form_filter.grade) }}</td>
+                    <td>{{ wtf.form_field(form_filter.lesson) }}</td>
+                </tr>
+            </table>
             <input type="hidden" id="change_id" name="change_id" value="test">
-            <br/>
             <br/>
         </div>
         <div class="container-fluid" id="students">
-        {% for s in students %}
+            {% for s in students %}
             <figure class="imagecaption" style="text-align:center;">
                 <img src="../../static/photo/{{ s.photo }}" height="120" align="middle">
                 <figcaption>{{s.first_name}}<br>{{s.last_name}}</figcaption>
                 <input type="hidden" id="id" value="{{ s.id|string }}">
             </figure>
-        {% endfor %}
+            {% endfor %}
         </div>
-        <button class="btn btn-default" name="button" formaction="{{ url_for('grade.new_remark')}}">Volgende</button>
-        <a class="btn btn-default" type=button" id="select_all" onclick="select_all_students()">Iedereen</a>
-
+        <br>
     </form>
+    <button class="btn btn-default" name="button" onclick="add_remark();">Volgende</button>
+    <a class="btn btn-default" type=button" id="select_all" onclick="select_all_students()">Selecteer iedereen</a>
+
 </div>
 {% endblock %}
 
 {% block scripts %}
 {{ super() }}
-<script type="text/javascript" > {% include "grade/grade.js" %}</script>
+<script type="text/javascript"> {% include "grade/grade.js" %}</script>
 {% endblock %}

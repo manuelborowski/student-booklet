@@ -84,8 +84,11 @@ def filter_overview(teacher_id, dayhour_str, grade_id, lesson_id, changed_item=N
 
     if changed_item == 'teacher':
         d, h = get_timeslot_from_current_time()
-        #if default day and hour (1, 1) is returned, try to find the first avaible lesmoment for given teacher
-        schedule = Schedule.query.join(Teacher).filter(Teacher.id == teacher.id).order_by(Schedule.day, Schedule.hour).first()
+        #try to find the classmoment, equal to or later than the given day and hour
+        schedule = Schedule.query.join(Teacher).filter(Teacher.id == teacher.id, Schedule.day <= d, Schedule.hour <= h).\
+            order_by(Schedule.day.desc(), Schedule.hour.desc()).first()
+        if not schedule:
+            schedule = Schedule.query.join(Teacher).filter(Teacher.id == teacher.id).order_by(Schedule.day, Schedule.hour).first()
         if schedule:
             d = schedule.day
             h = schedule.hour

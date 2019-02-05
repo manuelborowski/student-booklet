@@ -87,8 +87,8 @@ $(document).ready(function() {
         {% if 'teacher' in filter %}
         $('#teacher').val('');
         {% endif %}
-        {% if 'classgroup' in filter %}
-        $('#classgroup').val('');
+        {% if 'grade' in filter %}
+        $('#grade').val('');
         {% endif %}
         {% if 'reviewed' in filter %}
         $('#rbn_reviewed_false').prop("checked", true);
@@ -107,8 +107,8 @@ $(document).ready(function() {
         {% if 'teacher' in filter %}
         $('#teacher').val(filter_settings['teacher']);
         {% endif %}
-        {% if 'classgroup' in filter %}
-        $('#classgroup').val(filter_settings['classgroup']);
+        {% if 'grade' in filter %}
+        $('#grade').val(filter_settings['grade']);
         {% endif %}
         {% if 'reviewed' in filter %}
         $('#rbn_reviewed_' + filter_settings['reviewed']).prop("checked", true);
@@ -128,8 +128,8 @@ $(document).ready(function() {
             {% if 'teacher' in filter %}
             "teacher" : $('#teacher').val(),
             {% endif %}
-            {% if 'classgroup' in filter %}
-            "classgroup" : $('#classgroup').val(),
+            {% if 'grade' in filter %}
+            "grade" : $('#grade').val(),
             {% endif %}
             {% if 'reviewed' in filter %}
             "reviewed" : $('input[name=rbn_reviewed]:checked').val()
@@ -236,8 +236,6 @@ $(document).ready(function() {
 
     {% endif %}
 
-
-    //flash messages, if required
     table.on( 'draw', function () {
     {% if 'row_detail' in config %}
         //Row details

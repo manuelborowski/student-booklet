@@ -23,7 +23,6 @@ $(document).ready(function(){
             });
         }
     });
-    //do_at_ready();
 });
 
 function button_extra_measure_visible(match_id, status) {
@@ -35,10 +34,12 @@ function button_extra_measure_visible(match_id, status) {
 
 function extra_measure(mid) {
     match_id = mid;
-    $('#modal_extra_measure').focus();
     $('#myModal').modal();
 }
 
+$('#myModal').on('shown.bs.modal', function() {
+  $('#modal_extra_measure').focus();
+})
 function delete_extra_measure(mid) {
     bootbox.confirm("Bent u zeker dat u deze maatregel wilt verwijderen?", function (result) {
         if (result) {

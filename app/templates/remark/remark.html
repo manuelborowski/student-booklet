@@ -8,54 +8,54 @@ Show a single remark page
 {% extends "base.html" %}
 
 {% block content2 %}
-<div class="content-section">
-    <div class="center">
-        <form action={{redirect_url}} method="post" class="form" role="form" id="filter_form"
-              enctype=multipart/form-data>
-            <div class="hidden">
-                {% if save_filters %}
-                {{ wtf.form_field(save_filters.teacher) }}
-                {{ wtf.form_field(save_filters.grade) }}
-                {{ wtf.form_field(save_filters.dayhour) }}
-                {{ wtf.form_field(save_filters.lesson) }}
-                <input type="hidden" id="change_id" name="change_id" value="teacher">
-                {% endif %}
-                {% if save_remarks %}
-                {% for r in save_remarks %}
-                <input type="hidden" name="remark_id" value="{{ r.id|string }}">
-                {% endfor %}
-                {% endif %}
+<div class="content-section center">
+    <h3>Opmerking toevoegen</h3>
+    <form action={{redirect_url}} method="post" class="form" role="form" id="filter_form"
+          enctype=multipart/form-data>
+        <div class="hidden">
+            {% if save_filters %}
+            {{ wtf.form_field(save_filters.teacher) }}
+            {{ wtf.form_field(save_filters.grade) }}
+            {{ wtf.form_field(save_filters.dayhour) }}
+            {{ wtf.form_field(save_filters.lesson) }}
+            <input type="hidden" id="change_id" name="change_id" value="teacher">
+            {% endif %}
+            {% if save_remarks %}
+            {% for r in save_remarks %}
+            <input type="hidden" name="remark_id" value="{{ r.id|string }}">
+            {% endfor %}
+            {% endif %}
+        </div>
+        <div class="container-fluid">
+            {% for s in students %}
+            <figure class="imagecaption" style="text-align:center;">
+                <img src="../../static/photo/{{ s.photo }}" height="120">
+                <figcaption>{{s.first_name}}<br>{{s.last_name}}</figcaption>
+                <input type="hidden" id="id" name="student_id" value="{{ s.id|string }}">
+            </figure>
+            {% endfor %}
+        </div>
+        <br>
+        <div class="container-fluid">
+            <div class="form-group row">
+                {{ mywtf.select_multiple(form_remark.subject, grid_class = 'col-sm-5') }}
+                {{ mywtf.select_multiple(form_remark.measure, grid_class = 'col-sm-5') }}
             </div>
-            <div class="container-fluid">
-                {% for s in students %}
-                <figure class="imagecaption" style="text-align:center;">
-                    <img src="../../static/photo/{{ s.photo }}" height="120">
-                    <figcaption>{{s.first_name}}<br>{{s.last_name}}</figcaption>
-                    <input type="hidden" id="id" name="student_id" value="{{ s.id|string }}">
-                </figure>
-                {% endfor %}
-            </div>
-            <div class="container-fluid">
-                <div class="form-group row">
-                    {{ mywtf.select_multiple(form_remark.subject, grid_class = 'col-sm-5') }}
-                    {{ mywtf.select_multiple(form_remark.measure, grid_class = 'col-sm-5') }}
+            <div class="form-group row">
+                <div class="col-sm-5">
+                    <label for="subject_note">Notitie bij opmerking</label>
+                    <textarea class="form-control" rows="5" id="subject_note" name="subject_note"></textarea>
                 </div>
-                <div class="form-group row">
-                    <div class="col-sm-5">
-                        <label for="subject_note">Notitie bij opmerking</label>
-                        <textarea class="form-control" rows="5" id="subject_note" name="subject_note"></textarea>
-                    </div>
-                    <div class="col-sm-5">
-                        <label for="measure_note">Notitie bij maatregel</label>
-                        <textarea class="form-control" rows="5" id="measure_note" name="measure_note"></textarea>
-                    </div>
+                <div class="col-sm-5">
+                    <label for="measure_note">Notitie bij maatregel</label>
+                    <textarea class="form-control" rows="5" id="measure_note" name="measure_note"></textarea>
                 </div>
             </div>
-            <br/>
-            <input class="btn btn-default" id="dummy_remark" name="button" type="submit" value="Bewaar">
-            <a class="btn btn-default" href="javascript:history.back()">Annuleer</a>
-        </form>
-    </div>
+        </div>
+        <br/>
+        <input class="btn btn-default" id="dummy_remark" name="button" type="submit" value="Bewaar">
+        <a class="btn btn-default" href="javascript:history.back()">Annuleer</a>
+    </form>
 </div>
 {% endblock %}
 
