@@ -3,17 +3,22 @@
 # app/__init__.py
 
 # third-party imports
-from flask import Flask, render_template, abort
+from flask import Flask, render_template, abort, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user
 from flask_migrate import Migrate
 from flask_bootstrap import Bootstrap
 from flask_jsglue import JSGlue
 from werkzeug.routing import IntegerConverter as OrigIntegerConvertor
-import config, logging, logging.handlers, os, sys
+import config, logging, logging.handlers, os, sys, datetime
 from functools import wraps
 
 app = Flask(__name__, instance_relative_config=True)
+
+@app.before_request
+def make_session_permanent():
+    session.permanent = True
+    app.permanent_session_lifetime = datetime.timedelta(minutes=10)
 
 #enable logging
 LOG_HANDLE = 'SB'

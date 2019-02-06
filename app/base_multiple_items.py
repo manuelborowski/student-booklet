@@ -80,7 +80,7 @@ def build_filter_and_filter_data(table, paginate=True):
         _filtered_list = _filtered_list.join(Student)
         _filtered_list = _filtered_list.join(Grade)
         _filtered_list = _filtered_list.join(Teacher)
-        _filtered_list = _filtered_list.join(Lesson)
+        _filtered_list = _filtered_list.join(Lesson).filter(Remark.reviewed == True)
 
 
 
