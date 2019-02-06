@@ -163,7 +163,7 @@ class Grade(db.Model):
 
     @staticmethod
     def get_choices_list():
-        l = [i for i in db.session.query(Grade.id, Grade.code).distinct(Grade.code).order_by(Grade.code).all()]
+        l = db.session.query(Grade.id, Grade.code).distinct(Grade.code).order_by(Grade.code).all()
         return l
 
     @staticmethod
@@ -171,9 +171,9 @@ class Grade(db.Model):
         return [(-1, '')] + Grade.get_choices_list()
 
     @staticmethod
-    def get_choices_filtered_by_teacher_list(teacher):
-        l = [i for i in db.session.query(Grade.id, Grade.code).join(Schedule) \
-            .join(Teacher).filter(Teacher.id == teacher.id).distinct(Grade.code).order_by(Grade.code).all()]
+    def get_all_grades_for_teacher(teacher):
+        l = db.session.query(Grade.id, Grade.code).join(Schedule) \
+            .join(Teacher).filter(Teacher.id == teacher.id).distinct(Grade.code).order_by(Grade.code).all()
         return l
 
     def get_choice(self):
@@ -210,16 +210,22 @@ class Schedule(db.Model):
             day_count += 1
         return l
 
+    @staticmethod
+    def get_all_schedules_for_teacher(teacher):
+        l = db.session.query(Schedule.day, Schedule.hour).filter(Schedule.teacher == teacher).distinct().order_by(Schedule.day, Schedule.hour).all()
+        ll = [('{}/{}'.format(d, h), '{} : {}'.format(Schedule.WEEK_DAYS[d-1], h)) for (d, h) in l]
+        return ll
+
     def get_data_day_hour(self):
         return '{}/{}'.format(self.day, self.hour)
 
     @staticmethod
-    def get_teacher_choices_list():
+    def get_all_teachers():
         l = db.session.query(Schedule.teacher_id, Teacher.code).join(Teacher).distinct().order_by(Teacher.code).all()
         return l
 
     @staticmethod
-    def get_grade_choices_list():
+    def get_all_grades():
         l = db.session.query(Schedule.grade_id, Grade.code).join(Grade).distinct().order_by(Grade.code).all()
         return l
 
@@ -255,13 +261,13 @@ class Lesson(db.Model):
 
     @staticmethod
     def get_choices_list():
-        l = [i for i in db.session.query(Lesson.id, Lesson.code).distinct(Lesson.code).order_by(Lesson.code).all()]
+        l = db.session.query(Lesson.id, Lesson.code).distinct(Lesson.code).order_by(Lesson.code).all()
         return l
 
     @staticmethod
-    def get_choices_filtered_by_teacher_list(teacher):
-        l = [i for i in db.session.query(Lesson.id, Lesson.code).join(Schedule) \
-            .join(Teacher).filter(Teacher.id == teacher.id).distinct(Lesson.code).order_by(Lesson.code).all()]
+    def get_all_lessons_for_teacher(teacher):
+        l = db.session.query(Lesson.id, Lesson.code).join(Schedule) \
+            .join(Teacher).filter(Teacher.id == teacher.id).distinct(Lesson.code).order_by(Lesson.code).all()
         return l
 
     def get_choice(self):

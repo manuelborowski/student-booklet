@@ -27,17 +27,21 @@ def filter_grade():
     try:
         students = Student.query.join(Grade).\
             filter(Grade.id == schedule.grade.id, Student.schoolyear == calculate_current_schoolyear()).all()
-        teacher_grades = Grade.get_choices_filtered_by_teacher_list(schedule.teacher)
-        teacher_lessons = Lesson.get_choices_filtered_by_teacher_list(schedule.teacher)
+        teacher_grades = Grade.get_all_grades_for_teacher(schedule.teacher)
+        teacher_lessons = Lesson.get_all_lessons_for_teacher(schedule.teacher)
+        teacher_schedules = Schedule.get_all_schedules_for_teacher(schedule.teacher)
 
         #update default option
         form_filter = FilterForm()
         form_filter.teacher.data=str(schedule.teacher.id)
-        form_filter.teacher.choices = Schedule.get_teacher_choices_list()
+        form_filter.teacher.choices = Schedule.get_all_teachers()
+
         form_filter.dayhour.data=schedule.get_data_day_hour()
-        form_filter.dayhour.choices = Schedule.get_choices_day_hour()
+        form_filter.dayhour.choices = filter_duplicates_out(teacher_schedules,  Schedule.get_choices_day_hour())
+
         form_filter.grade.data=str(schedule.grade.id)
-        form_filter.grade.choices = filter_duplicates_out(teacher_grades, Schedule.get_grade_choices_list())
+        form_filter.grade.choices = filter_duplicates_out(teacher_grades, Schedule.get_all_grades())
+
         form_filter.lesson.data=str(schedule.lesson.id)
         form_filter.lesson.choices = filter_duplicates_out(teacher_lessons, Lesson.get_choices_list())
     except Exception as e:

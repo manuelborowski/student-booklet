@@ -21,13 +21,13 @@ class SchoolyearFilter(FlaskForm):
 class GradeFilter(FlaskForm):
     def __init__(self, *args, **kwargs):
         super(GradeFilter, self).__init__(*args, **kwargs)
-        self.grade.choices=[('','')] + Schedule.get_grade_choices_list()
+        self.grade.choices=[('','')] + Schedule.get_all_grades()
     grade = SelectField(default='', label='Klas')
 
 class TeacherFilter(FlaskForm):
     def __init__(self, *args, **kwargs):
         super(TeacherFilter, self).__init__(*args, **kwargs)
-        self.teacher.choices=[('','')] + Schedule.get_teacher_choices_list()
+        self.teacher.choices=[('','')] + Schedule.get_all_teachers()
     teacher = SelectField(default='', label='leerkracht')
 
 class RemarkForm(FlaskForm):
