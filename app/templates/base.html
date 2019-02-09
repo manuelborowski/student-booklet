@@ -62,7 +62,7 @@
                   <li ><a name="test" href="{{ url_for('grade.show') }}">Klas</a></li>
                   <li><a href="{{ url_for('remarks.show') }}">Boekje</a></li>
                   <li><a href="{{ url_for('reviewed.show') }}">Gecontroleerd</a></li>
-                  {% if current_user.is_admin %}
+                  {% if current_user.is_at_least_admin %}
                       <li><a href="{{ url_for('user.users') }}">Gebruikers</a></li>
                       <li><a href="{{ url_for('settings.show') }}">Instellingen</a></li>
                   {% endif %}

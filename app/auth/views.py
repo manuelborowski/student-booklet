@@ -3,6 +3,7 @@
 
 from flask import redirect, render_template, url_for, request
 from flask_login import login_required, login_user, logout_user
+from sqlalchemy import func
 
 from .. import log, db, app
 from . import auth
@@ -37,7 +38,7 @@ def login():
     if form.validate_on_submit():
         # check whether user exists in the database and whether
         # the password entered matches the password in the database
-        user = User.query.filter_by(username=form.username.data).first()
+        user = User.query.filter_by(username=func.binary(form.username.data)).first()
         if user is not None and user.is_local and user.verify_password(form.password.data):
             login_user(user)
             log.info(u'LOCAL user {} logged in'.format(user.username))
@@ -69,10 +70,10 @@ def smartschool_profile(token):
 
     if profile['basisrol'] in SMARTSCHOOL_ALLOWED_BASE_ROLES:
         #Students are NOT allowed to log in
-        user = User.query.filter_by(username=profile['username'].lower(), user_type=User.USER_TYPE.OAUTH).first()
+        user = User.query.filter_by(username=func.binary(profile['username']), user_type=User.USER_TYPE.OAUTH).first()
         if not user:
-            user = User(username=profile['username'].lower(), first_name=profile['name'], last_name=profile['surname'],
-                        email=profile['email'], user_type=User.USER_TYPE.OAUTH)
+            user = User(username=profile['username'], first_name=profile['name'], last_name=profile['surname'],
+                        email=profile['email'], user_type=User.USER_TYPE.OAUTH, level=User.LEVEL.USER)
             db.session.add(user)
             db.session.flush() #user.id is filled in
         user.last_login = datetime.datetime.now()

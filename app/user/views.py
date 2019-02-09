@@ -30,7 +30,7 @@ def users():
         _filter, _filter_form, a,b, c = build_filter_and_filter_data(tables_configuration['user'])
         config = tables_configuration['user']
         #floating menu depends if current user is admin or not
-        if current_user.is_admin:
+        if current_user.is_at_least_admin:
             config['floating_menu'] = admin_menu_config
         else:
             config['floating_menu'] = user_menu_config
@@ -59,13 +59,17 @@ def add(id=-1):
         del form.id # is not required here and makes validate_on_submit fail...
         #Validate on the second pass only (when button 'Bewaar' is pushed)
         if 'button' in request.form and request.form['button'] == 'Bewaar' and form.validate_on_submit():
+            if form.type.data == User.USER_TYPE.LOCAL:
+                password = form.password.data
+            else:
+                password = ''
             user = User(email=form.email.data,
                             username=form.username.data,
                             first_name=form.first_name.data,
                             last_name=form.last_name.data,
-                            password=form.password.data,
+                            password=password,
                             level=form.level.data,
-                            user_type = User.USER_TYPE.LOCAL
+                            user_type = form.type.data
                         )
             db.session.add(user)
             db.session.commit()
@@ -75,6 +79,7 @@ def add(id=-1):
     except Exception as e:
         log.error(u'Could not add user {}'.format(e))
         flash_plus(u'Kan gebruikers niet toevoegen', e)
+        db.session.rollback()
         return redirect(url_for('user.users'))
 
     return render_template('user/user.html', form=form, title='Voeg een gebruiker toe', role='add', route='user.users', subject='user')

@@ -18,6 +18,10 @@ class User(UserMixin, db.Model):
         LOCAL = 'local'
         OAUTH = 'oauth'
 
+    @staticmethod
+    def get_zipped_types():
+        return zip(['local', 'oauth'], ['LOCAL', 'OAUTH'])
+
     class LEVEL:
         USER = 1
         SUPERVISOR = 3
@@ -40,7 +44,7 @@ class User(UserMixin, db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(256), index=True)
-    username = db.Column(db.String(256), index=True, unique=True)
+    username = db.Column(db.String(256), index=True)
     first_name = db.Column(db.String(256), index=True)
     last_name = db.Column(db.String(256), index=True)
     password_hash = db.Column(db.String(256))
@@ -58,7 +62,7 @@ class User(UserMixin, db.Model):
         return self.user_type == User.USER_TYPE.OAUTH
 
     @property
-    def is_user(self):
+    def is_at_least_user(self):
         return self.level >= User.LEVEL.USER
 
     @property
@@ -66,31 +70,23 @@ class User(UserMixin, db.Model):
         return self.level == User.LEVEL.USER
 
     @property
-    def is_supervisor(self):
+    def is_at_least_supervisor(self):
         return self.level >= User.LEVEL.SUPERVISOR
 
     @property
-    def is_admin(self):
+    def is_at_least_admin(self):
         return self.level >= User.LEVEL.ADMIN
 
     @property
     def password(self):
-        """
-        Prevent pasword from being accessed
-        """
         raise AttributeError('Paswoord kan je niet lezen.')
 
     @password.setter
     def password(self, password):
-        """
-        Set password to a hashed password
-        """
-        self.password_hash = generate_password_hash(password)
+        if password:
+            self.password_hash = generate_password_hash(password)
 
     def verify_password(self, password):
-        """
-        Check if hashed password matches actual password
-        """
         return check_password_hash(self.password_hash, password)
 
     def __repr__(self):

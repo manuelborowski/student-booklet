@@ -2,7 +2,6 @@
 var False = false;
 var True = true;
 
-
 //row_id is filled in with the database id of the item (asset, purchase,...) at the moment the user rightclicks on a row
 var row_id
 //The metadata of the floating menu.  See tables_config.py

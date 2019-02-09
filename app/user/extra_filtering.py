@@ -3,7 +3,7 @@ from ..models import User
 
 def filter(query_in):
     #If the logged in user is NOT administrator, display the data of the current user only
-    if not current_user.is_admin:
+    if not current_user.is_at_least_admin:
         return query_in.filter(User.id==current_user.id)
     return query_in
 

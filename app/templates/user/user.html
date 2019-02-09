@@ -15,9 +15,17 @@
     {{ wtf.form_field(form.last_name) }}
     {{ wtf.form_field(form.email) }}
     {{ wtf.form_field(form.level) }}
+    {{ wtf.form_field(form.type) }}
+    <div id="passwords">
     {% if role == 'add' %}
         {{ wtf.form_field(form.password) }}
         {{ wtf.form_field(form.confirm_password) }}
+    </div>
     {% endif %}
 {% endif %}
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script type="text/javascript"> {% include "user/user.js" %}</script>
 {% endblock %}

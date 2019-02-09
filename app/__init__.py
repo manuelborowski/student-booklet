@@ -15,11 +15,6 @@ from functools import wraps
 
 app = Flask(__name__, instance_relative_config=True)
 
-@app.before_request
-def make_session_permanent():
-    session.permanent = True
-    app.permanent_session_lifetime = datetime.timedelta(minutes=10)
-
 #enable logging
 LOG_HANDLE = 'SB'
 log = logging.getLogger(LOG_HANDLE)
@@ -137,7 +132,7 @@ def create_app(config_name):
 def admin_required(func):
     @wraps(func)
     def decorated_view(*args, **kwargs):
-        if not current_user.is_admin:
+        if not current_user.is_at_least_admin:
             abort(403)
         return func(*args, **kwargs)
     return decorated_view

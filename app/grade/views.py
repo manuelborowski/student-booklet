@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from flask import render_template, url_for, request
-from flask_login import login_required
+from flask_login import login_required, current_user
+from sqlalchemy import func
 
 from .forms import FilterForm
 from .. import db, log
@@ -13,13 +14,22 @@ import datetime
 
 def filter_grade():
     try :
+        teacher_found_in_schedule = Schedule.query.join(Teacher).filter(Teacher.code == func.binary(current_user.username)).first()
+        if not teacher_found_in_schedule and current_user.is_strict_user:
+            log.error(u'Level 1 user not in schedule')
+            flash_plus(u'Sorry, u kan op deze pagina niets zien')
+            return FilterForm(), []
+
         if 'change_id' in request.form:
             if request.form['dayhour'] == 'disabled' or request.form['grade'] == 'disabled' or request.form['lesson'] == 'disabled':
                 schedule = filter_overview(int(request.form['teacher']), '', 0, 0, 'teacher')
             else:
                 schedule = filter_overview(int(request.form['teacher']), request.form['dayhour'], int(request.form['grade']), int(request.form['lesson']), request.form['change_id'])
         else:
-            schedule = filter_overview(0, 0, 0, 0) #default settings
+            if teacher_found_in_schedule:
+                schedule = filter_overview(teacher_found_in_schedule.teacher_id,'', 0, 0, 'teacher')
+            else:
+                schedule = filter_overview(0, 0, 0, 0) #default settings
     except Exception as e:
         log.error(u'No schedule found {}'.format(e))
         flash_plus(u'Er is nog geen lesrooster geladen')
@@ -34,7 +44,10 @@ def filter_grade():
         #update default option
         form_filter = FilterForm()
         form_filter.teacher.data=str(schedule.teacher.id)
-        form_filter.teacher.choices = Schedule.get_all_teachers()
+        if teacher_found_in_schedule and current_user.is_strict_user:
+            form_filter.teacher.choices = [(teacher_found_in_schedule.teacher.id, teacher_found_in_schedule.teacher.code)]
+        else:
+            form_filter.teacher.choices = Schedule.get_all_teachers()
 
         form_filter.dayhour.data=schedule.get_data_day_hour()
         form_filter.dayhour.choices = filter_duplicates_out(teacher_schedules,  Schedule.get_choices_day_hour())
