@@ -63,7 +63,7 @@
                   <li><a href="{{ url_for('remarks.show') }}">Boekje</a></li>
                   <li><a href="{{ url_for('reviewed.show') }}">Gecontroleerd</a></li>
                   {% if current_user.is_at_least_admin %}
-                      <li><a href="{{ url_for('user.users') }}">Gebruikers</a></li>
+                      <li><a href="{{ url_for('user.show') }}">Gebruikers</a></li>
                       <li><a href="{{ url_for('settings.show') }}">Instellingen</a></li>
                   {% endif %}
                   <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
@@ -112,7 +112,7 @@
                         <li><a href="#">Login</a></li>
                     {% endif %}
                     </ul>
-                <p class="copyright text-muted small">Copyright © 2017. All Rights Reserved</p>
+                <p class="copyright text-muted small">V1.0 Copyright © 2019. All Rights Reserved</p>
             </div>
         </div>
     </div>

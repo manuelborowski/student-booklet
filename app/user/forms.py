@@ -15,12 +15,10 @@ class EditForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     email = StringField('Email', validators=[Email()])
     level = SelectField('Niveau', validators=[DataRequired()], choices=User.get_zipped_levels())
-    type = SelectField('Type', validators=[DataRequired()], choices=User.get_zipped_types())
+    user_type = SelectField('Type', validators=[DataRequired()], choices=User.get_zipped_types())
     id = IntegerField(widget=HiddenInput())
 
 class AddForm(EditForm):
-    #password = PasswordField('Password', validators=[DataRequired(), EqualTo('confirm_password')])
-    #confirm_password = PasswordField('Confirm Password')
     password = PasswordField('Password')
     confirm_password = PasswordField('Bevestig Password')
     def validate_username(self, field):
@@ -28,24 +26,12 @@ class AddForm(EditForm):
             raise ValidationError('Gebruikersnaam is reeds in gebruik')
 
     def validate_password(self, field):
-        if self.type.data == User.USER_TYPE.LOCAL and field.data == '':
+        if self.user_type.data == User.USER_TYPE.LOCAL and field.data == '':
             raise ValidationError('Paswoord invullen aub')
 
     def validate_confirm_password(self, field):
-        if self.type.data == User.USER_TYPE.LOCAL and field.data != self.password.data:
+        if self.user_type.data == User.USER_TYPE.LOCAL and field.data != self.password.data:
             raise ValidationError('Beide paswoorden moeten hetzelfde zijn')
-
-    # def validate(self):
-    #     print('validating')
-    #     if self.type.data == User.USER_TYPE.LOCAL:
-    #         if self.password.data == '':
-    #             raise ValidationError('Paswoord invullen aub')
-    #             self.password.errors.append('Paswoord invullen aub')
-    #             return False
-    #     if self.confirm_password.data != self.password.data:
-    #         self.config_password.errors.append('De twee paswoorden moeten gelijk zijn')
-    #         return False
-    #     return True
 
 class ViewForm(FlaskForm):
     first_name = StringField('First name', render_kw={'readonly':''})
@@ -53,7 +39,7 @@ class ViewForm(FlaskForm):
     username = StringField('Username', render_kw={'readonly':''})
     email = StringField('Email', render_kw={'readonly':''})
     level = StringField('Niveau', render_kw={'readonly':''}, filters=[lambda i : User.LEVEL.i2s(i)])
-    type = StringField('Type', render_kw={'readonly':''})
+    user_type = StringField('Type', render_kw={'readonly':''})
     id = IntegerField(widget=HiddenInput())
 
 class ChangePasswordForm(FlaskForm):

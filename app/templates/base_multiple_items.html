@@ -45,10 +45,13 @@
                 {% if 'delete' in config.buttons %}
                 <a class="btn btn-default" onclick="confirm_before_delete()">Verwijder</a>
                 {% endif %}
-                {% if 'edit' in config.buttons %}
-                <a class="btn btn-default" onclick="edit_remarks()">Pas aan</a>
+                {% if 'add' in config.buttons %}
+                <a class="btn btn-default" onclick="add_item()">Nieuw</a>
                 {% endif %}
-                {% if 'start_check' in config.buttons and current_user.is_supervisor %}
+                {% if 'edit' in config.buttons %}
+                <a class="btn btn-default" onclick="edit_item()">Wijzig</a>
+                {% endif %}
+                {% if 'start_check' in config.buttons and current_user.is_at_least_supervisor %}
                     <a class="btn btn-default" onclick="start_review()">Start controle</a>
                 {% endif %}
 

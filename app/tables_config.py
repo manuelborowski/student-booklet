@@ -54,7 +54,7 @@ tables_configuration = {
         'model': User,
         'title' : 'gebruiker',
         'subject' :'user',
-        'buttons' : ['delete'],
+        'buttons' : ['delete', 'add', 'edit'],
         'delete_message' : u'Wilt u deze gebruiker(s) verwijderen?',
         'template': [
             {'name': 'cb', 'data':'cb', 'order_by': User.username, 'width': '2%', 'orderable' : False},

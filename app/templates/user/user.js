@@ -1,5 +1,5 @@
 $(document).ready(function(){
-    var sel_type = $("#type");
+    var sel_type = $("#user_type");
     sel_type.change(function(){
         console.log( $(this).val());
         if($(this).val() == "local") {

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-fmi_edit = {"menu_id": "edit_menu_item", "menu_text": "Pas aan", "route": "edit", "flags": ["id_required"]}
+fmi_edit = {"menu_id": "edit_menu_item", "menu_text": "Wijzig", "route": "edit", "flags": ["id_required"]}
 fmi_delete = {"menu_id": "delete_menu_item", "menu_text": "Verwijder", "route": "delete","flags": ["id_required", "confirm_before_delete_single_id"]}
 fmi_copy = {"menu_id": "copy_menu_item", "menu_text": "Kopieer van", "route": "add", "flags": ["id_required"]}
 fmi_add = {"menu_id": "add_menu_item", "menu_text": "Voeg toe", "route": "add", "flags": []}

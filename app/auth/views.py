@@ -71,7 +71,11 @@ def smartschool_profile(token):
     if profile['basisrol'] in SMARTSCHOOL_ALLOWED_BASE_ROLES:
         #Students are NOT allowed to log in
         user = User.query.filter_by(username=func.binary(profile['username']), user_type=User.USER_TYPE.OAUTH).first()
-        if not user:
+        if user:
+            user.first_name=profile['name']
+            user.last_name=profile['surname']
+            user.email=profile['email']
+        else:
             user = User(username=profile['username'], first_name=profile['name'], last_name=profile['surname'],
                         email=profile['email'], user_type=User.USER_TYPE.OAUTH, level=User.LEVEL.USER)
             db.session.add(user)

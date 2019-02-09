@@ -2,7 +2,7 @@
 var False = false;
 var True = true;
 
-//row_id is filled in with the database id of the item (asset, purchase,...) at the moment the user rightclicks on a row
+//row_id is filled in with the database id of the item at the moment the user rightclicks on a row
 var row_id
 //The metadata of the floating menu.  See tables_config.py
 var floating_menu = JSON.parse('{{config.floating_menu|tojson}}');
@@ -59,8 +59,12 @@ function confirm_before_delete() {
     }
 }
 
-//An remark is about to be edited
-function edit_remarks() {
+function add_item() {
+    document.getElementById('button_form').action = Flask.url_for('{{config.subject}}.add');
+    document.getElementById('button_form').submit();
+}
+
+function edit_item() {
     if (is_checkbox_selected()) {
         document.getElementById('button_form').action = Flask.url_for('{{config.subject}}' + ".edit");
         document.getElementById('button_form').submit();

@@ -24,7 +24,7 @@ def source_data():
 @user.route('/user', methods=['GET', 'POST'])
 @admin_required
 @login_required
-def users():
+def show():
     try:
         #The following line is required only to build the filter-fields on the page.
         _filter, _filter_form, a,b, c = build_filter_and_filter_data(tables_configuration['user'])
@@ -56,54 +56,66 @@ def add(id=-1):
             form = AddForm(obj=user)
         else:
             form = AddForm()
-        del form.id # is not required here and makes validate_on_submit fail...
         #Validate on the second pass only (when button 'Bewaar' is pushed)
-        if 'button' in request.form and request.form['button'] == 'Bewaar' and form.validate_on_submit():
-            if form.type.data == User.USER_TYPE.LOCAL:
-                password = form.password.data
-            else:
-                password = ''
-            user = User(email=form.email.data,
-                            username=form.username.data,
-                            first_name=form.first_name.data,
-                            last_name=form.last_name.data,
-                            password=password,
-                            level=form.level.data,
-                            user_type = form.type.data
-                        )
-            db.session.add(user)
-            db.session.commit()
-            log.info('add : {}'.format(user.log()))
-            #flash_plus('You have added user {}'.format(user.username))
-            return redirect(url_for('user.users'))
+        if 'button' in request.form and request.form['button'] == 'Bewaar':
+            del form.id # is not required here and makes validate_on_submit fail...
+            if form.validate_on_submit():
+                if form.user_type.data == User.USER_TYPE.LOCAL:
+                    password = form.password.data
+                else:
+                    password = ''
+                user = User(email=form.email.data,
+                                username=form.username.data,
+                                first_name=form.first_name.data,
+                                last_name=form.last_name.data,
+                                password=password,
+                                level=form.level.data,
+                                user_type = form.user_type.data
+                            )
+                db.session.add(user)
+                db.session.commit()
+                log.info('add : {}'.format(user.log()))
+                #flash_plus('You have added user {}'.format(user.username))
+                return redirect(url_for('user.show'))
     except Exception as e:
         log.error(u'Could not add user {}'.format(e))
         flash_plus(u'Kan gebruikers niet toevoegen', e)
         db.session.rollback()
-        return redirect(url_for('user.users'))
+        return redirect(url_for('user.show'))
 
-    return render_template('user/user.html', form=form, title='Voeg een gebruiker toe', role='add', route='user.users', subject='user')
+    return render_template('user/user.html', form=form, title='Voeg een gebruiker toe', role='add', route='user.show', subject='user')
 
 
-#edit a user
 @user.route('/user/edit/<int:id>', methods=['GET', 'POST'])
+@user.route('/user/edit', methods=['GET', 'POST'])
 @admin_required
 @login_required
-def edit(id):
+def edit(id=-1):
     try:
-        user = User.query.get(id)
-        form = EditForm(obj=user)
-        if form.validate_on_submit():
-            if request.form['button'] == 'Bewaar':
-                form.populate_obj(user)
-                db.session.commit()
-                #flash_plus('You have edited user {}'.format(user.username))
-            return redirect(url_for('user.users'))
+        if 'id' in request.form: #user pused button to save changes
+            user = User.query.get(request.form['id'])
+            form = EditForm(obj=user)
+            if form.validate_on_submit():
+                if request.form['button'] == 'Bewaar':
+                    form.populate_obj(user)
+                    db.session.commit()
+                    # flash_plus('You have edited user {}'.format(user.username))
+                return redirect(url_for('user.show'))
+        else:
+            if id == -1: #user uses checkbox to edit entry
+                cb_id_list = request.form.getlist('cb')
+                if cb_id_list:
+                    id = int(cb_id_list[0]) #only the first one can be edited
+                    user = User.query.get(id)
+                    form = EditForm(obj=user, formdata=None)
+            else: #user uses floating menu to edit entry
+                user = User.query.get(id)
+                form = EditForm(obj=user)
     except Exception as e:
         log.error(u'Could not edit user {}'.format(e))
         flash_plus(u'Kan gebruiker niet aanpassen', e)
-        return redirect(url_for('user.users'))
-    return render_template('user/user.html', form=form, title='Pas een gebruiker aan', role='edit', route='user.users', subject='user')
+        return redirect(url_for('user.show'))
+    return render_template('user/user.html', form=form, title='Pas een gebruiker aan', role='edit', route='user.show', subject='user')
 
 #no login required
 @user.route('/user/view/<int:id>', methods=['GET', 'POST'])
@@ -113,12 +125,12 @@ def view(id):
         user = User.query.get(id)
         form = ViewForm(obj=user)
         if form.validate_on_submit():
-            return redirect(url_for('user.users'))
+            return redirect(url_for('user.show'))
     except Exception as e:
         log.error(u'Could not view user {}'.format(e))
         flash_plus(u'Kan gebruiker niet bekijken', e)
-        return redirect(url_for('user.users'))
-    return render_template('user/user.html', form=form, title='Bekijk een gebruiker', role='view', route='user.users', subject='user')
+        return redirect(url_for('user.show'))
+    return render_template('user/user.html', form=form, title='Bekijk een gebruiker', role='view', route='user.show', subject='user')
 
 #delete a user
 @user.route('/user/delete/<int:id>', methods=['GET', 'POST'])
@@ -147,7 +159,7 @@ def delete(id=-1):
     except Exception as e:
         log.error(u'Could not delete user : {}'.format(e))
         flash_plus(u'Kan de gebruikers niet verwijderen', e)
-    return redirect(url_for('user.users'))
+    return redirect(url_for('user.show'))
 
 @user.route('/user/change-password/<int:id>', methods=['GET', 'POST'])
 @admin_required
@@ -161,10 +173,10 @@ def change_pwd(id):
                 user.password = form.new_password.data
                 db.session.commit()
                 flash_plus(u'Je paswoord is aangepast.')
-                return redirect(url_for('user.users'))
+                return redirect(url_for('user.show'))
             flash_plus(u'Ongeldige gebruikersnaam of paswoord.')
     except Exception as e:
         log.erroru('Could not change password : {}'.format(e))
         flash_plus(u'Kan het paswoord niet aanpassen', e)
-        return redirect(url_for('user.users'))
-    return render_template('user/user.html', form=form, title='Verander paswoord', role='change_password', route='user.users', subject='user')
+        return redirect(url_for('user.show'))
+    return render_template('user/user.html', form=form, title='Verander paswoord', role='change_password', route='user.show', subject='user')
