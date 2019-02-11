@@ -138,3 +138,13 @@ def admin_required(func):
     return decorated_view
 
 
+#decorator to grant access to at least supervisors
+def supervisor_required(func):
+    @wraps(func)
+    def decorated_view(*args, **kwargs):
+        if not current_user.is_at_least_supervisor:
+            abort(403)
+        return func(*args, **kwargs)
+    return decorated_view
+
+

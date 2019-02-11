@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from flask import render_template, redirect, url_for, request
+from flask import render_template, redirect, url_for, request, json, jsonify
 from flask_login import login_required
 from ..base_settings import set_global_setting_current_schoolyear, get_setting_simulate_dayhour, set_setting_simulate_dayhour
 from ..base import calculate_current_schoolyear, get_all_schoolyears_from_database, flash_plus
 from . import settings
-from .. import db, log, admin_required
-from ..models import Grade, Student, Teacher, Lesson, Schedule, Remark, RemarkSubject, RemarkMeasure, ExtraMeasure
+from .. import db, log, admin_required, supervisor_required
+from ..models import Grade, Student, Teacher, Lesson, Schedule, Remark, RemarkSubject, RemarkMeasure, ExtraMeasure, SubjectTopic, MeasureTopic
 from ..documents import  get_doc_path, get_doc_reference
 
 import os, datetime, random
@@ -19,6 +19,14 @@ def get_settings_and_show():
         schoolyear_list = schoolyear_list if schoolyear_list else [calculate_current_schoolyear()]
         last = schoolyear_list[-1]
         schoolyear_list.append(last+101)
+
+        topics = []
+        measure_topics = MeasureTopic.query.order_by(MeasureTopic.topic).all()
+        mt_list = [{'id' : i.id, 'enabled' : i.enabled, 'topic' : i.topic} for i in measure_topics]
+        topics.append(('measure_topic', 'Maatregelen', mt_list))
+        subject_topics = SubjectTopic.query.order_by(SubjectTopic.topic).all()
+        st_list = [{'id' : i.id, 'enabled' : i.enabled, 'topic' : i.topic} for i in subject_topics]
+        topics.append(('subject_topic', 'Opmerkingen', st_list))
     except Exception as e:
         log.error(u'Could not check the database for students or timetables, error {}'.format(e))
         flash_plus(u'Er is een fout opgetreden bij het ophalen van de instellingen', e)
@@ -26,10 +34,11 @@ def get_settings_and_show():
     return render_template(u'settings/settings.html',
                             simulate_dayhour = get_setting_simulate_dayhour(),
                             schoolyear_list = schoolyear_list,
+                            topics = topics,
                             title='settings')
 
 @settings.route('/settings', methods=['GET', 'POST'])
-@admin_required
+@supervisor_required
 @login_required
 def show():
     return get_settings_and_show()
@@ -293,10 +302,10 @@ def add_test_students():
                 timestamp = datetime.datetime.strptime('{}/2018 {}:{}'.format(d, h, m), '%d/%m/%Y %H:%M')
                 remark = Remark(student=student, grade=student.grade, timestamp=timestamp,
                                  lesson=classmoment.lesson, teacher=classmoment.teacher, measure_note='', subject_note='')
-                t = random.randint(0, 5)
-                m = random.randint(0, 4)
-                subject = RemarkSubject(subject=t, remark=remark)
-                measure = RemarkMeasure(measure=m, remark=remark)
+                s = random.choice(SubjectTopic.query.all())
+                m = random.choice(MeasureTopic.query.all())
+                subject = RemarkSubject(topic=s, remark=remark)
+                measure = RemarkMeasure(topic=m, remark=remark)
                 db.session.add(subject)
                 db.session.add(measure)
                 db.session.add(remark)
@@ -330,3 +339,40 @@ def delete_test_students():
         flash_plus(u'Kan test studenten voor jaar {} niet verwijderen'.format(schoolyear), e)
     return redirect(url_for('settings.show'))
 
+
+@settings.route('/settings/add_topic/<string:subject>/<string:topic>', methods=['GET', 'POST'])
+@supervisor_required
+@login_required
+def add_topic(subject, topic):
+    try:
+        if subject == 'measure_topic':
+            topic = MeasureTopic(topic=topic)
+        elif subject == 'subject_topic':
+            topic = SubjectTopic(topic=topic)
+            db.session.add(topic)
+        db.session.commit()
+    except Exception as e:
+        log.error(u'Could not add {}, topic {}: {}'.format(subject, topic, e))
+        flash_plus(u'Kan onderwerp niet toevoegen', e)
+    return redirect(url_for('settings.show'))
+
+
+@settings.route('/settings/set_topic_status/<string:data>', methods=['GET', 'POST'])
+@supervisor_required
+@login_required
+def set_topic_status(data):
+    try:
+        jd = json.loads(data)
+        ti = jd['id'].split('-')
+        id = int(ti[1])
+        if ti[0] == 'measure_topic':
+            topic = MeasureTopic.query.get(int(ti[1]))
+        elif ti[0] == 'subject_topic':
+            topic = SubjectTopic.query.get(int(ti[1]))
+        topic.enabled = jd['status']
+        db.session.commit()
+    except Exception as e:
+        log.error('could not change the status')
+        return jsonify({"status" : False})
+
+    return jsonify({"status" : True})

@@ -4,7 +4,7 @@
 from flask_wtf import FlaskForm
 from wtforms import SelectField, IntegerField
 from wtforms.widgets import HiddenInput
-from models import Grade, Teacher, RemarkSubject, RemarkMeasure, Schedule
+from models import Schedule, MeasureTopic, SubjectTopic
 from .base import get_all_schoolyears_from_database, calculate_current_schoolyear
 
 
@@ -31,6 +31,10 @@ class TeacherFilter(FlaskForm):
     teacher = SelectField(default='', label='leerkracht')
 
 class RemarkForm(FlaskForm):
-    subject = SelectField('Opmerking', choices=RemarkSubject.get_choices_list())
-    measure = SelectField('Maatregel', choices=RemarkMeasure.get_choices_list())
+    def __init__(self, *args, **kwargs):
+        super(RemarkForm, self).__init__(*args, **kwargs)
+        self.subject.choices=SubjectTopic.get_choices_list()
+        self.measure.choices=MeasureTopic.get_choices_list()
+    subject = SelectField('Opmerking')
+    measure = SelectField('Maatregel')
     id = IntegerField(widget=HiddenInput())

@@ -5,7 +5,7 @@ from flask_login import login_required, current_user
 
 from .. import db, log, app
 from . import remarks
-from ..models import Remark, RemarkSubject, RemarkMeasure, Student, ExtraMeasure
+from ..models import Remark, RemarkSubject, RemarkMeasure, Student, ExtraMeasure, SubjectTopic, MeasureTopic
 from ..forms import RemarkForm
 from ..base_multiple_items import build_filter_and_filter_data, prepare_data_for_html
 from ..base import calculate_current_schoolyear, flash_plus
@@ -41,8 +41,8 @@ def show():
                 if remark:
                     for t in RemarkSubject.query.filter(RemarkSubject.remark_id == remark.id).all(): db.session.delete(t)
                     for m in RemarkMeasure.query.filter(RemarkMeasure.remark_id == remark.id).all(): db.session.delete(m)
-                    for t in request.form.getlist('subject'): db.session.add(RemarkSubject(subject=int(t), remark=remark))
-                    for m in request.form.getlist('measure'): db.session.add(RemarkMeasure(measure=int(m), remark=remark))
+                    for t in request.form.getlist('subject'): db.session.add(RemarkSubject(topic=SubjectTopic.query.get(int(t)), remark=remark))
+                    for m in request.form.getlist('measure'): db.session.add(RemarkMeasure(topic=MeasureTopic.query.get(int(m)), remark=remark))
                     remark.measure_note = request.form['measure_note']
                     remark.subject_note = request.form['subject_note']
             db.session.commit()
@@ -62,7 +62,10 @@ def delete():
         cb_id_list = request.form.getlist('cb')
         for id in cb_id_list:
             remark = Remark.query.get(int(id))
-            if remark: db.session.delete(remark)
+            if remark:
+                db.session.delete(remark)
+                if remark.extra_measure:
+                    db.session.delete(remark.extra_measure)
         db.session.commit()
     except Exception as e:
         log.error(u'Could not delete remark : {}'.format(e))

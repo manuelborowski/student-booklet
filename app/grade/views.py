@@ -7,7 +7,7 @@ from sqlalchemy import func
 from .forms import FilterForm
 from .. import db, log
 from . import grade
-from ..models import Grade, Student, Remark, RemarkSubject, RemarkMeasure, Teacher, Schedule, Lesson
+from ..models import Grade, Student, Remark, RemarkSubject, RemarkMeasure, Teacher, Schedule, Lesson, SubjectTopic, MeasureTopic
 from ..base import  filter_overview, filter_duplicates_out, calculate_current_schoolyear, flash_plus
 from ..forms import RemarkForm
 import datetime
@@ -83,10 +83,10 @@ def show():
                                      measure_note=request.form['measure_note'], subject_note=request.form['subject_note'],
                                      grade=student.grade)
                     for s in subjects:
-                        subject=RemarkSubject(subject=int(s), remark=remark)
+                        subject=RemarkSubject(topic = SubjectTopic.query.get(int(s)), remark=remark)
                         db.session.add(subject)
                     for m in measures:
-                        measure=RemarkMeasure(measure=int(m), remark=remark)
+                        measure=RemarkMeasure(topic = MeasureTopic.query.get(int(m)), remark=remark)
                         db.session.add(measure)
                     db.session.add(remark)
             db.session.commit()

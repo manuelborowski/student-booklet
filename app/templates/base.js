@@ -19,7 +19,6 @@ $(document).ready(function(){
     var idleTime = 0;
     setInterval(function(){
         idleTime = idleTime + 1;
-        console.log(idleTime);
         if (idleTime > 9) { // 10 minutes
             window.location.href=Flask.url_for('auth.logout');
         }

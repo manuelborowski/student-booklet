@@ -1,13 +1,20 @@
 # -*- coding: utf-8 -*-
 # app/models.py
 
+
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db, login_manager
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.sql import func
+from . import log, db, app
 
 import cgi
+
+@app.before_first_request
+def at_start():
+    SubjectTopic.add_default_values_if_empty()
+    MeasureTopic.add_default_values_if_empty()
 
 class User(UserMixin, db.Model):
     # Ensures table will be named in plural and not in singular
@@ -357,7 +364,7 @@ class Remark(db.Model):
     def ret_subjects(self):
         l = ''
         for s in self.subjects:
-            l += RemarkSubject.subjects[s.subject]
+            l += s.topic.topic
             l +=', '
         l += self.subject_note
         return l
@@ -365,7 +372,7 @@ class Remark(db.Model):
     def ret_measures(self):
         l = ''
         for m in self.measures:
-            l += RemarkMeasure.measures[m.measure]
+            l += m.topic.topic
             l +=', '
         if self.measure_note != '':
             l = l + self.measure_note + ', '
@@ -386,56 +393,83 @@ class Remark(db.Model):
     def __str__(self):
         return self.__repr__()
 
-class RemarkSubject(db.Model):
-    __tablename__ = 'remark_subjects'
+class SubjectTopic(db.Model):
+    __tablename__ = 'subject_topics'
 
-    subjects = {
-        0: 'Materiaal vergeten',
-        1: 'Praten',
-        2: 'Stoort de les',
-        3: 'Geen aandacht',
-        4: 'GSM gebruiken',
-        5: 'Taak niet gemaakt'
-    }
+    default_topics = [
+        'Materiaal vergeten',
+        'Praten',
+        'Stoort de les',
+        'Geen aandacht',
+        'GSM gebruiken',
+        'Taak niet gemaakt'
+    ]
 
-    #types_skip = (2, 4)
-    subjects_skip = ()
+    @staticmethod
+    def add_default_values_if_empty():
+        find_topics = SubjectTopic.query.all()
+        if not find_topics:
+            log.info('SubjectTopic table is empty, adding default values')
+            for t in SubjectTopic.default_topics:
+                db.session.add(SubjectTopic(topic=t))
+            db.session.commit()
 
     @staticmethod
     def get_choices_list():
-        l = []
-        for k, v in RemarkSubject.subjects.iteritems():
-            if k in RemarkSubject.subjects_skip: continue
-            l.append((k, v))
+        l = db.session.query(SubjectTopic.id, SubjectTopic.topic).filter(SubjectTopic.enabled==True).order_by(SubjectTopic.topic).all()
         return l
 
     id = db.Column(db.Integer, primary_key=True)
-    subject = db.Column(db.Integer)
+    topic = db.Column(db.String(1024))
+    enabled = db.Column(db.Boolean, default=True)
+    subject = db.relationship('RemarkSubject', cascade='all', backref='topic', lazy='dynamic')
+
+
+class RemarkSubject(db.Model):
+    __tablename__ = 'remark_subjects'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    #subject = db.Column(db.Integer)
+    topic_id = db.Column(db.Integer, db.ForeignKey('subject_topics.id'))
     remark_id = db.Column(db.Integer, db.ForeignKey('remarks.id', ondelete='CASCADE'))
+
+
+class MeasureTopic(db.Model):
+    __tablename__ = 'measure_topics'
+
+    default_topics = [
+        'Taak maken',
+        'GSM afgenomen',
+        'Buiten gezet',
+        'Taakstudie',
+        'Andere plaats'
+    ]
+
+    @staticmethod
+    def add_default_values_if_empty():
+        find_topics = MeasureTopic.query.all()
+        if not find_topics:
+            log.info('MeasureTopic table is empty, adding default values')
+            for t in MeasureTopic.default_topics:
+                db.session.add(MeasureTopic(topic=t))
+            db.session.commit()
+
+    @staticmethod
+    def get_choices_list():
+        l = db.session.query(MeasureTopic.id, MeasureTopic.topic).filter(MeasureTopic.enabled==True).order_by(MeasureTopic.topic).all()
+        return l
+
+    id = db.Column(db.Integer, primary_key=True)
+    topic = db.Column(db.String(1024))
+    enabled = db.Column(db.Boolean, default=True)
+    measure = db.relationship('RemarkMeasure', cascade='all', backref='topic', lazy='dynamic')
 
 
 class RemarkMeasure(db.Model):
     __tablename__ = 'remark_measures'
 
-    measures =  {
-        0: 'Taak maken',
-        1: 'GSM afgenomen',
-        2: 'Buiten gezet',
-        3: 'Taakstudie',
-        4: 'Andere plaats'
-    }
-
-    #measures_skip = (1, 2, 3)
-    measures_skip = ()
-
-    @staticmethod
-    def get_choices_list():
-        l = []
-        for k, v in RemarkMeasure.measures.iteritems():
-            if k in RemarkMeasure.measures_skip: continue
-            l.append((k, v))
-        return l
-
     id = db.Column(db.Integer, primary_key=True)
-    measure = db.Column(db.Integer)
+    #measure = db.Column(db.Integer)
+    topic_id = db.Column(db.Integer, db.ForeignKey('measure_topics.id'))
     remark_id = db.Column(db.Integer, db.ForeignKey('remarks.id', ondelete='CASCADE'))

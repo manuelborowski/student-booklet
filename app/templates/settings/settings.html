@@ -6,93 +6,157 @@
 {% extends "base.html" %}
 
 {% block content2 %}
-<div class="content-section">
-    <div class="center">
-        <form method="post" enctype=multipart/form-data id="settings_form" action="{{ url_for('settings.upload_file') }}">
+<div class="content-section center">
+  {% if current_user.is_at_least_admin %}
+    <form method="post" enctype=multipart/form-data id="settings_form" action="{{ url_for('settings.upload_file') }}">
         <h2>Database : </h2>
-            <input id="upload_trigger" type="submit" value="Import" style="display:none" onclick="loader_on();">
-            <div class="container">
-                <div class="row">
-                    <div class="col-sm-3">
-                        <input class="btn btn-default" type="button" id="import2" value="1) Importeer leerkrachten"  onclick="$('#import_fileid2').click();">
-                        <input id='import_fileid2' type='file' name='upload_teachers' style="display:none" accept=".csv" onchange="$('#upload_trigger').click();">
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-sm-3">
-                        <input class="btn btn-default" type="button" id="import" value="2) Importeer studenten" onclick="upload_file('import_fileid')">
-                        <input id='import_fileid' type='file' name='upload_students' style="display:none" accept=".csv" onchange="$('#upload_trigger').click();">
-                    </div>
-                    <div class="col-sm-2">
-                        <input class="btn btn-default" type="button" value="Wis studenten"
-                               onclick="$('#settings_form').attr('action', &quot;{{ url_for('settings.delete_students')}}&quot);
-                                upload_file('upload_trigger');">
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-sm-3">
-                        <input class="btn btn-default" type="button" id="import3" value="3) Importeer lesrooster"  onclick="upload_file('import_fileid3');">
-                        <input id='import_fileid3' type='file' name='upload_timetable' style="display:none" accept=".csv" onchange="$('#upload_trigger').click();">
-                    </div>
-                    <div class="col-sm-2">
-                        <input class="btn btn-default" type="button" value="Wis lesrooster"
-                               onclick="$('#settings_form').attr('action', &quot;{{ url_for('settings.delete_timetable')}}&quot);
-                                upload_file('upload_trigger');">
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-sm-3">
-                        <input class="btn btn-default" type="button" id="import4" value="4) Importeer fotos"  onclick="$('#import_fileid4').click();">
-                        <input id='import_fileid4' type='file' name='upload_photos' style="display:none" accept=".zip" onchange="$('#upload_trigger').click();">
-                    </div>
+        <input id="upload_trigger" type="submit" value="Import" style="display:none" onclick="loader_on();">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-3">
+                    <input class="btn btn-default" type="button" id="import2" value="1) Importeer leerkrachten"
+                           onclick="$('#import_fileid2').click();">
+                    <input id='import_fileid2' type='file' name='upload_teachers' style="display:none" accept=".csv"
+                           onchange="$('#upload_trigger').click();">
                 </div>
             </div>
-        <h2>Testen : </h2>
-             <div class="container">
-                <div class="row">
-                    <div class="col-sm-3">
-                       <a class="btn btn-default" type="button" id="select_all"
-                           onclick="$('#settings_form').attr('action', &quot;{{ url_for('settings.add_test_students')}}&quot);
-                           upload_file('upload_trigger');">Voeg teststudenten toe</a>
-                    </div>
-                    <div class="col-sm-2">
-                        <input class="btn btn-default" type="button" value="Wis teststudenten"
-                               onclick="$('#settings_form').attr('action', &quot;{{ url_for('settings.delete_test_students')}}&quot);
-                                upload_file('upload_trigger');">
-                    </div>
+            <div class="row">
+                <div class="col-sm-3">
+                    <input class="btn btn-default" type="button" id="import" value="2) Importeer studenten"
+                           onclick="upload_file('import_fileid')">
+                    <input id='import_fileid' type='file' name='upload_students' style="display:none" accept=".csv"
+                           onchange="$('#upload_trigger').click();">
                 </div>
-            <!-- Modal (pop-up window) -->
+                <div class="col-sm-2">
+                    <input class="btn btn-default" type="button" value="Wis studenten"
+                           onclick="$('#settings_form').attr('action', &quot;{{ url_for('settings.delete_students')}}&quot);
+                                upload_file('upload_trigger');">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-3">
+                    <input class="btn btn-default" type="button" id="import3" value="3) Importeer lesrooster"
+                           onclick="upload_file('import_fileid3');">
+                    <input id='import_fileid3' type='file' name='upload_timetable' style="display:none"
+                           accept=".csv" onchange="$('#upload_trigger').click();">
+                </div>
+                <div class="col-sm-2">
+                    <input class="btn btn-default" type="button" value="Wis lesrooster"
+                           onclick="$('#settings_form').attr('action', &quot;{{ url_for('settings.delete_timetable')}}&quot);
+                                upload_file('upload_trigger');">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-3">
+                    <input class="btn btn-default" type="button" id="import4" value="4) Importeer fotos"
+                           onclick="$('#import_fileid4').click();">
+                    <input id='import_fileid4' type='file' name='upload_photos' style="display:none" accept=".zip"
+                           onchange="$('#upload_trigger').click();">
+                </div>
+            </div>
+        </div>
+        <h2>Testen : </h2>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-3">
+                    <a class="btn btn-default" type="button" id="select_all"
+                       onclick="$('#settings_form').attr('action', &quot;{{ url_for('settings.add_test_students')}}&quot);
+                           upload_file('upload_trigger');">Voeg teststudenten toe</a>
+                </div>
+                <div class="col-sm-2">
+                    <input class="btn btn-default" type="button" value="Wis teststudenten"
+                           onclick="$('#settings_form').attr('action', &quot;{{ url_for('settings.delete_test_students')}}&quot);
+                                upload_file('upload_trigger');">
+                </div>
+            </div>
+
+            <!-- modal to select schoolyear -->
             <div class="modal fade" id="mdl_select_schoolyear" role="dialog">
                 <div class="modal-dialog">
                     <!-- Modal content-->
                     <div class="modal-content">
                         <div class="modal-header">
-                            <button type="button" class="close" id="dismiss_modal" data-dismiss="modal">&times;</button>
+                            <button type="button" class="close" id="dismiss_modal" data-dismiss="modal">&times;
+                            </button>
                             <h4 class="modal-title" id="modal_title">Welke schooljaar?</h4>
                         </div>
                         <div class="modal-body">
                             <select class="form-control" name="select_schoolyear">
                                 {% for i in schoolyear_list %}
-                                    {% if i == schoolyear|int %}
-                                        <option val="{{i}}" selected="selected">{{i}}</option>
-                                    {% else %}
-                                        <option val="{{i}}">{{i}}</option>
-                                    {% endif %}
+                                {% if i == schoolyear|int %}
+                                <option val="{{i}}" selected="selected">{{i}}</option>
+                                {% else %}
+                                <option val="{{i}}">{{i}}</option>
+                                {% endif %}
                                 {% endfor %}
                             </select>
                         </div>
                         <div class="modal-footer">
-                            <button id="close_modal" type="button" class="btn btn-default" data-dismiss="modal">Ga verder</button>
+                            <button id="close_modal" type="button" class="btn btn-default" data-dismiss="modal">Ga
+                                verder
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
-        </form>
+        </div>
+    </form>
+    {% endif %}
+    {% if current_user.is_at_least_supervisor %}
+    <!--Remark subjects and measures-->
+    {% for subject, heading, list in topics %}
+    <h2>{{heading}}</h2>
+    <a class="btn btn-default" type="button" id="add_{{subject}}" onclick="add_topic('{{subject}}');">Nieuw</a>
+    <table cellspacing="0" class="table table-striped table-bordered wrap" id="datatable_{{subject}}" width="100%">
+        <thead>
+        <tr>
+            <th style="width:5%;text-align:center;">Zichtbaar</th>
+            <th>Onderwerp</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for i in list %}
+        <tr>
+            <td style="text-align:center;"><input type='checkbox' id="{{subject}}-{{i.id}}" class="measure_topics" {% if
+                                                  i.enabled %} checked{% endif %}></td>
+            <td>{{i.topic}}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% endfor %}
+
+    <!-- modal to add a new topic -->
+    <div class="modal fade" id="mdl_add_topic" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" id="dismiss_topic_modal" data-dismiss="modal">&times;
+                    </button>
+                    <h4 class="modal-title">Nieuwe onderwerp</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="mdl_topic_text">onderwerp</label>
+                        <input type="text" class="form-control" id="mdl_topic_text" name="new_topic">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" id="dismiss_modal2" data-dismiss="modal">
+                        Annuleer
+                    </button>
+                    <button type="button" id="close_topic_modal" class="btn btn-default" data-dismiss="modal">Bewaar
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
+    {% endif %}
 </div>
 {% endblock %}
 
 {% block scripts %}
 {{ super() }}
-<script type="text/javascript" > {% include "settings/settings.js" %}</script>
+<script type="text/javascript"> {% include "settings/settings.js" %}</script>
 {% endblock %}
