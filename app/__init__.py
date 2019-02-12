@@ -15,6 +15,13 @@ from functools import wraps
 
 app = Flask(__name__, instance_relative_config=True)
 
+#V1.0 : base version, everything works
+#V1.1 : remarksubjects and remarkmeasures : they are stored in the database and can be appended
+
+@app.context_processor
+def inject_version():
+    return dict(version = 'V1.1')
+
 #enable logging
 LOG_HANDLE = 'SB'
 log = logging.getLogger(LOG_HANDLE)
