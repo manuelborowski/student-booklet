@@ -17,10 +17,11 @@ app = Flask(__name__, instance_relative_config=True)
 
 #V1.0 : base version, everything works
 #V1.1 : remarksubjects and remarkmeasures : they are stored in the database and can be appended
+#V1.2 : reworked and refactored html-pages to view single items
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V1.1')
+    return dict(version = 'V1.2')
 
 #enable logging
 LOG_HANDLE = 'SB'

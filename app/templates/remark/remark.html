@@ -9,9 +9,8 @@ Show a single remark page
 
 {% block content2 %}
 <div class="content-section center">
-    <h3>Opmerking toevoegen</h3>
-    <form action={{redirect_url}} method="post" class="form" role="form" id="filter_form"
-          enctype=multipart/form-data>
+    <h3>Opmerking toevoegen/wijzigen</h3>
+    <form action="{{url_for(subject + '.' + role)}}" method="post" class="form" role="form" id="item_form" enctype=multipart/form-data>
         <div class="hidden">
             {% if save_filters %}
             {{ wtf.form_field(save_filters.teacher) }}
@@ -53,8 +52,8 @@ Show a single remark page
             </div>
         </div>
         <br/>
-        <input class="btn btn-default" id="dummy_remark" name="button" type="submit" value="Bewaar">
-        <a class="btn btn-default" href="javascript:history.back()">Annuleer</a>
+        <button class="btn btn-default" name="button"value="save" onclick="$('#item_form').submit();">Bewaar</button>
+        <a class="btn btn-default" href="{{url_for(subject + '.show')}}">Annuleer</a>
     </form>
 </div>
 {% endblock %}

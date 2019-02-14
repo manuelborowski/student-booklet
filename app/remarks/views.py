@@ -8,7 +8,7 @@ from . import remarks
 from ..models import Remark, RemarkSubject, RemarkMeasure, Student, ExtraMeasure, SubjectTopic, MeasureTopic
 from ..forms import RemarkForm
 from ..base_multiple_items import build_filter_and_filter_data, prepare_data_for_html
-from ..base import calculate_current_schoolyear, flash_plus
+from ..base import calculate_current_schoolyear, flash_plus, button_save_pushed
 from ..tables_config import  tables_configuration
 
 import datetime, json
@@ -33,23 +33,7 @@ def source_data():
 @remarks.route('/remarks', methods=['GET', 'POST'])
 @login_required
 def show():
-    if 'button' in request.form and request.form['button'] == 'Bewaar':
-        try:
-            #iterate over the remarks, delete the old subjects and measures and attach the new
-            for r in request.form.getlist('remark_id'):
-                remark = Remark.query.get(int(r))
-                if remark:
-                    for t in RemarkSubject.query.filter(RemarkSubject.remark_id == remark.id).all(): db.session.delete(t)
-                    for m in RemarkMeasure.query.filter(RemarkMeasure.remark_id == remark.id).all(): db.session.delete(m)
-                    for t in request.form.getlist('subject'): db.session.add(RemarkSubject(topic=SubjectTopic.query.get(int(t)), remark=remark))
-                    for m in request.form.getlist('measure'): db.session.add(RemarkMeasure(topic=MeasureTopic.query.get(int(m)), remark=remark))
-                    remark.measure_note = request.form['measure_note']
-                    remark.subject_note = request.form['subject_note']
-            db.session.commit()
-        except Exception as e:
-            log.error(u'Could not edit remarks {}'.format(e))
-            flash_plus(u'Kan opmerkingen niet aanpassen', e)
-    #The frllowing line is required only to build the filter-fields on the page.
+    #The following line is required only to build the filter-fields on the page.
     _filter, _filter_form, a,b, c = build_filter_and_filter_data(tables_configuration['remark'])
     return render_template('base_multiple_items.html',
                            filter=_filter, filter_form=_filter_form,
@@ -78,27 +62,81 @@ def delete():
 @remarks.route('/remarks/edit', methods=['GET', 'POST'])
 @login_required
 def edit():
-    students = []
-    remarks = []
     try:
-        cb_id_list = request.form.getlist('cb')
-        for id in cb_id_list:
-            remark = Remark.query.get(int(id))
-            if remark:
-                remarks.append(remark)
-                students.append(remark.student)
+        if button_save_pushed(): #second pass
+            # iterate over the remarks, delete the old subjects and measures and attach the new
+            for r in request.form.getlist('remark_id'):
+                remark = Remark.query.get(int(r))
+                if remark:
+                    for t in RemarkSubject.query.filter(RemarkSubject.remark_id == remark.id).all(): db.session.delete(t)
+                    for m in RemarkMeasure.query.filter(RemarkMeasure.remark_id == remark.id).all(): db.session.delete(m)
+                    for t in request.form.getlist('subject'): db.session.add(RemarkSubject(topic=SubjectTopic.query.get(int(t)), remark=remark))
+                    for m in request.form.getlist('measure'): db.session.add(RemarkMeasure(topic=MeasureTopic.query.get(int(m)), remark=remark))
+                    remark.measure_note = request.form['measure_note']
+                    remark.subject_note = request.form['subject_note']
+            db.session.commit()
+            return redirect(url_for('remarks.show'))
+        else:  # first pass
+            students = set()
+            remarks = []
+            cb_id_list = request.form.getlist('cb')
+            for id in cb_id_list:
+                remark = Remark.query.get(int(id))
+                if remark:
+                    remarks.append(remark)
+                    students.add(remark.student)
+            form_remark = RemarkForm()
+            return render_template('remark/remark.html',
+                                   subject = 'remarks',
+                                   role = 'edit',
+                                   save_filters=None,
+                                   save_remarks=remarks,
+                                   form_remark=form_remark,
+                                   students=students)
     except Exception as e:
-        log.error(u'Could not edit remarks : {}'.format(e))
-        flash_plus(u'Kan de opmerkingen niet aanpassen', e)
-        return redirect(url_for('remarks.show'))
+        log.error(u'Could not edit remarks {}'.format(e))
+        flash_plus(u'Kan opmerkingen niet aanpassen', e)
+    return redirect(url_for('remarks.show'))
 
-    form_remark = RemarkForm()
-    return render_template('remark/remark.html',
-                           redirect_url = url_for('remarks.show'),
-                           save_filters=None,
-                           save_remarks=remarks,
-                           form_remark=form_remark,
-                           students=students)
+    # if 'button' in request.form and request.form['button'] == 'Bewaar':
+    #     try:
+    #         #iterate over the remarks, delete the old subjects and measures and attach the new
+    #         for r in request.form.getlist('remark_id'):
+    #             remark = Remark.query.get(int(r))
+    #             if remark:
+    #                 for t in RemarkSubject.query.filter(RemarkSubject.remark_id == remark.id).all(): db.session.delete(t)
+    #                 for m in RemarkMeasure.query.filter(RemarkMeasure.remark_id == remark.id).all(): db.session.delete(m)
+    #                 for t in request.form.getlist('subject'): db.session.add(RemarkSubject(topic=SubjectTopic.query.get(int(t)), remark=remark))
+    #                 for m in request.form.getlist('measure'): db.session.add(RemarkMeasure(topic=MeasureTopic.query.get(int(m)), remark=remark))
+    #                 remark.measure_note = request.form['measure_note']
+    #                 remark.subject_note = request.form['subject_note']
+    #         db.session.commit()
+    #     except Exception as e:
+    #         log.error(u'Could not edit remarks {}'.format(e))
+    #         flash_plus(u'Kan opmerkingen niet aanpassen', e)
+    #
+    #
+    # students = set()
+    # remarks = []
+    # try:
+    #     cb_id_list = request.form.getlist('cb')
+    #     for id in cb_id_list:
+    #         remark = Remark.query.get(int(id))
+    #         if remark:
+    #             remarks.append(remark)
+    #             students.add(remark.student)
+    # except Exception as e:
+    #     log.error(u'Could not edit remarks : {}'.format(e))
+    #     flash_plus(u'Kan de opmerkingen niet aanpassen', e)
+    #     return redirect(url_for('remarks.show'))
+    #
+    # form_remark = RemarkForm()
+    # return render_template('remark/remark.html',
+    #                        subject = 'remarks',
+    #                        save_filters=None,
+    #                        save_remarks=remarks,
+    #                        form_remark=form_remark,
+    #                        students=students)
 
 MAX_REMARKS_PER_MONTH = 5
 MAX_REMARKS_PER_WEEK = 3
@@ -218,7 +256,6 @@ def add_extra_measure(remark_ids, em):
     except Exception as e:
         log.error(u'Could not add extra measure : {}'.format(e))
         return jsonify({'status' : False})
-
     return jsonify({'status' : True})
 
 @remarks.route('/remarks/delete_extra_measure/<int:remark_id>', methods=['GET', 'POST'])
@@ -231,7 +268,6 @@ def delete_extra_measure(remark_id):
     except Exception as e:
         log.error(u'Could not delete extra measure : {}'.format(e))
         return jsonify({'status' : False})
-
     return jsonify({'status' : True})
 
 @remarks.route('/remarks/review_done', methods=['GET', 'POST'])
