@@ -8,7 +8,7 @@
 {% block content2 %}
 <div class="content-section center">
   {% if current_user.is_at_least_admin %}
-    <form method="post" enctype=multipart/form-data id="settings_form" action="{{ url_for('settings.upload_file') }}">
+    <form method="post" enctype=multipart/form-data id="settings_form" action="{{ url_for('settings.upload_file') }}" enctype=multipart/form-data>
         <h2>Database : </h2>
         <input id="upload_trigger" type="submit" value="Import" style="display:none" onclick="loader_on();">
         <div class="container">

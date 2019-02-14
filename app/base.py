@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import datetime
-from flask import flash
+from flask import flash, request
 from models import Teacher, Schedule, Grade, Lesson, Student
 from base_settings import get_setting_simulate_dayhour
 from . import db
@@ -137,3 +137,7 @@ def flash_plus(message, e=None):
         flash((u'{}<br><br>Details:<br>{}'.format(message, e)).encode('ascii', 'xmlcharrefreplace'))
     else:
         flash((u'{}'.format(message)).encode('ascii', 'xmlcharrefreplace'))
+
+def button_save_pushed():
+    return 'button' in request.form and request.form['button'] == 'save'
+

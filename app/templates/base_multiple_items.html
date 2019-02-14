@@ -41,7 +41,7 @@
             </table>
         </form>
         <hr style="border-top: 10px solid #d1dc9c; margin-top: -5px; margin-bottom: 10px;"/>
-        <form method="post" id="button_form">
+        <form method="post" id="button_form" enctype=multipart/form-data>
                 {% if 'delete' in config.buttons %}
                 <a class="btn btn-default" onclick="confirm_before_delete()">Verwijder</a>
                 {% endif %}

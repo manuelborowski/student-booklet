@@ -10,17 +10,17 @@ from ..models import User
 
 
 class EditForm(FlaskForm):
-    first_name = StringField('First name')
-    last_name = StringField('Last name')
-    username = StringField('Username', validators=[DataRequired()])
+    first_name = StringField('Voornaam')
+    last_name = StringField('Achternaam')
+    username = StringField('Gebruikersnaam', validators=[DataRequired()])
     email = StringField('Email', validators=[Email()])
     level = SelectField('Niveau', validators=[DataRequired()], choices=User.get_zipped_levels())
     user_type = SelectField('Type', validators=[DataRequired()], choices=User.get_zipped_types())
     id = IntegerField(widget=HiddenInput())
 
 class AddForm(EditForm):
-    password = PasswordField('Password')
-    confirm_password = PasswordField('Bevestig Password')
+    password = PasswordField('Paswoord')
+    confirm_password = PasswordField('Bevestig Paswoord')
     def validate_username(self, field):
         if User.query.filter_by(username=func.binary(field.data)).first():
             raise ValidationError('Gebruikersnaam is reeds in gebruik')
@@ -43,6 +43,20 @@ class ViewForm(FlaskForm):
     id = IntegerField(widget=HiddenInput())
 
 class ChangePasswordForm(FlaskForm):
-    old_password = PasswordField('Old password', validators=[DataRequired()])
-    new_password = PasswordField('New Password', validators=[DataRequired(), EqualTo('confirm_new_password')])
-    confirm_new_password = PasswordField('Confirm new password')
+    old_password = PasswordField('Oud paswoord')
+    new_password = PasswordField('Nieuw Paswoord')
+    confirm_new_password = PasswordField('Bevestig nieuw paswoord')
+    id = IntegerField(widget=HiddenInput())
+
+    def validate_old_password(self, field):
+        user = User.query.get(self.id.data)
+        if not user or not user.verify_password(field.data):
+            raise ValidationError('Verkeerd paswoord opgegeven')
+
+    def validate_new_password(self, field):
+        if field.data == '':
+            raise ValidationError('Paswoord invullen aub')
+
+    def validate_confirm_new_password(self, field):
+        if field.data != self.new_password.data:
+            raise ValidationError('Beide paswoorden moeten hetzelfde zijn')
