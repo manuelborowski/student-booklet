@@ -13,7 +13,7 @@ class EditForm(FlaskForm):
     first_name = StringField('Voornaam')
     last_name = StringField('Achternaam')
     username = StringField('Gebruikersnaam', validators=[DataRequired()])
-    email = StringField('Email', validators=[Email()])
+    email = StringField('Email')
     level = SelectField('Niveau', validators=[DataRequired()], choices=User.get_zipped_levels())
     user_type = SelectField('Type', validators=[DataRequired()], choices=User.get_zipped_types())
     id = IntegerField(widget=HiddenInput())
