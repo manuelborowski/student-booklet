@@ -3,8 +3,8 @@
 import datetime
 from flask import flash, request
 from models import Teacher, Schedule, Grade, Lesson, Student
-from base_settings import get_setting_simulate_dayhour
-from . import db
+from base_settings import get_global_setting_sim_dayhour_state, get_global_setting_sim_dayhour
+from . import db, log
 
 def get_all_schoolyears_from_database():
     schoolyears = Student.query.with_entities(Student.schoolyear).distinct().order_by(Student.schoolyear).all()
@@ -23,33 +23,41 @@ def calculate_current_schoolyear():
 
 def get_timeslot_from_current_time():
     TT = [
-        (8*60+30,  8*60+30+50,  1),   #first hour : 8:30 till 9:20
-        (9*60+20,  9*60+20+50,  2),
-        (10*60+25, 10*60+25+50, 3),
-        (11*60+15, 11*60+15+50, 4),
-        (12*60+5,  12*60+5+55,  5),
-        (13*60+0,  13*60+0+50,  6),
-        (13*60+50, 13*60+50+50, 7),
-        (14*60+55, 14*60+55+50, 8),
-        (15*60+45, 15*60+45+50, 9),
+        (8*60+30,  8*60+30+50,     1), #first hour : 8:30 till 9:20
+        (9*60+20,  9*60+20+50+15,  2), #the break counts as timeslot 2
+        (10*60+25, 10*60+25+50,    3),
+        (11*60+15, 11*60+15+50,    4),
+        (12*60+5,  12*60+5+55,     5),
+        (13*60+0,  13*60+0+50,     6),
+        (13*60+50, 13*60+50+50+15, 7), #the break counts as timeslot 7
+        (14*60+55, 14*60+55+50,    8),
+        (15*60+45, 15*60+45+50 +15*60+55,    9), #the whole evening and morning count as timeslot 9
     ]
 
     TT_W = [
-        (8*60+30,  8*60+30+50,  1),   #first hour : 8:30 till 9:20
-        (9*60+20,  9*60+20+50,  2),
-        (10*60+20, 10*60+20+50, 3),
-        (11*60+10, 11*60+10+50, 4),
+        (8*60+30,  8*60+30+50,     1), #first hour : 8:30 till 9:20
+        (9*60+20,  9*60+20+50+10,  2), #the break counts as timeslot 2
+        (10*60+20, 10*60+20+50,    3),
+        (11*60+10, 11*60+10+50+20*60+30,    4), #the whole evening and morning count as timeslot 4
     ]
 
-    simulate_dayhour = get_setting_simulate_dayhour()
-    if simulate_dayhour != '0/0':
-        return Schedule.decode_dayhour(simulate_dayhour)
+    if get_global_setting_sim_dayhour_state():
+        try:
+            dh = get_global_setting_sim_dayhour().split('/')
+            day = int(dh[0])
+            m = int(dh[1]) * 60 + int(dh[2])
+        except:
+            log.error('bad sim dayhour string : {}'.format(get_global_setting_sim_dayhour()))
+            now = datetime.datetime.now()
+            day = now.weekday() + 1
+            m = now.hour * 60 + now.minute
+    else:
+        now = datetime.datetime.now()
+        day = now.weekday()+1
+        m = now.hour * 60 + now.minute
 
-    now = datetime.datetime.now()
-    day = now.weekday()+1
-    if day > 5: return 1, 1 #no school, return monday, first hour
+    if day > 5: return 5, 9 #no school, return friday last hour
     tt = TT_W if day == 3 else TT
-    m = now.hour * 60 + now.minute
     for t in tt:
         if m >= t[0] and m < t[1]: return day, t[2]
     return 1, 1 #not found, return monday, first hour
@@ -81,9 +89,12 @@ def filter_overview(teacher_id, dayhour_str, grade_id, lesson_id, changed_item=N
 
     if changed_item == 'teacher':
         d, h = get_timeslot_from_current_time()
-        #try to find the classmoment, equal to or later than the given day and hour
-        schedule = Schedule.query.join(Teacher).filter(Teacher.id == teacher.id, Schedule.day <= d, Schedule.hour <= h).\
-            order_by(Schedule.day.desc(), Schedule.hour.desc()).first()
+        #try to find the classmoment, equal to or earlier than the given day and hour
+        schedules = Schedule.query.join(Teacher).filter(Teacher.id == teacher.id).order_by(Schedule.day.desc(), Schedule.hour.desc()).all()
+        dh = d * 10 + h
+        for schedule in schedules:
+            if dh >= schedule.day * 10 + schedule.hour: break
+        else: schedule = None
         if not schedule:
             schedule = Schedule.query.join(Teacher).filter(Teacher.id == teacher.id).order_by(Schedule.day, Schedule.hour).first()
         if schedule:

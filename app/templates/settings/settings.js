@@ -1,4 +1,4 @@
-var upload_type;
+var action_id;
 var topic_subject;
 
 $(document).ready(function(){
@@ -16,7 +16,7 @@ $(document).ready(function(){
 
     $('#mdl_select_schoolyear').on('hide.bs.modal', function (e) {
         if (document.activeElement.id == 'close_modal') {
-            $('#' + upload_type).click();
+            $('#' + action_id).click();
         }
     });
 
@@ -54,8 +54,8 @@ function confirm_before_delete(url) {
 }
 
 
-function upload_file(type) {
-    upload_type = type;
+function select_schoolyear(id) {
+    action_id = id;
     $('#mdl_select_schoolyear').modal();
 }
 
@@ -65,4 +65,7 @@ function add_topic(subject) {
     $('#mdl_add_topic').modal();
 }
 
-
+function submit_subject(subject, id){
+    $('#save_subject').val(subject);
+    select_schoolyear(id);
+}

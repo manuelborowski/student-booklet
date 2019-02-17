@@ -23,7 +23,7 @@
                     <a class="btn btn-default" href="{{ url_for('auth.login', redirect_url=url_for(subject + '.edit', id=form.id.data)) }}">Wijzig</a>
                 {% endif %}
             {% else %}
-                <button class="btn btn-default" name="button"value="save" onclick="$('#item_form').submit();">Bewaar</button>
+                <button class="btn btn-default" type="button" name="button"value="save" onclick="$('#item_form').submit();">Bewaar</button>
             {% endif %}
             <a class="btn btn-default" href="{{ url_for(subject + '.show') }}">Annuleer</a>
         </form>

@@ -2,7 +2,8 @@
 
 from flask import render_template, redirect, url_for, request, json, jsonify
 from flask_login import login_required
-from ..base_settings import set_global_setting_current_schoolyear, get_setting_simulate_dayhour, set_setting_simulate_dayhour
+from ..base_settings import set_global_setting_current_schoolyear, get_global_setting_sim_dayhour, get_global_setting_sim_dayhour_state, \
+    set_global_setting_sim_dayhour, set_global_setting_sim_dayhour_state
 from ..base import calculate_current_schoolyear, get_all_schoolyears_from_database, flash_plus
 from . import settings
 from .. import db, log, admin_required, supervisor_required
@@ -27,12 +28,16 @@ def get_settings_and_show():
         subject_topics = SubjectTopic.query.order_by(SubjectTopic.topic).all()
         st_list = [{'id' : i.id, 'enabled' : i.enabled, 'topic' : i.topic} for i in subject_topics]
         topics.append(('subject_topic', 'Opmerkingen', st_list))
+
+        settings = {}
+        settings['sim_dayhour'] = get_global_setting_sim_dayhour()
+        settings['sim_dayhour_state'] = get_global_setting_sim_dayhour_state()
     except Exception as e:
         log.error(u'Could not check the database for students or timetables, error {}'.format(e))
         flash_plus(u'Er is een fout opgetreden bij het ophalen van de instellingen', e)
 
     return render_template(u'settings/settings.html',
-                            simulate_dayhour = get_setting_simulate_dayhour(),
+                            settings = settings,
                             schoolyear_list = schoolyear_list,
                             topics = topics,
                             title='settings')
@@ -47,25 +52,35 @@ def show():
 @admin_required
 @login_required
 def save():
-    if 'select_schoolyear' in request.form:
-        set_global_setting_current_schoolyear(request.form['select_schoolyear'])
-    if 'save_settings' in request.form:
-        if 'schoolyear' in request.form:
-           set_global_setting_current_schoolyear(request.form['schoolyear'])
-        if 'simulate_dayhour' in request.form:
-            set_setting_simulate_dayhour(request.form['simulate_dayhour'])
-    return get_settings_and_show()
-
-@settings.route('/settings/upload_file', methods=['GET', 'POST'])
-@admin_required
-@login_required
-def upload_file():
-    if request.files['upload_students']: import_students(request.files['upload_students'])
-    if request.files['upload_teachers']: import_teachers(request.files['upload_teachers'])
-    if request.files['upload_timetable']: import_timetable(request.files['upload_timetable'])
-    if request.files['upload_photos']: upload_photos(request.files['upload_photos'])
+    if request.files['upload_students']:
+        upload_students(request.files['upload_students'])
+    elif request.files['upload_teachers']:
+        upload_teachers(request.files['upload_teachers'])
+    elif request.files['upload_schedule']:
+        upload_schedule(request.files['upload_schedule'])
+    elif request.files['upload_photos']:
+        upload_photos(request.files['upload_photos'])
+    elif request.form['save_subject'] == 'add_test_students':
+        add_test_students()
+    elif request.form['save_subject'] == 'delete_test_students':
+        delete_test_students()
+    elif request.form['save_subject'] == 'delete_students':
+        delete_students()
+    elif request.form['save_subject'] == 'delete_schedule':
+        delete_schedule()
+    elif 'txt_sim_dayhour' in request.form:
+        save_sim_dayhour()
     return redirect(url_for('settings.show'))
 
+
+def save_sim_dayhour():
+    try:
+        set_global_setting_sim_dayhour_state('chkb_sim_dayhour' in request.form)
+        set_global_setting_sim_dayhour(request.form['txt_sim_dayhour'])
+    except Exception as e:
+        log.error(u'Cannot save simulate dayhour: {}'.format(e))
+        flash_plus(u'Kan simulatie dag en uur niet bewaren', e)
+    return
 
 def upload_photos(rfile):
     try:
@@ -89,7 +104,7 @@ def upload_photos(rfile):
 #FOTO           photo
 #KLAS           grade_id
 
-def import_students(rfile):
+def upload_students(rfile):
     try:
         # format csv file :
         log.info(u'Import students from : {}'.format(rfile))
@@ -97,7 +112,7 @@ def import_students(rfile):
 
         nbr_students = 0
         nbr_grades = 0
-        schoolyear = request.form['select_schoolyear']
+        schoolyear = request.form['selected_schoolyear']
 
         for s in students_file:
             #skip empy records
@@ -135,7 +150,7 @@ def import_students(rfile):
 #VOORNAAM       first_name
 #CODE           code
 
-def import_teachers(rfile):
+def upload_teachers(rfile):
     try:
         # format csv file :
         log.info(u'Import teachers from : {}'.format(rfile))
@@ -168,11 +183,11 @@ def import_teachers(rfile):
 #DAG            Classmoment.day
 #UUR            Classmoment.hour
 
-def import_timetable(rfile):
+def upload_schedule(rfile):
     try:
         # format csv file :
         log.info(u'Import timetable from : {}'.format(rfile))
-        schoolyear = request.form['select_schoolyear']
+        schoolyear = request.form['selected_schoolyear']
 
         #first, delete current timetable
         delete_classmoments(schoolyear)
@@ -222,11 +237,8 @@ def import_timetable(rfile):
         flash_plus(u'Kan bestand niet importeren', e)
     return
 
-@settings.route('/settings/delete_students', methods=['GET', 'POST'])
-@admin_required
-@login_required
 def delete_students():
-    schoolyear = request.form['select_schoolyear']
+    schoolyear = request.form['selected_schoolyear']
     try:
         extra_measures = ExtraMeasure.query.join(Remark, Student).filter(Student.schoolyear == schoolyear).all()
         for em in extra_measures:
@@ -248,13 +260,10 @@ def delete_classmoments(schoolyear):
         db.session.delete(c)
     db.session.commit()
 
-@settings.route('/settings/delete_timetable', methods=['GET', 'POST'])
-@admin_required
-@login_required
-def delete_timetable():
-    schoolyear = request.form['select_schoolyear']
+def delete_schedule():
+    schoolyear = request.form['selected_schoolyear']
     try:
-        delete_classmoments(request.form['select_schoolyear'])
+        delete_classmoments(request.form['selected_schoolyear'])
         log.info(u'Deleted timetable')
         flash_plus(u'Lesrooster van jaar {} is gewist'.format(schoolyear))
     except Exception as e:
@@ -272,11 +281,8 @@ remark_dates = [
     #['5/1', '15/1', '16/1', '22/1', '24/1', '8/2', '10/2', '15/2', '16/2', '23/3', '27/3'],
 ]
 
-@settings.route('/settings/add_test_students', methods=['GET', 'POST'])
-@admin_required
-@login_required
 def add_test_students():
-    schoolyear = request.form['select_schoolyear']
+    schoolyear = request.form['selected_schoolyear']
     random.seed()
     try:
         #fetch the first classmoment
@@ -317,11 +323,8 @@ def add_test_students():
         flash_plus(u'Kan test studenten voor jaar {} niet toevoegen'.format(schoolyear), e)
     return redirect(url_for('settings.show'))
 
-@settings.route('/settings/delete_test_students', methods=['GET', 'POST'])
-@admin_required
-@login_required
 def delete_test_students():
-    schoolyear = request.form['select_schoolyear']
+    schoolyear = request.form['selected_schoolyear']
     try:
         students = Student.query.join(Remark).filter(Student.first_name.like('TEST%'),
                                                      Student.last_name.like('TEST%'), Student.schoolyear == schoolyear).all()

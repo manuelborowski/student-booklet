@@ -55,14 +55,23 @@ def get_setting_copy_from_last_add():
 def set_setting_copy_from_last_add(value):
     return set_setting('copy_from_last_add', str(value))
 
-def get_setting_simulate_dayhour():
-    found, value = get_setting('simulate_dayhour')
+def get_global_setting_sim_dayhour():
+    found, value = get_setting('simulate_dayhour', 1)
     if found: return value
-    add_setting('simulate_dayhour', '0/0', Settings.SETTING_TYPE.E_STRING)
-    return '0/0'
+    add_setting('simulate_dayhour', '2/14/3', Settings.SETTING_TYPE.E_STRING, 1)
+    return '2/14/3'
 
-def set_setting_simulate_dayhour(value):
-    return set_setting('simulate_dayhour', value)
+def set_global_setting_sim_dayhour(value):
+    return set_setting('simulate_dayhour', value, 1)
+
+def get_global_setting_sim_dayhour_state():
+    found, value = get_setting('simulate_dayhour_state', 1)
+    if found: return value
+    add_setting('simulate_dayhour_state', False, Settings.SETTING_TYPE.E_BOOL, 1)
+    return False
+
+def set_global_setting_sim_dayhour_state(value):
+    return set_setting('simulate_dayhour_state', str(value), 1)
 
 def get_global_setting_current_schoolyear():
     found, value = get_setting('current_schoolyear', 1)

@@ -5,11 +5,11 @@ function flash_messages(list) {
     }
 }
 
-function loader_on() {
+function busy_indication_on() {
   document.getElementsByClassName("loader")[0].style.display = "block";
 }
 
-function loader_off() {
+function busy_indication_off() {
   document.getElementsByClassName("loader")[0].style.display = "none";
 }
 

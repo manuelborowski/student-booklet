@@ -1,107 +1,9 @@
-<!-- app/templates/auth/user.html -->
-<!-- this form is used for adding a user as well for editing a user, hence the if-clause -->
-
 {% import "bootstrap/wtf.html" as wtf %}
 {% import "bootstrap/utils.html" as utils %}
 {% extends "base.html" %}
 
 {% block content2 %}
 <div class="content-section center">
-  {% if current_user.is_at_least_admin %}
-    <form method="post" enctype=multipart/form-data id="settings_form" action="{{ url_for('settings.upload_file') }}" enctype=multipart/form-data>
-        <h2>Database : </h2>
-        <input id="upload_trigger" type="submit" value="Import" style="display:none" onclick="loader_on();">
-        <div class="container">
-            <div class="row">
-                <div class="col-sm-3">
-                    <input class="btn btn-default" type="button" id="import2" value="1) Importeer leerkrachten"
-                           onclick="$('#import_fileid2').click();">
-                    <input id='import_fileid2' type='file' name='upload_teachers' style="display:none" accept=".csv"
-                           onchange="$('#upload_trigger').click();">
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-sm-3">
-                    <input class="btn btn-default" type="button" id="import" value="2) Importeer studenten"
-                           onclick="upload_file('import_fileid')">
-                    <input id='import_fileid' type='file' name='upload_students' style="display:none" accept=".csv"
-                           onchange="$('#upload_trigger').click();">
-                </div>
-                <div class="col-sm-2">
-                    <input class="btn btn-default" type="button" value="Wis studenten"
-                           onclick="$('#settings_form').attr('action', &quot;{{ url_for('settings.delete_students')}}&quot);
-                                upload_file('upload_trigger');">
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-sm-3">
-                    <input class="btn btn-default" type="button" id="import3" value="3) Importeer lesrooster"
-                           onclick="upload_file('import_fileid3');">
-                    <input id='import_fileid3' type='file' name='upload_timetable' style="display:none"
-                           accept=".csv" onchange="$('#upload_trigger').click();">
-                </div>
-                <div class="col-sm-2">
-                    <input class="btn btn-default" type="button" value="Wis lesrooster"
-                           onclick="$('#settings_form').attr('action', &quot;{{ url_for('settings.delete_timetable')}}&quot);
-                                upload_file('upload_trigger');">
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-sm-3">
-                    <input class="btn btn-default" type="button" id="import4" value="4) Importeer fotos"
-                           onclick="$('#import_fileid4').click();">
-                    <input id='import_fileid4' type='file' name='upload_photos' style="display:none" accept=".zip"
-                           onchange="$('#upload_trigger').click();">
-                </div>
-            </div>
-        </div>
-        <h2>Testen : </h2>
-        <div class="container">
-            <div class="row">
-                <div class="col-sm-3">
-                    <a class="btn btn-default" type="button" id="select_all"
-                       onclick="$('#settings_form').attr('action', &quot;{{ url_for('settings.add_test_students')}}&quot);
-                           upload_file('upload_trigger');">Voeg teststudenten toe</a>
-                </div>
-                <div class="col-sm-2">
-                    <input class="btn btn-default" type="button" value="Wis teststudenten"
-                           onclick="$('#settings_form').attr('action', &quot;{{ url_for('settings.delete_test_students')}}&quot);
-                                upload_file('upload_trigger');">
-                </div>
-            </div>
-
-            <!-- modal to select schoolyear -->
-            <div class="modal fade" id="mdl_select_schoolyear" role="dialog">
-                <div class="modal-dialog">
-                    <!-- Modal content-->
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" id="dismiss_modal" data-dismiss="modal">&times;
-                            </button>
-                            <h4 class="modal-title" id="modal_title">Welke schooljaar?</h4>
-                        </div>
-                        <div class="modal-body">
-                            <select class="form-control" name="select_schoolyear">
-                                {% for i in schoolyear_list %}
-                                {% if i == schoolyear|int %}
-                                <option val="{{i}}" selected="selected">{{i}}</option>
-                                {% else %}
-                                <option val="{{i}}">{{i}}</option>
-                                {% endif %}
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="modal-footer">
-                            <button id="close_modal" type="button" class="btn btn-default" data-dismiss="modal">Ga
-                                verder
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </form>
-    {% endif %}
     {% if current_user.is_at_least_supervisor %}
     <!--Remark subjects and measures-->
     {% for subject, heading, list in topics %}
@@ -117,8 +19,7 @@
         <tbody>
         {% for i in list %}
         <tr>
-            <td style="text-align:center;"><input type='checkbox' id="{{subject}}-{{i.id}}" class="measure_topics" {% if
-                                                  i.enabled %} checked{% endif %}></td>
+            <td style="text-align:center;"><input type='checkbox' id="{{subject}}-{{i.id}}" class="measure_topics" {% if i.enabled %} checked{% endif %}></td>
             <td>{{i.topic}}</td>
         </tr>
         {% endfor %}
@@ -153,6 +54,108 @@
         </div>
     </div>
     {% endif %}
+
+    <form method="post" id="settings_form" action="{{ url_for('settings.save') }}" enctype=multipart/form-data>
+        <input id="save_subject" name="save_subject" value="none" hidden>
+        {% if current_user.is_at_least_admin %}
+        <h2>Database : </h2>
+        <input id="save_settings_submit" type="submit" value="Import" style="display:none" onclick="busy_indication_on();">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-3">
+                    <input class="btn btn-default" type="button" value="1) Importeer leerkrachten" onclick="$('#upload_teachers').click();">
+                    <input id='upload_teachers' type='file' name='upload_teachers' style="display:none" accept=".csv"
+                           onchange="$('#save_settings_submit').click();">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-3">
+                    <input class="btn btn-default" type="button" value="2) Importeer studenten" onclick="select_schoolyear('upload_students')">
+                    <input id='upload_students' type='file' name='upload_students' style="display:none" accept=".csv"
+                           onchange="$('#save_settings_submit').click();">
+                </div>
+                <div class="col-sm-2">
+                    <button class="btn btn-default" type="button" onclick="submit_subject('delete_students', 'save_settings_submit');">Wis studenten</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-3">
+                    <input class="btn btn-default" type="button" value="3) Importeer lesrooster" onclick="select_schoolyear('upload_schedule');">
+                    <input id='upload_schedule' type='file' name='upload_schedule' style="display:none" accept=".csv"
+                           onchange="$('#save_settings_submit').click();">
+                </div>
+                <div class="col-sm-2">
+                    <button class="btn btn-default" type="button" onclick="submit_subject('delete_schedule', 'save_settings_submit');">Wis lesrooster</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-3">
+                    <input class="btn btn-default" type="button" id="upload4" value="4) Importeer fotos" onclick="$('#upload_photos').click();">
+                    <input id='upload_photos' type='file' name='upload_photos' style="display:none" accept=".zip"
+                           onchange="$('#save_settings_submit').click();">
+                </div>
+            </div>
+        </div>
+
+        <h2>Testen : </h2>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-3">
+                    <button class="btn btn-default" type="button" onclick="submit_subject('add_test_students', 'save_settings_submit');">Voeg teststudenten toe</button>
+                </div>
+                <div class="col-sm-2">
+                    <button class="btn btn-default" type="button" onclick="submit_subject('delete_test_students', 'save_settings_submit');">Wis teststudenten</button>
+                </div>
+            </div>
+            <br>
+            <div style="border: 2px; border-style: solid;border-color: #aec251;padding: 25px;">
+                <p>Simuleer een willekeurig uur in de week, bvb fri 14:7</p>
+                <p>Dagen : mon, thu, wed, thu, fri, sat, sun</p>
+                <div class="row">
+                    <div class="col-sm-2">
+                        Activeer <input type="checkbox" name="chkb_sim_dayhour" {% if settings.sim_dayhour_state == True %}checked{% endif %}>
+                    </div>
+                    <div class="col-sm-5">
+                        dag en tijd <input name="txt_sim_dayhour" value="{{settings.sim_dayhour}}">
+                    </div>
+                </div>
+                <div class="row">
+                    <br>
+                    <button class="btn btn-default">Bewaar</button>
+                </div>
+            </div>
+            <!-- modal to select schoolyear -->
+            <div class="modal fade" id="mdl_select_schoolyear" role="dialog">
+                <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" id="dismiss_modal" data-dismiss="modal">&times;
+                            </button>
+                            <h4 class="modal-title" id="modal_title">Welke schooljaar?</h4>
+                        </div>
+                        <div class="modal-body">
+                            <select class="form-control" name="selected_schoolyear">
+                                {% for i in schoolyear_list %}
+                                {% if i == schoolyear|int %}
+                                <option val="{{i}}" selected="selected">{{i}}</option>
+                                {% else %}
+                                <option val="{{i}}">{{i}}</option>
+                                {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="modal-footer">
+                            <button id="close_modal" type="button" class="btn btn-default" data-dismiss="modal">Ga
+                                verder
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </form>
 </div>
 {% endblock %}
 
