@@ -16,8 +16,8 @@
     {{ wtf.form_field(form.email) }}
     {{ wtf.form_field(form.level) }}
     {{ wtf.form_field(form.user_type) }}
-    <div id="passwords">
     {% if role == 'add' %}
+    <div id="passwords">
         {{ wtf.form_field(form.password) }}
         {{ wtf.form_field(form.confirm_password) }}
     </div>

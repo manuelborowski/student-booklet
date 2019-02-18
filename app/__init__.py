@@ -20,10 +20,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V1.2 : reworked and refactored html-pages to view single items
 #V1.3 : new user : email is not required
 #V1.4 : debugged schedule, added simulate schedule, refactored settings
+#V1.5 : bugifx : submit of user-details did not work anymore
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V1.4')
+    return dict(version = 'V1.5')
 
 #enable logging
 LOG_HANDLE = 'SB'
