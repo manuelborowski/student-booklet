@@ -51,6 +51,7 @@ def delete():
                 if remark.extra_measure:
                     db.session.delete(remark.extra_measure)
         db.session.commit()
+        return redirect(url_for('remarks.show'))
     except Exception as e:
         log.error(u'Could not delete remark : {}'.format(e))
         flash_plus('Kan de opmerkingen niet verwijderen', e)
