@@ -2,8 +2,8 @@
 
 import datetime
 from flask import flash, request
-from models import Teacher, Schedule, Grade, Lesson, Student
-from base_settings import get_global_setting_sim_dayhour_state, get_global_setting_sim_dayhour
+from .models import Teacher, Schedule, Grade, Lesson, Student
+from .base_settings import get_global_setting_sim_dayhour_state, get_global_setting_sim_dayhour
 from . import db, log
 
 def get_all_schoolyears_from_database():
@@ -145,9 +145,9 @@ def filter_duplicates_out(keep_list, filter_list):
 #The python UTF-8 string is encoded to html UTF-8
 def flash_plus(message, e=None):
     if e:
-        flash((u'{}<br><br>Details:<br>{}'.format(message, e)).encode('ascii', 'xmlcharrefreplace'))
+        flash(('{}<br><br>Details:<br>{}'.format(message, e)))
     else:
-        flash((u'{}'.format(message)).encode('ascii', 'xmlcharrefreplace'))
+        flash(('{}'.format(message)))
 
 def button_save_pushed():
     return 'button' in request.form and request.form['button'] == 'save'

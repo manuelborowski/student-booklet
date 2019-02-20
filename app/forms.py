@@ -4,7 +4,7 @@
 from flask_wtf import FlaskForm
 from wtforms import SelectField, IntegerField
 from wtforms.widgets import HiddenInput
-from models import Schedule, MeasureTopic, SubjectTopic
+from .models import Schedule, MeasureTopic, SubjectTopic
 from .base import get_all_schoolyears_from_database, calculate_current_schoolyear
 
 

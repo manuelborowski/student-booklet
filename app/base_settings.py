@@ -1,5 +1,5 @@
 from flask_login import current_user
-from models import Settings
+from .models import Settings
 from . import log
 from . import db
 

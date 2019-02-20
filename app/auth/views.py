@@ -7,7 +7,7 @@ from sqlalchemy import func
 
 from .. import log, db, app
 from . import auth
-from forms import LoginForm
+from .forms import LoginForm
 from ..models import User
 from ..base import flash_plus
 import datetime, json
@@ -62,6 +62,8 @@ def smartschool_profile(token):
     # Step 3 : with the access_code, get the userinfo from SS
     resp = oauth.smartschool.get('fulluserinfo', token=json.loads(token))
     profile = resp.json()
+
+    print(profile)
 
     if  not 'username' in profile: #not good
         flash_plus(u'Smartschool geeft een foutcode terug: {}'.format(profile['error']))

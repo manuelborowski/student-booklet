@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from models import User, Remark, Teacher, Student, Grade, Lesson, RemarkSubject, RemarkMeasure, ExtraMeasure
-import user.extra_filtering
-from floating_menu import default_menu_config, offence_menu_config
+from .models import User, Remark, Teacher, Student, Grade, Lesson, RemarkSubject, RemarkMeasure, ExtraMeasure
+from .user.extra_filtering import filter
+from .floating_menu import default_menu_config, offence_menu_config
 
 tables_configuration = {
     'remark' : {
@@ -69,7 +69,7 @@ tables_configuration = {
         'href': [{'attribute': '["username"]', 'route': '"user.view"', 'id': '["id"]'},
                  ],
         'floating_menu' : default_menu_config,
-        'query_filter' : user.extra_filtering.filter,
+        'query_filter' : filter,
     }
 }
 

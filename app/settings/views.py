@@ -52,14 +52,15 @@ def show():
 @admin_required
 @login_required
 def save():
-    if request.files['upload_students']:
-        upload_students(request.files['upload_students'])
-    elif request.files['upload_teachers']:
-        upload_teachers(request.files['upload_teachers'])
-    elif request.files['upload_schedule']:
-        upload_schedule(request.files['upload_schedule'])
-    elif request.files['upload_photos']:
-        upload_photos(request.files['upload_photos'])
+    if request.files:
+        if 'upload_students' in request.files:
+            upload_students(request.files['upload_students'])
+        elif 'upload_teachers' in request.files:
+            upload_teachers(request.files['upload_teachers'])
+        elif 'upload_schedule' in request.files:
+            upload_schedule(request.files['upload_schedule'])
+        elif 'upload_photos' in request.files:
+            upload_photos(request.files['upload_photos'])
     elif request.form['save_subject'] == 'add_test_students':
         add_test_students()
     elif request.form['save_subject'] == 'delete_test_students':
@@ -352,7 +353,7 @@ def add_topic(subject, topic):
             topic = MeasureTopic(topic=topic)
         elif subject == 'subject_topic':
             topic = SubjectTopic(topic=topic)
-            db.session.add(topic)
+        db.session.add(topic)
         db.session.commit()
     except Exception as e:
         log.error(u'Could not add {}, topic {}: {}'.format(subject, topic, e))

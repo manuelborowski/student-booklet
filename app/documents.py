@@ -32,14 +32,14 @@ def get_doc_reference(d):
     try:
         return documents_config[d]['doc_reference']
     except Exception as e:
-        print e
+        pass
         return None
 
 def get_doc_path(d):
     try:
         return documents_config[d]['full_path']
     except Exception as e:
-        print e
+        pass
         return None
 
 def get_doc_list(d):

@@ -5,7 +5,7 @@ from wtforms import BooleanField
 from flask import request, get_flashed_messages, jsonify, url_for
 from sqlalchemy import or_
 import time, cgi
-from models import User, Teacher, Grade, Lesson, Student, Remark, ExtraMeasure
+from .models import User, Teacher, Grade, Lesson, Student, Remark, ExtraMeasure
 from .forms import GradeFilter, TeacherFilter, SchoolyearFilter
 from . import log
 from .base import flash_plus
