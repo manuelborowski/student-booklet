@@ -81,6 +81,20 @@ function start_review() {
 
 
 $(document).ready(function() {
+        {% if 'schoolyear' in filter %}
+        $('#schoolyear').change(function(){$('#filter').click();});
+        {% endif %}
+        {% if 'teacher' in filter %}
+        $('#teacher').change(function(){$('#filter').click();});
+        {% endif %}
+        {% if 'grade' in filter %}
+        $('#grade').change(function(){$('#filter').click();});
+        {% endif %}
+        {% if 'reviewed' in filter %}
+        $('input[name=rbn_reviewed]:radio').change(function(){$('#filter').click();});
+        {% endif %}
+
+
     //The clear button of the filter is pushed
     $('#clear').click(function() {
         $('.filter').val('');
@@ -102,24 +116,24 @@ $(document).ready(function() {
 
      var filter_settings
     //Get content from localstorage and store in fields
-    try {
-        filter_settings = JSON.parse(localStorage.getItem("Filter"));
-        {% if 'schoolyear' in filter %}
-        $('#schoolyear').val(filter_settings['schoolyear']);
-        {% endif %}
-        {% if 'teacher' in filter %}
-        $('#teacher').val(filter_settings['teacher']);
-        {% endif %}
-        {% if 'grade' in filter %}
-        $('#grade').val(filter_settings['grade']);
-        {% endif %}
-        {% if 'reviewed' in filter %}
-        $('#rbn_reviewed_' + filter_settings['reviewed']).prop("checked", true);
-        {% endif %}
-
-
-    } catch (err) {
-    }
+//    try {
+//        filter_settings = JSON.parse(localStorage.getItem("Filter"));
+//        {% if 'schoolyear' in filter %}
+//        $('#schoolyear').val(filter_settings['schoolyear']);
+//        {% endif %}
+//        {% if 'teacher' in filter %}
+//        $('#teacher').val(filter_settings['teacher']);
+//        {% endif %}
+//        {% if 'grade' in filter %}
+//        $('#grade').val(filter_settings['grade']);
+//        {% endif %}
+//        {% if 'reviewed' in filter %}
+//        $('#rbn_reviewed_' + filter_settings['reviewed']).prop("checked", true);
+//        {% endif %}
+//
+//
+//    } catch (err) {
+//    }
 
     //The filter button of the filter is pushed
     $('#filter').click(function() {
