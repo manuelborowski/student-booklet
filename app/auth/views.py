@@ -63,8 +63,6 @@ def smartschool_profile(token):
     resp = oauth.smartschool.get('fulluserinfo', token=json.loads(token))
     profile = resp.json()
 
-    print(profile)
-
     if  not 'username' in profile: #not good
         flash_plus(u'Smartschool geeft een foutcode terug: {}'.format(profile['error']))
         log.error(u'OAUTH step 3 error : {}'.format(profile['error']))
