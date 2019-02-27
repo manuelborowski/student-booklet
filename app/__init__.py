@@ -23,10 +23,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V1.5 : bugifx : submit of user-details did not work anymore
 #V1.6 : upgrade to python 3.7.2  Filter of muliple items works differently
 #V1.7 : bugfix not compatible mysql connector
+#V1.8 : esthetical upgrade in login screen
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V1.7')
+    return dict(version = 'V1.8')
 
 #enable logging
 LOG_HANDLE = 'SB'

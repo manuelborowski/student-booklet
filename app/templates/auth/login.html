@@ -5,18 +5,36 @@
 {% extends "base.html" %}
 {#{% block title %}Login{% endblock %}#}
 {% block content2 %}
+<style>
+.extra_border {
+    border-radius: 5px;
+    border: 2px solid #aec251;
+    margin-left: 0px;
+    padding: 20px;
+}
+</style>
 <div class="content-section">
-  <div class="center">
-    <h1>Inloggen aub </h1>
-    <br/>
-    {{ wtf.quick_form(form) }}
-      <br>
-    <form action="/" enctype=multipart/form-data>
-      <button  name="smartschool" type="submit"  style="border:none; background-color:transparent;">
-      <img src="{{ url_for('static', filename='img/btn_aanmelden_op_smartschool_290x40.png') }}" />
-      </button>
-    </form>
-
-  </div>
+    <div class="center">
+        <div class="container">
+            <div class="col-sm-4">
+                <div class="row">
+                    <h1>Inloggen aub </h1>
+                </div>
+                <div class="row">
+                    <form action="/" enctype=multipart/form-data>
+                        <button name="smartschool" type="submit" style="border:none; background-color:transparent;">
+                            <img src="{{ url_for('static', filename='img/btn_aanmelden_op_smartschool_290x40.png') }}"/>
+                        </button>
+                    </form>
+                </div>
+                <div class="row">
+                    <h2 style="text-align:center;">of</h2>
+                </div>
+                <div class="row extra_border" >
+                    {{ wtf.quick_form(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

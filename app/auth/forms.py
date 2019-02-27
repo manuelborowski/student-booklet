@@ -11,4 +11,4 @@ class LoginForm(FlaskForm):
     """
     username = StringField('Gebruikersnaam', validators=[DataRequired()], render_kw={'autofocus': 'true'})
     password = PasswordField('Paswoord', validators=[DataRequired()])
-    submit = SubmitField('Login')
+    submit = SubmitField('Aanmelden')
