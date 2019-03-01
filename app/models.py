@@ -27,7 +27,7 @@ class User(UserMixin, db.Model):
 
     @staticmethod
     def get_zipped_types():
-        return zip(['local', 'oauth'], ['LOCAL', 'OAUTH'])
+        return list(zip(['local', 'oauth'], ['LOCAL', 'OAUTH']))
 
     class LEVEL:
         USER = 1
@@ -47,7 +47,7 @@ class User(UserMixin, db.Model):
 
     @staticmethod
     def get_zipped_levels():
-        return zip(["1", "3", "5"], User.LEVEL.ls)
+        return list(zip(["1", "3", "5"], User.LEVEL.ls))
 
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(256), index=True)

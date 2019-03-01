@@ -24,10 +24,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V1.6 : upgrade to python 3.7.2  Filter of muliple items works differently
 #V1.7 : bugfix not compatible mysql connector
 #V1.8 : esthetical upgrade in login screen
+#v1.9 : python 2 to 3 : zip() to list(zip())
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V1.8')
+    return dict(version = 'V1.9')
 
 #enable logging
 LOG_HANDLE = 'SB'
