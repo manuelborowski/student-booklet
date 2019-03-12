@@ -115,25 +115,6 @@ $(document).ready(function() {
     });
 
      var filter_settings
-    //Get content from localstorage and store in fields
-//    try {
-//        filter_settings = JSON.parse(localStorage.getItem("Filter"));
-//        {% if 'schoolyear' in filter %}
-//        $('#schoolyear').val(filter_settings['schoolyear']);
-//        {% endif %}
-//        {% if 'teacher' in filter %}
-//        $('#teacher').val(filter_settings['teacher']);
-//        {% endif %}
-//        {% if 'grade' in filter %}
-//        $('#grade').val(filter_settings['grade']);
-//        {% endif %}
-//        {% if 'reviewed' in filter %}
-//        $('#rbn_reviewed_' + filter_settings['reviewed']).prop("checked", true);
-//        {% endif %}
-//
-//
-//    } catch (err) {
-//    }
 
     //The filter button of the filter is pushed
     $('#filter').click(function() {
@@ -290,32 +271,6 @@ $(document).ready(function() {
       i.visibility = "visible";
       i.opacity = "1";
     }
-
-    //date picker
-    //Big hack to get dutch calendar to work... :-(
-    $.fn.datepicker.dates['nl'] = {
-        days : 'zondag_maandag_dinsdag_woensdag_donderdag_vrijdag_zaterdag'.split('_'),
-        daysShort : 'zo._ma._di._wo._do._vr._za.'.split('_'),
-        daysMin : 'zo_ma_di_wo_do_vr_za'.split('_'),
-        months : 'januari_februari_maart_april_mei_juni_juli_augustus_september_oktober_november_december'.split('_'),
-        monthsShort : 'jan_feb_maa_apr_mei_jun_jul_aug_sep_okt_nov_dec'.split('_'),
-        today: "Vandaag",
-        clear: "Clear",
-        format: "dd-mm-yyyy",
-        titleFormat: "MM yyyy", /* Leverages same syntax as 'format' */
-        weekStart: 0
-    };
-    var date_after=$('input[name="date_after"]'); //our date input has the name "date_after"
-    var date_before=$('input[name="date_before"]'); //our date input has the name "date_before"
-    var container=$('.bootstrap-iso form').length>0 ? $('.bootstrap-iso form').parent() : "body";
-    var options={
-        language: 'nl',
-        container: container,
-        todayHighlight: true,
-        autoclose: true,
-    };
-    date_after.datepicker(options);
-    date_before.datepicker(options);
 
     //checkbox in header is clicked
     $("#select_all").change(function() {

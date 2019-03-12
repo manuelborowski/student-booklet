@@ -5,18 +5,15 @@
 {% extends "base.html" %}
 {#{% block title %}Login{% endblock %}#}
 {% block content2 %}
-<style>
-.extra_border {
-    border-radius: 5px;
-    border: 2px solid #aec251;
-    margin-left: 0px;
-    padding: 20px;
-}
-</style>
-<div class="content-section">
+<div class="content-section  background-image">
+    <br>
+    <br>
+    <br>
+    <br>
     <div class="center">
         <div class="container">
-            <div class="col-sm-4">
+            <div class="col-sm-8"></div>
+            <div class="col-sm-4 nice-green-border" >
                 <div class="row">
                     <h1>Inloggen aub </h1>
                 </div>
@@ -30,11 +27,17 @@
                 <div class="row">
                     <h2 style="text-align:center;">of</h2>
                 </div>
-                <div class="row extra_border" >
+                <div class="row nice-green-border" >
                     {{ wtf.quick_form(form) }}
                 </div>
             </div>
         </div>
     </div>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
 </div>
+
 {% endblock %}

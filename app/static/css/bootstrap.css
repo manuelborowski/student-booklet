@@ -7,6 +7,7 @@
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
  */
 /*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */
+
 html {
   font-family: sans-serif;
   -ms-text-size-adjust: 100%;
@@ -4157,7 +4158,8 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
     border-radius: 4px;
   }
 }
-@media (min-width: 768px) {
+/*custom-navbar-breakpoint is set to 950px*/
+@media (min-width: 950px) {
   .navbar-header {
     float: left;
   }
@@ -4174,7 +4176,9 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .navbar-collapse.in {
   overflow-y: auto;
 }
-@media (min-width: 768px) {
+
+/*custom-navbar-breakpoint is set to 950px*/
+@media (min-width: 950px) {
   .navbar-collapse {
     width: auto;
     border-top: 0;
@@ -4298,7 +4302,8 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .navbar-toggle .icon-bar + .icon-bar {
   margin-top: 4px;
 }
-@media (min-width: 768px) {
+/*custom-navbar-breakpoint is set to 950px*/
+@media (min-width: 950px) {
   .navbar-toggle {
     display: none;
   }

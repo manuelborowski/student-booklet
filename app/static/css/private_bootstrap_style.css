@@ -87,3 +87,16 @@ figure.selected {
   background-color: yellow;
   box-shadow: 0px 12px 22px 1px #333;
 }
+
+.default-hidden {
+    display: none;
+}
+
+.flex-container {
+    display: flex;
+    align-content: stretch;
+    align-items: center;
+}
+
+.flex-container > div {
+}

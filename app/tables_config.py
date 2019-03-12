@@ -23,14 +23,8 @@ tables_configuration = {
                       ],
         'filter' :  ['schoolyear', 'teacher', 'grade', 'lesson', 'reviewed'],
         'href': [],
-        # 'href': [{'attribute': '["name"]', 'route': '"asset.view"', 'id': '["id"]'},
-        #          {'attribute': '["purchase"]["since"]', 'route': '"purchase.view"', 'id': '["purchase"]["id"]'},
-        #          {'attribute': '["purchase"]["supplier"]["name"]', 'route': '"supplier.view"', 'id': '["purchase"]["supplier"]["id"]'},
-        #          {'attribute': '["purchase"]["device"]["brandtype"]', 'route': '"device.view"', 'id': '["purchase"]["device"]["id"]'}
-        #          ],
         'floating_menu' : [],
         'disable_add_button' : True,
-        #'export' : 'asset.exportcsv',
     },
     'extra_measure' : {
         'model' : ExtraMeasure,
@@ -47,7 +41,6 @@ tables_configuration = {
         'href': [],
         'floating_menu' : [],
         'disable_add_button' : True,
-        #'export' : 'asset.exportcsv',
         'row_detail' : 'reviewed',
     },
     'user': {

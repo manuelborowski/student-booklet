@@ -11,109 +11,82 @@
 {% endblock %}
 
 {% block navbar %}
-<style>
-.loader {
-  border: 16px solid #f3f3f3;
-  border-radius: 50%;
-  border-top: 16px solid #3498db;
-  width: 120px;
-  height: 120px;
-  -webkit-animation: spin 2s linear infinite; /* Safari */
-  animation: spin 2s linear infinite;
-  position: fixed; /* Sit on top of the page content */
-  display: none; /* Hidden by default */
-  width: 100px; /* Full width (cover the whole page) */
-  height: 100px; /* Full height (cover the whole page) */
-  top: 50%;
-  left: 50%;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0,0,0,0); /* Black background with opacity */
-  z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
-  cursor: pointer; /* Add a pointer on hover */
-}
-
-/* Safari */
-@-webkit-keyframes spin {
-  0% { -webkit-transform: rotate(0deg); }
-  100% { -webkit-transform: rotate(360deg); }
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-</style>
-<div class="loader"></div>
-<nav class="navbar navbar-default navbar-static-top navbar-fixed-top" role="navigation">
-    <div class="container topnav">
-      <div class="navbar-header">
-          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-              <span class="sr-only">Toggle navigation</span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand topnav">Leerlingen boekje, schooljaar {{schoolyear}}</a>
-      </div>
-      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-          <ul id="sb_navbar" class="nav navbar-nav navbar-right">
-              {% if current_user.is_authenticated %}
-                  <li ><a name="test" href="{{ url_for('grade.show') }}">Klas</a></li>
-                  <li><a href="{{ url_for('remarks.show') }}">Boekje</a></li>
-                  <li><a href="{{ url_for('reviewed.show') }}">Gecontroleerd</a></li>
-                  {% if current_user.is_at_least_admin %}
-                      <li><a href="{{ url_for('user.show') }}">Gebruikers</a></li>
-                  {% endif %}
-                  {% if current_user.is_at_least_supervisor %}
-                      <li><a href="{{ url_for('settings.show') }}">Instellingen</a></li>
-                  {% endif %}
-                  <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
-                  <li><a><i class="fa fa-user"></i>  Hi, {{ current_user.username }}!</a></li>
-              {% else %}
-                  <li><a href="#">Login</a></li>
-              {% endif %}
-          </ul>
-      </div>
+<div class="busy-indicator"></div>
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#student-booklet-navbar">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand">Leerlingen boekje, schooljaar {{schoolyear}}</a>
+        </div>
+        <div class="collapse navbar-collapse" id="student-booklet-navbar">
+            <ul id="sb_navbar" class="nav navbar-nav navbar-right">
+                {% if current_user.is_authenticated %}
+                <li><a name="test" href="{{ url_for('grade.show') }}">Klas</a></li>
+                <li><a href="{{ url_for('remarks.show') }}">Boekje</a></li>
+                <li><a href="{{ url_for('reviewed.show') }}">Gecontroleerd</a></li>
+                {% if current_user.is_at_least_admin %}
+                <li><a href="{{ url_for('user.show') }}">Gebruikers</a></li>
+                {% endif %}
+                {% if current_user.is_at_least_supervisor %}
+                <li><a href="{{ url_for('settings.show') }}">Instellingen</a></li>
+                {% endif %}
+                <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
+                <li><a><i class="fa fa-user"></i> Hi, {{ current_user.username }}!</a></li>
+                {% else %}
+                <li><a href="#">Login</a></li>
+                {% endif %}
+            </ul>
+        </div>
     </div>
 </nav>
 {% endblock %}
 
 {% block styles %}
-{{ super() }}
+<link href="{{ url_for('static', filename='css/bootstrap.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/bootstrap-theme.css') }}" rel="stylesheet">
+
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.15/datatables.min.css"/>
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
-<link href="{{ url_for('static', filename='css/private_bootstrap_style.css') }}" rel="stylesheet">
-<link href="{{ url_for('static', filename='css/modal_right_click.css') }}" rel="stylesheet">
 <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.15/css/jquery.dataTables.min.css"/>
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.3.1/css/buttons.dataTables.min.css"/>
-<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
-<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.1/css/bootstrap-datepicker.css" />
+<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css"/>
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.1/css/bootstrap-datepicker.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/clockpicker/0.0.7/bootstrap-clockpicker.min.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/clockpicker/0.0.7/jquery-clockpicker.min.css"/>
+<link href="{{ url_for('static', filename='css/private_bootstrap_style.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/modal_right_click.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
+<br>
+<hr class="nice-green-line">
 <div class="wrapper">
-  {% block content2 %}
-  {% endblock %}
-  <div class="push"></div>
+    {% block content2 %}
+    {% endblock %}
 </div>
+<br>
+<hr class="nice-green-line">
 <footer>
-    <div class="container">
+    <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12">
                 <ul class="list-inline">
                     <li><a href="{{ url_for('auth.login') }}">Home</a></li>
                     <li class="footer-menu-divider">⋅</li>
                     {% if current_user.is_authenticated %}
-                         <li><a href="#">Logout</a></li>
+                    <li><a href="#">Logout</a></li>
                     {% else %}
-                        <li><a href="#">Register</a></li>
-                        <li class="footer-menu-divider">⋅</li>
-                        <li><a href="#">Login</a></li>
+                    <li><a href="#">Register</a></li>
+                    <li class="footer-menu-divider">⋅</li>
+                    <li><a href="#">Login</a></li>
                     {% endif %}
-                    </ul>
+                </ul>
                 <p class="copyright text-muted small">{{version}} Copyright © 2019. All Rights Reserved</p>
             </div>
         </div>
@@ -122,8 +95,8 @@
 {% endblock %}
 
 {% block scripts %}
-{{ super() }}
 <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.15/datatables.min.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.3.1/js/dataTables.buttons.min.js"></script>
@@ -138,16 +111,18 @@
 <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.3.1/js/buttons.html5.min.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.3.1/js/buttons.print.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-<link href="{{ url_for('static', filename='css/private_bootstrap_style.css') }}" rel="stylesheet">
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.40/pdfmake.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.40/vfs_fonts.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clockpicker/0.0.7/bootstrap-clockpicker.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clockpicker/0.0.7/jquery-clockpicker.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/locale/nl-be.js"></script>
 <script type="text/javascript"> {% include "base.js" %}</script>
 {% with messages = get_flashed_messages() %}
-    {% if messages %}
-    <script>flash_messages({{messages|safe}});</script>
-    {% endif %}
+{% if messages %}
+<script>flash_messages({{messages|safe}});</script>
+{% endif %}
 {% endwith %}
 
 {% block scripts2 %}

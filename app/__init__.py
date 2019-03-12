@@ -25,10 +25,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V1.7 : bugfix not compatible mysql connector
 #V1.8 : esthetical upgrade in login screen
 #v1.9 : python 2 to 3 : zip() to list(zip())
+#V2.0 : local updated copy of bootstrap
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V1.9')
+    return dict(version = 'V2.0')
 
 #enable logging
 LOG_HANDLE = 'SB'
