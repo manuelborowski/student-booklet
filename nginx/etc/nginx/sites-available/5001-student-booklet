@@ -1,0 +1,9 @@
+server {
+    listen 5001;
+    server_name default;
+
+    location / {
+        include uwsgi_params;
+        uwsgi_pass unix:/home/aboro/projects/student-booklet/student-booklet.sock;
+    }
+}
