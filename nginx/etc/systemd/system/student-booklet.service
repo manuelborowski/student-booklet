@@ -1,0 +1,13 @@
+[Unit]
+Description=uWSGI instance to serve student-booklet
+After=network.target
+
+[Service]
+User=aboro
+Group=www-data
+WorkingDirectory=/home/aboro/projects/student-booklet
+Environment="PATH=/home/aboro/projects/student-booklet/venv/bin"
+ExecStart=/home/aboro/projects/student-booklet/venv/bin/uwsgi --ini student-booklet.ini
+
+[Install]
+WantedBy=multi-user.target
