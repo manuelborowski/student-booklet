@@ -1,6 +1,9 @@
+#original server-block.  When installing a certificate for this site, the server-block
+#is completely changed by certbot
 server {
     listen 5001;
-    server_name default;
+    listen 80;
+    server_name sb.exelbo.dynu.net;
 
     location / {
         include uwsgi_params;
