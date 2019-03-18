@@ -61,7 +61,7 @@ class MyLogFilter(logging.Filter):
         return True
 
 config_name = os.getenv('FLASK_CONFIG')
-config_name = 'development'
+config_name = config_name if config_name else 'production'
 
 #set up logging
 LOG_FILENAME = os.path.join(sys.path[0], app_config[config_name].STATIC_PATH, 'log/sb-log.txt')
