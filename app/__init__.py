@@ -26,10 +26,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V1.8 : esthetical upgrade in login screen
 #v1.9 : python 2 to 3 : zip() to list(zip())
 #V2.0 : local updated copy of bootstrap
+#V2.1 : switched to nginx
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.0')
+    return dict(version = 'V2.1')
 
 #enable logging
 LOG_HANDLE = 'SB'
