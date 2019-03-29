@@ -156,6 +156,10 @@ def delete(id=-1):
                     log.error(u'cannot delete this user')
                     flash_plus(u'Kan de gebruiker admin niet verwijderen')
                     continue
+                if int(id) == current_user.id:
+                    log.error(u'user cannot delete himself')
+                    flash_plus(u'Een gebruiker kan niet zichzelf verwijderen.')
+                    continue
                 user = User.query.get(int(id))
                 db.session.delete(user)
             db.session.commit()

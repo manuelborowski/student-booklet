@@ -23,6 +23,7 @@ def calculate_current_schoolyear():
 
 def get_timeslot_from_current_time():
     TT = [
+        (0,        8*60+30,        10), #timeslot 9, of the previous day
         (8*60+30,  8*60+30+50,     1), #first hour : 8:30 till 9:20
         (9*60+20,  9*60+20+50+15,  2), #the break counts as timeslot 2
         (10*60+25, 10*60+25+50,    3),
@@ -31,14 +32,15 @@ def get_timeslot_from_current_time():
         (13*60+0,  13*60+0+50,     6),
         (13*60+50, 13*60+50+50+15, 7), #the break counts as timeslot 7
         (14*60+55, 14*60+55+50,    8),
-        (15*60+45, 15*60+45+50 +15*60+55,    9), #the whole evening and morning count as timeslot 9
+        (15*60+45, 24*60,          9), #the whole evening as timeslot 9
     ]
 
     TT_W = [
+        (0,        8*60+30,        10), #timeslot 9 of the previous day
         (8*60+30,  8*60+30+50,     1), #first hour : 8:30 till 9:20
         (9*60+20,  9*60+20+50+10,  2), #the break counts as timeslot 2
         (10*60+20, 10*60+20+50,    3),
-        (11*60+10, 11*60+10+50+20*60+30,    4), #the whole evening and morning count as timeslot 4
+        (11*60+10, 24*60,          4), #the whole evening count as timeslot 4
     ]
 
     if get_global_setting_sim_dayhour_state():
@@ -56,11 +58,28 @@ def get_timeslot_from_current_time():
         day = now.weekday()+1
         m = now.hour * 60 + now.minute
 
-    if day > 5: return 5, 9 #no school, return friday last hour
     tt = TT_W if day == 3 else TT
-    for t in tt:
-        if m >= t[0] and m < t[1]: return day, t[2]
-    return 1, 1 #not found, return monday, first hour
+    d = h = 1
+    if day > 5: #no school, return friday last hour
+        d = 5
+        h = 9
+    else:
+        i = 0
+        for t in tt:
+            if m >= t[0] and m < t[1]:
+                i = t[2]
+                break
+        if i == 0: #not found
+            d = h = 1
+        elif i == 10: #now is before 8:30 in the morning
+            d = day - 1
+            h = 9
+            if d < 1:
+                d = h = 1
+        else: #now is after 8:30 in the morning
+            h = i
+            d = day
+    return d, h
 
 
 
