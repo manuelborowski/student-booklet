@@ -28,10 +28,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V2.0 : local updated copy of bootstrap
 #V2.1 : switched to nginx
 #V2.2 : bugfix timeslot-selecting-scheme.  User cannot delete itself
+#V2.3 : bugfix : mobile safari and chrome : submit button does not work correctly
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.2')
+    return dict(version = 'V2.3 ')
 
 #enable logging
 LOG_HANDLE = 'SB'

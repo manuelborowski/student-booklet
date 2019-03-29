@@ -52,7 +52,9 @@ Show a single remark page
             </div>
         </div>
         <br/>
-        <button class="btn btn-default" name="button"value="save" onclick="$('#item_form').submit();">Bewaar</button>
+        <button class="btn btn-default" type="submit" name="button" value="save">Bewaar</button>
+<!--        Following line does NOT work with iphone chrome and iphone safary-->
+<!--        <button class="btn btn-default" name="button" value="save" onclick="$('#item_form').submit();">Bewaar</button>-->
         <a class="btn btn-default" href="{{url_for(subject + '.show')}}">Annuleer</a>
     </form>
 </div>
