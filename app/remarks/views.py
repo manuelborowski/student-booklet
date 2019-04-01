@@ -220,6 +220,7 @@ def start_review():
             for s, rll in matched_remarks:
                 for id, extra_measure, rl in rll:
                     for r in rl:
+                        r.overwrite_row_color = r.row_color()
                         r.print_date = r.timestamp.strftime('%d-%m-%Y %H:%M')
                         r.print_subjects = r.ret_subjects()
                         r.print_measures = r.ret_measures()

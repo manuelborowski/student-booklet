@@ -31,10 +31,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V2.3 : bugfix : mobile safari and chrome : submit button does not work correctly
 #V2.4 : update background image, added extra_attention flag in database
 #V2.5 : increment version
+#V2.6 : esthetical improvement.  During review, extra-attention-remarks are collored
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.5')
+    return dict(version = 'V2.6')
 
 #enable logging
 LOG_HANDLE = 'SB'
