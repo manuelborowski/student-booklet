@@ -177,6 +177,17 @@ $(document).ready(function() {
             }
         },
 
+        "createdRow": function( row, data, dataIndex ) {
+            console.log(data);
+            if ( data.overwrite_row_color != "" ) {
+                console.log(data.overwrite_row_color);
+                color = data.overwrite_row_color;
+                console.log(color);
+                //$(row).attr("style", "background-color: red;");
+                $(row).attr("style", "background-color: " + data.overwrite_row_color + ";");
+            }
+        }
+
     });
     //$('#datatable').attr('data-page-length',50);
 

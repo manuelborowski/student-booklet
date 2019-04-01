@@ -75,6 +75,7 @@ def edit():
                     for m in request.form.getlist('measure'): db.session.add(RemarkMeasure(topic=MeasureTopic.query.get(int(m)), remark=remark))
                     remark.measure_note = request.form['measure_note']
                     remark.subject_note = request.form['subject_note']
+                    remark.extra_attention='chkb_extra_attention' in request.form
             db.session.commit()
             return redirect(url_for('remarks.show'))
         else:  # first pass

@@ -29,6 +29,7 @@ app = Flask(__name__, instance_relative_config=True)
 #V2.1 : switched to nginx
 #V2.2 : bugfix timeslot-selecting-scheme.  User cannot delete itself
 #V2.3 : bugfix : mobile safari and chrome : submit button does not work correctly
+#V2.4 : update background image, added extra_attention flag in database
 
 @app.context_processor
 def inject_version():

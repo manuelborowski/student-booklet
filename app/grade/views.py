@@ -88,7 +88,7 @@ def add_remark():
                     #save new remark
                     remark = Remark(student=student, lesson=lesson, teacher=teacher, timestamp=datetime.datetime.now(),
                                      measure_note=request.form['measure_note'], subject_note=request.form['subject_note'],
-                                     grade=student.grade)
+                                     grade=student.grade, extra_attention='chkb_extra_attention' in request.form)
                     for s in subjects:
                         subject=RemarkSubject(topic = SubjectTopic.query.get(int(s)), remark=remark)
                         db.session.add(subject)

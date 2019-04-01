@@ -20,13 +20,13 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand">Leerlingen boekje, schooljaar {{schoolyear}}</a>
+            <a class="navbar-brand">Leerlingenmapje, schooljaar {{schoolyear}}</a>
         </div>
         <div class="collapse navbar-collapse" id="student-booklet-navbar">
             <ul id="sb_navbar" class="nav navbar-nav navbar-right">
                 {% if current_user.is_authenticated %}
                 <li><a name="test" href="{{ url_for('grade.show') }}">Klas</a></li>
-                <li><a href="{{ url_for('remarks.show') }}">Boekje</a></li>
+                <li><a href="{{ url_for('remarks.show') }}">Mapje</a></li>
                 <li><a href="{{ url_for('reviewed.show') }}">Gecontroleerd</a></li>
                 {% if current_user.is_at_least_admin %}
                 <li><a href="{{ url_for('user.show') }}">Gebruikers</a></li>

@@ -354,6 +354,7 @@ class Remark(db.Model):
     subject_note = db.Column(db.String(1024), default='')
     measure_note = db.Column(db.String(1024), default='')
     timestamp = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    extra_attention = db.Column(db.Boolean, default=False)
     student_id = db.Column(db.Integer, db.ForeignKey('students.id', ondelete='CASCADE'))
     lesson_id = db.Column(db.Integer, db.ForeignKey('lessons.id', ondelete='CASCADE'))
     teacher_id = db.Column(db.Integer, db.ForeignKey('teachers.id', ondelete='CASCADE'))
@@ -384,11 +385,14 @@ class Remark(db.Model):
     def ret_extra_measure(self):
         return self.extra_measure.note if self.extra_measure_id else ''
 
+    def row_color(self):
+        return 'orange' if self.extra_attention else ''
+
     def ret_dict(self):
         return {'id':self.id, 'date':self.timestamp.strftime('%d-%m-%Y %H:%M'), 'measure_note': cgi.escape(self.measure_note), 'subject_note': cgi.escape(self.subject_note),
                 'teacher':self.teacher.ret_dict(), 'grade': self.grade.ret_dict(), 'lesson': self.lesson.ret_dict(), 'cb': '',
                 'subjects': self.ret_subjects(), 'measures': self.ret_measures(), 'student': self.student.ret_dict(),
-                'extra_measure': self.ret_extra_measure(), 'measure_id': self.extra_measure_id}
+                'extra_measure': self.ret_extra_measure(), 'measure_id': self.extra_measure_id, 'extra_attention': self.extra_attention, 'overwrite_row_color': self.row_color()}
 
     def __repr__(self):
         return u'ID({}) TS({}) SDNT({})'.format(self.id, self.timestamp.strftime('%d-%m-%Y %H:%M'), self.student.first_name + ' ' + self.student.last_name)
