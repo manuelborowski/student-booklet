@@ -178,12 +178,7 @@ $(document).ready(function() {
         },
 
         "createdRow": function( row, data, dataIndex ) {
-            console.log(data);
             if ( data.overwrite_row_color != "" ) {
-                console.log(data.overwrite_row_color);
-                color = data.overwrite_row_color;
-                console.log(color);
-                //$(row).attr("style", "background-color: red;");
                 $(row).attr("style", "background-color: " + data.overwrite_row_color + ";");
             }
         }
@@ -203,7 +198,11 @@ $(document).ready(function() {
         s = d_table_start;
         s += d_header;
         for (i=0; i < d.remarks.length; i++) {
-            s += '<tr>'
+            if(d.remarks[i].overwrite_row_color != "") {
+                s += '<tr style="background-color: ' + d.remarks[i].overwrite_row_color + '">"';
+            } else {
+                s += '<tr>'
+            }
             s = s + '<td>' + d.remarks[i].date + '</td>';
             s = s + '<td>' + d.remarks[i].student.full_name + '</td>';
             s = s + '<td>' + d.remarks[i].teacher.code + '</td>';

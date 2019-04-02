@@ -124,3 +124,15 @@ figure.selected {
     font-size: 16px;
     border: 1px solid transparent;
 }
+
+.legend-badge {
+    background-color: #aec251;
+    font-weight: bold;
+    font-size: 16px;
+    color: #333;
+    border-color: #ccc;
+    border-color: #adadad;
+    font-weight: bold;
+    font-size: 16px;
+    border: 1px solid transparent;
+}

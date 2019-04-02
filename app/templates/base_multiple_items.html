@@ -56,6 +56,11 @@
             {% if 'start_check' in config.buttons and current_user.is_at_least_supervisor %}
             <a class="btn btn-default" onclick="start_review()">Start controle</a>
             {% endif %}
+            <span style="float: right;">
+            <span class="badge legend-badge" style="background-color: lightsalmon">Extra aandacht</span>
+            <span class="badge legend-badge"style="background-color: lightgreen">Reeds gecontroleerd</span>
+            <span class="badge legend-badge"style="background-color: lightblue">Extra aandacht en reeds gecontroleerd</span>
+            </span>
 
             <table cellspacing="0" class="table table-striped table-bordered wrap" id="datatable" width="100%">
                 <thead>

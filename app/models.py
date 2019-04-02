@@ -386,6 +386,14 @@ class Remark(db.Model):
         return self.extra_measure.note if self.extra_measure_id else ''
 
     def row_color(self):
+        if self.extra_attention and self.reviewed:
+            return 'lightblue'
+        elif self.extra_attention:
+            return 'lightsalmon'
+        elif self.reviewed:
+            return 'lightgreen'
+        else:
+            return ''
         return 'lightsalmon' if self.extra_attention else ''
 
     def ret_dict(self):
