@@ -386,7 +386,7 @@ class Remark(db.Model):
         return self.extra_measure.note if self.extra_measure_id else ''
 
     def row_color(self):
-        return 'orange' if self.extra_attention else ''
+        return 'lightsalmon' if self.extra_attention else ''
 
     def ret_dict(self):
         return {'id':self.id, 'date':self.timestamp.strftime('%d-%m-%Y %H:%M'), 'measure_note': cgi.escape(self.measure_note), 'subject_note': cgi.escape(self.subject_note),

@@ -40,19 +40,19 @@ var datepicker_options={
 
 $(document).ready(function(){
 
-    //log out automatically after 10 minutes, but not when logged in as regular user.
-    //This to make sure that the "registration" screen remains visible.
-    {% if current_user.is_at_least_supervisor %}
-    var idleTime = 0;
+    var max_idle_time = 15;
+    {% if current_user.is_strict_user %} //ordinary users log out after 2 minutes
+    max_idle_time = 2;
+    {% endif %}
+    var idle_time = 0;
     setInterval(function(){
-        idleTime = idleTime + 1;
-        if (idleTime > 9) { // 10 minutes
+        idle_time = idle_time + 1;
+        if (idle_time > max_idle_time) {
             window.location.href=Flask.url_for('auth.logout');
         }
     }, 60000); // 1 minute
-    $(this).mousemove(function (e) {idleTime = 0;});
-    $(this).keypress(function (e) {idleTime = 0;});
-    {% endif %}
+    $(this).mousemove(function (e) {idle_time = 0;});
+    $(this).keypress(function (e) {idle_time = 0;});
 
     $("body").css("padding-top", $("#nav-menu").height());
 });

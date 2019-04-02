@@ -33,10 +33,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V2.5 : increment version
 #V2.6 : esthetical improvement.  During review, extra-attention-remarks are collored
 #V2.7 : esthetical improvement
+#V2.8 : esthetical improvement.  Bugfixed footer and autologout
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.7')
+    return dict(version = 'V2.8')
 
 #enable logging
 LOG_HANDLE = 'SB'

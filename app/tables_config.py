@@ -59,8 +59,7 @@ tables_configuration = {
             {'name': 'Login', 'data': 'last_login', 'order_by': User.last_login, 'orderable' : True},
             {'name': 'Niveau', 'data': 'level', 'order_by': User.level, 'orderable' : True},],
         'filter': [],
-        'href': [{'attribute': '["username"]', 'route': '"user.view"', 'id': '["id"]'},
-                 ],
+        'href': [],
         'floating_menu' : default_menu_config,
         'query_filter' : filter,
     }
