@@ -8,7 +8,7 @@ from ..models import Schedule, Lesson
 
 class FilterForm(FlaskForm):
     teacher = SelectField('Leerkracht', choices=[])
-    dayhour = SelectField('Dag en uur', choices=[])
+    dayhour = SelectField('Lesuur', choices=[])
     grade = SelectField('Klas', choices=[])
     lesson = SelectField('Vak', choices=[])
 

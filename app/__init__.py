@@ -35,10 +35,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V2.7 : esthetical improvement
 #V2.8 : esthetical improvement.  Bugfixed footer and autologout
 #V2.9 : esthetical improvement : add a color legend.  Add more colors to show the status of a remark
+#V2.10 : esthetical improvement
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.9')
+    return dict(version = 'V2.10')
 
 #enable logging
 LOG_HANDLE = 'SB'
