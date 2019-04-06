@@ -83,6 +83,10 @@ def save_sim_dayhour():
         flash_plus(u'Kan simulatie dag en uur niet bewaren', e)
     return
 
+#NO PHOTOS ARE REMOVED, PHOTOS ARE ADDED ONLY
+#upload and unzip a zipfile with photos
+#if the same zipfile is uploaded with MORE photos then the additional photos are just added
+#if the same zipfile is uploaded with LESS photos then NO photos are removed
 def upload_photos(rfile):
     try:
         log.info('Upload photos from : {}'.format(rfile))
@@ -105,11 +109,18 @@ def upload_photos(rfile):
 #FOTO           photo
 #KLAS           grade_id
 
+#NO STUDENTS ARE REMOVED, STUDENTS ARE ADDED ONLY
+#students are identified by an unique studentnumber
+#if a grade does not exist yet, it is created
+#if a list is uploaded again then it is checked if a student with the same studentnumber is already present
+#if so, check if the grade or photo is changed.  If so, update grade or photo
 def upload_students(rfile):
     try:
         # format csv file :
         log.info(u'Import students from : {}'.format(rfile))
-        students_file = csv.DictReader(rfile,  delimiter=';', encoding='utf-8-sig')
+
+        #students_file = csv.DictReader(rfile, delimiter=';', encoding='utf-8-sig') #utf-8 encoding
+        students_file = csv.DictReader(rfile, delimiter=';', encoding='latin_1') #ansi encoding
 
         nbr_students = 0
         nbr_grades = 0
@@ -135,7 +146,8 @@ def upload_students(rfile):
                     if find_student.grade != grade:
                         find_student.grade = grade
                 else:
-                    student = Student(first_name=s['VOORNAAM'], last_name=s['NAAM'], number=int(s['LEERLINGNUMMER']), photo=s['FOTO'], grade=grade, schoolyear=schoolyear)
+                    student = Student(first_name=s['VOORNAAM'], last_name=s['NAAM'], number=int(s['LEERLINGNUMMER']),
+                                      photo=s['FOTO'], grade=grade, schoolyear=schoolyear)
                     db.session.add(student)
                     nbr_students += 1
         db.session.commit()
@@ -151,11 +163,13 @@ def upload_students(rfile):
 #VOORNAAM       first_name
 #CODE           code
 
+#NO TEACHERS ARE REMOVED, TEACHERS ARE ADDED ONLY
 def upload_teachers(rfile):
     try:
         # format csv file :
         log.info(u'Import teachers from : {}'.format(rfile))
-        teachers_file = csv.DictReader(rfile,  delimiter=';', encoding='utf-8-sig')
+        #teachers_file = csv.DictReader(rfile,  delimiter=';', encoding='utf-8-sig')
+        teachers_file = csv.DictReader(rfile, delimiter=';', encoding='latin_1') #ansi encoding
         nbr_teachers = 0
         for t in teachers_file:
             #skip empy records
@@ -184,6 +198,7 @@ def upload_teachers(rfile):
 #DAG            Classmoment.day
 #UUR            Classmoment.hour
 
+#REMOVE OLD SCHEDULE AND UPLOAD NEW SCHEDULE
 def upload_schedule(rfile):
     try:
         # format csv file :
@@ -193,7 +208,8 @@ def upload_schedule(rfile):
         #first, delete current timetable
         delete_classmoments(schoolyear)
 
-        timetable_file = csv.DictReader(rfile,  delimiter=';', encoding='utf-8-sig')
+        fieldnames = ['VOLGNUMMER', 'KLAS', 'LEERKRACHT', 'VAK', 'LOKAAL', 'DAG', 'UUR' ]
+        timetable_file = csv.DictReader(rfile,  fieldnames = fieldnames, delimiter=',', encoding='utf-8-sig')
         nbr_classmoments = 0
         nbr_lessons = 0
         error_message = ''

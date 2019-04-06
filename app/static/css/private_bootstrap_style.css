@@ -136,3 +136,13 @@ figure.selected {
     font-size: 16px;
     border: 1px solid transparent;
 }
+
+.tooltip-inner {
+    max-width: 500px;
+    /* If max-width does not work, try using width instead */
+    width: 500px;
+}
+
+.glyphicon {
+    font-size: 20px;
+}

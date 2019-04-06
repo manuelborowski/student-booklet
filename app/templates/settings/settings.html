@@ -62,38 +62,35 @@
         <input id="save_settings_submit" type="submit" value="Import" style="display:none" onclick="busy_indication_on();">
         <div class="container">
             <div class="row">
-                <div class="col-sm-3">
-                    <input class="btn btn-default" type="button" value="1) Importeer leerkrachten" onclick="$('#upload_teachers').click();">
-                    <input id='upload_teachers' type='file' name='upload_teachers' style="display:none" accept=".csv"
-                           onchange="$('#save_settings_submit').click();">
-                </div>
+                <a class="btn btn-default" onclick="$('#upload_teachers').click();">1) Importeer leerkrachten</a>
+                <input id='upload_teachers' type='file' name='upload_teachers' style="display:none" accept=".csv" onchange="$('#save_settings_submit').click();">
+                <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="tooltip"
+                      title="Exporteer uit Wisa : Query = badgeLKR, Formaat = Text File, ANSI = aan, Schrijven in bestand = aan, Eerste lijn met veldnamen = aan,
+                          Scheidingsteken = ; (puntkomma), Bestand = .../leerkrachten.csv" .>
+                    </span>
             </div>
             <div class="row">
-                <div class="col-sm-3">
-                    <input class="btn btn-default" type="button" value="2) Importeer studenten" onclick="select_schoolyear('upload_students')">
-                    <input id='upload_students' type='file' name='upload_students' style="display:none" accept=".csv"
-                           onchange="$('#save_settings_submit').click();">
-                </div>
-                <div class="col-sm-2">
-                    <button class="btn btn-default" type="button" onclick="submit_subject('delete_students', 'save_settings_submit');">Wis studenten</button>
-                </div>
+                <a class="btn btn-default" onclick="select_schoolyear('upload_students2')">2) Importeer studenten</a>
+                <input id='upload_students' type='file' name='upload_students' style="display:none" accept=".csv" onchange="$('#save_settings_submit').click();">
+                <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="tooltip"
+                      title="Exporteer uit Wisa : Query = badgeprnt, Formaat = Text File, ANSI = aan, Schrijven in bestand = aan, Eerste lijn met veldnamen = aan,
+                          Scheidingsteken = ; (puntkomma), Bestand = .../leerlingen.csv" .>
+                    </span>
             </div>
             <div class="row">
-                <div class="col-sm-3">
-                    <input class="btn btn-default" type="button" value="3) Importeer lesrooster" onclick="select_schoolyear('upload_schedule');">
-                    <input id='upload_schedule' type='file' name='upload_schedule' style="display:none" accept=".csv"
-                           onchange="$('#save_settings_submit').click();">
-                </div>
-                <div class="col-sm-2">
-                    <button class="btn btn-default" type="button" onclick="submit_subject('delete_schedule', 'save_settings_submit');">Wis lesrooster</button>
-                </div>
+                <a class="btn btn-default" onclick="select_schoolyear('upload_schedule');">3) Importeer lesrooster"</a>
+                <input id='upload_schedule' type='file' name='upload_schedule' style="display:none" accept=".csv" onchange="$('#save_settings_submit').click();">
+                <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="tooltip"
+                      title="Exporteer uit UNTIS : lesrooster.csv" .>
+                    </span>
             </div>
             <div class="row">
-                <div class="col-sm-3">
-                    <input class="btn btn-default" type="button" id="upload4" value="4) Importeer fotos" onclick="$('#upload_photos').click();">
-                    <input id='upload_photos' type='file' name='upload_photos' style="display:none" accept=".zip"
-                           onchange="$('#save_settings_submit').click();">
-                </div>
+                <input class="btn btn-default" type="button" id="upload4" value="4) Importeer fotos" onclick="$('#upload_photos').click();">
+                <input id='upload_photos' type='file' name='upload_photos' style="display:none" accept=".zip"
+                       onchange="$('#save_settings_submit').click();">
+                <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="tooltip"
+                      title="Op de suc-server, pasfoto-leerlingen.  Zip de correcte folder" .>
+                    </span>
             </div>
         </div>
 
@@ -101,19 +98,22 @@
         <div class="container">
             <div class="row">
                 <div class="col-sm-3">
-                    <button class="btn btn-default" type="button" onclick="submit_subject('add_test_students', 'save_settings_submit');">Voeg teststudenten toe</button>
+                    <button class="btn btn-default" type="button" onclick="submit_subject('add_test_students', 'save_settings_submit');">Voeg teststudenten
+                        toe
+                    </button>
                 </div>
                 <div class="col-sm-2">
-                    <button class="btn btn-default" type="button" onclick="submit_subject('delete_test_students', 'save_settings_submit');">Wis teststudenten</button>
+                    <button class="btn btn-default" type="button" onclick="submit_subject('delete_test_students', 'save_settings_submit');">Wis teststudenten
+                    </button>
                 </div>
             </div>
             <br>
             <div style="border: 2px; border-style: solid;border-color: #aec251;padding: 25px;">
-                <p>Simuleer een willekeurig uur in de week, bvb vrijdag 8:32.  Geef in als 5/8/32</p>
+                <p>Simuleer een willekeurig uur in de week, bvb vrijdag 8:32. Geef in als 5/8/32</p>
                 <p>5 : vijfde dag (vrijdag), 8 : 8 uur, 32 : 32 minuten</p>
                 <div class="row">
                     <div class="col-sm-2">
-                        Activeer <input type="checkbox" name="chkb_sim_dayhour" {% if settings.sim_dayhour_state == True %}checked{% endif %}>
+                        Activeer <input type="checkbox" name="chkb_sim_dayhour" {% if settings.sim_dayhour_state== True %}checked{% endif %}>
                     </div>
                     <div class="col-sm-5">
                         dag en tijd <input name="txt_sim_dayhour" value="{{settings.sim_dayhour}}">
