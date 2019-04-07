@@ -2,7 +2,7 @@
 # app/models.py
 
 
-from flask_login import UserMixin
+from flask_login import UserMixin, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db, login_manager
 from sqlalchemy import UniqueConstraint
@@ -343,6 +343,15 @@ class ExtraMeasure(db.Model):
                 'remarks' : self.get_remarks()}
 
 
+# class Hub(db.Model):
+#     __tablename__ = 'hub'
+#     id = db.Column(db.Integer, primary_key=True)
+#     school = db.Column(db.String(1024), default='Lyceum')
+#     valid_from = db.Column(db.Date, default=None)
+#     academic_year = db.Column(db.Integer, default=None)
+
+
+
 class Remark(db.Model):
     __tablename__ = 'remarks'
 
@@ -386,19 +395,20 @@ class Remark(db.Model):
         return self.extra_measure.note if self.extra_measure_id else ''
 
     def row_color(self):
-        if self.extra_attention and self.reviewed:
-            return 'lightblue'
-        elif self.extra_attention:
+        if self.extra_attention:
             return 'lightsalmon'
-        elif self.reviewed:
-            return 'lightgreen'
         else:
             return ''
-        return 'lightsalmon' if self.extra_attention else ''
+
+    def checkbox_required(self):
+        user_check = self.teacher.code == current_user.username if current_user.is_strict_user else True
+        return user_check and not self.reviewed
+
 
     def ret_dict(self):
-        return {'id':self.id, 'date':self.timestamp.strftime('%d-%m-%Y %H:%M'), 'measure_note': cgi.escape(self.measure_note), 'subject_note': cgi.escape(self.subject_note),
-                'teacher':self.teacher.ret_dict(), 'grade': self.grade.ret_dict(), 'lesson': self.lesson.ret_dict(), 'cb': '',
+        return {'id':self.id, 'date':self.timestamp.strftime('%d-%m-%Y %H:%M'), 'measure_note': cgi.escape(self.measure_note),
+                'subject_note': cgi.escape(self.subject_note), 'teacher':self.teacher.ret_dict(), 'grade': self.grade.ret_dict(),
+                'lesson': self.lesson.ret_dict(), 'cb': self.checkbox_required(), 'reviewed' : 'X' if self.reviewed else '',
                 'subjects': self.ret_subjects(), 'measures': self.ret_measures(), 'student': self.student.ret_dict(),
                 'extra_measure': self.ret_extra_measure(), 'measure_id': self.extra_measure_id, 'extra_attention': self.extra_attention, 'overwrite_row_color': self.row_color()}
 

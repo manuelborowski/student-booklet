@@ -113,19 +113,7 @@ figure.selected {
     border: 1px solid transparent;
 }
 
-.bootbox-alert div div div button.btn-primary{
-    background-color: #aec251;
-    font-weight: bold;
-    font-size: 16px;
-    color: #333;
-    border-color: #ccc;
-    border-color: #adadad;
-    font-weight: bold;
-    font-size: 16px;
-    border: 1px solid transparent;
-}
-
-.legend-badge {
+.bootbox-alert div div div button.btn-primary, .legend-badge{
     background-color: #aec251;
     font-weight: bold;
     font-size: 16px;
@@ -145,4 +133,8 @@ figure.selected {
 
 .glyphicon {
     font-size: 20px;
+}
+
+table.dataTable thead th, table.dataTable thead td {
+    padding: 5px;
 }

@@ -37,10 +37,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V2.9 : esthetical improvement : add a color legend.  Add more colors to show the status of a remark
 #V2.10 : esthetical improvement
 #V2.11 : import students, teachers and timetable direct from export
+#V2.12 : esthetical improvement
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.11')
+    return dict(version = 'V2.12')
 
 #enable logging
 LOG_HANDLE = 'SB'

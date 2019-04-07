@@ -207,13 +207,12 @@ def prepare_data_for_html(table, only_checkbox_for=None):
             for h in table['href']:
                 exec("i" + h['attribute'] + "= \"<a href=\\\"{}\\\">{}</a>\".format(url_for(" + h['route'] + ", id=i" + h['id'] + "), i" + h['attribute'] + ')')
             i['DT_RowId'] = i['id']
+
         if _filtered_dict and 'cb' in _filtered_dict[0]: #rows in the table have a checkbox to select them
             for i in _filtered_dict:
-                if only_checkbox_for:
-                    if only_checkbox_for==i['teacher']['code']:
-                        i['cb'] = "<input type='checkbox' class='cb_all' name='cb' value='{}'>".format(i['id'], i['id'])
-                else:
-                    i['cb'] = "<input type='checkbox' class='cb_all' name='cb' value='{}'>".format(i['id'], i['id'])
+                i['cb'] = "<input type='checkbox' class='cb_all' name='cb' value='{}'>".format(i['id'], i['id']) if i['cb'] else ''
+
+
         #order, if required, 2nd stage
         _template = table['template']
         column_number = check_value_in_form('order[0][column]', request.values)

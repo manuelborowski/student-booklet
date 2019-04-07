@@ -26,8 +26,7 @@ def inject_url_rule():
 @remarks.route('/remarks/data', methods=['GET', 'POST'])
 @login_required
 def source_data():
-    only_checkbox_for = current_user.username if current_user.is_strict_user else None
-    ajax_table =  prepare_data_for_html(tables_configuration['remark'], only_checkbox_for=only_checkbox_for)
+    ajax_table =  prepare_data_for_html(tables_configuration['remark'])
     return ajax_table
 
 @remarks.route('/remarks', methods=['GET', 'POST'])
