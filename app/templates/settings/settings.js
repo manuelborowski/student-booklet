@@ -21,8 +21,6 @@ $(document).ready(function(){
     });
 
     $(".measure_topics").change(function(event) {
-        console.log("checkbox clicked " + $(this).attr('id') + " " + $(this).is(":checked"));
-
         data = {
             'id' : $(this).attr('id'),
             'status' : $(this).is(":checked")

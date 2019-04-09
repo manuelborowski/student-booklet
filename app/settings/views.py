@@ -9,6 +9,7 @@ from . import settings
 from .. import db, log, admin_required, supervisor_required
 from ..models import Grade, Student, Teacher, Lesson, Schedule, Remark, RemarkSubject, RemarkMeasure, ExtraMeasure, SubjectTopic, MeasureTopic
 from ..documents import  get_doc_path, get_doc_reference
+from ..process_remarks import db_filter_remarks_to_be_reviewed, db_add_extra_measure, db_tag_remarks_as_reviewed
 
 import os, datetime, random
 import unicodecsv  as  csv
@@ -123,36 +124,34 @@ def upload_students(rfile):
         students_file = csv.DictReader(rfile, delimiter=';', encoding='latin_1') #ansi encoding
 
         nbr_students = 0
-        nbr_grades = 0
         schoolyear = request.form['selected_schoolyear']
+        grades_sql = Grade.query.all()
+        grades = {g.code: g.id for g in grades_sql }
 
-        for s in students_file:
-            #skip empy records
-            if s['VOORNAAM'] != '' and s['NAAM'] != '' and s['LEERLINGNUMMER'] != '' and s['FOTO'] != '':
-                #check for grade.  If it not exists, add it first
-                grade = Grade.query.filter(Grade.code == s['KLAS']).first()
-                if not grade:
-                    grade = Grade(code=s['KLAS'])
-                    db.session.add(grade)
-                    nbr_grades += 1
-                #add student, if not already present
-                find_student=Student.query.filter(Student.number==int(s['LEERLINGNUMMER']),
-                                                        Student.schoolyear==schoolyear).first()
-                if find_student:
-                    #check if the student has a different photo or has changed grade
-                    #If so update
-                    if find_student.photo != s['FOTO']:
-                        find_student.photo = s['FOTO']
-                    if find_student.grade != grade:
-                        find_student.grade = grade
-                else:
-                    student = Student(first_name=s['VOORNAAM'], last_name=s['NAAM'], number=int(s['LEERLINGNUMMER']),
-                                      photo=s['FOTO'], grade=grade, schoolyear=schoolyear)
-                    db.session.add(student)
-                    nbr_students += 1
-        db.session.commit()
-        log.info(u'import: added {} students and {} grades'.format(nbr_students, nbr_grades))
-        flash_plus(u'{} leerlingen en {} klassen zijn geïmporteerd'.format(nbr_students, nbr_grades))
+        if grades:
+            for s in students_file:
+                #skip empy records
+                if s['VOORNAAM'] != '' and s['NAAM'] != '' and s['LEERLINGNUMMER'] != '' and s['FOTO'] != '':
+                    #check for grade.  If it not exists, skip
+                    if s['KLAS'] in grades:
+                        #add student, if not already present
+                        find_student=Student.query.filter(Student.number==int(s['LEERLINGNUMMER']),
+                                                                Student.schoolyear==schoolyear).first()
+                        if find_student:
+                            find_student.photo = s['FOTO']
+                            find_student.grade = s['KLAS']
+                        else:
+                            student = Student(first_name=s['VOORNAAM'], last_name=s['NAAM'], number=int(s['LEERLINGNUMMER']),
+                                              photo=s['FOTO'], grade_id=grades[s['KLAS']], schoolyear=schoolyear)
+                            db.session.add(student)
+                            nbr_students += 1
+            db.session.commit()
+        else:
+            log.error('Error, no grades present yet')
+            flash_plus('Fout, er zijn nog geen klassen ingeladen')
+
+        log.info(u'import: added {} students'.format(nbr_students))
+        flash_plus(u'{} leerlingen zijn geïmporteerd'.format(nbr_students))
 
     except Exception as e:
         flash_plus(u'Kan bestand niet importeren', e)
@@ -213,40 +212,43 @@ def upload_schedule(rfile):
         nbr_classmoments = 0
         nbr_lessons = 0
         error_message = ''
+        nbr_grades = 0
 
         for t in timetable_file:
             #skip empy records
             if t['KLAS'] != '' and t['LEERKRACHT'] != '' and t['VAK'] != '' and t['DAG'] != '' and t['UUR'] != '':
                 find_teacher = Teacher.query.filter(Teacher.code == t['LEERKRACHT']).first()
                 if find_teacher:
-                    grade = t['KLAS'][:2] #leave out the grade
-                    find_grade = Grade.query.filter(Grade.code == grade).first()
-                    if find_grade:
-                        #add lesson, if not already present
-                        lesson = Lesson.query.filter(Lesson.code == t['VAK']).first()
-                        if not lesson:
-                            lesson =  Lesson(code=t['VAK'])
-                            db.session.add(lesson)
-                            nbr_lessons += 1
-                        find_classmoment = Schedule.query.filter(Schedule.day == int(t['DAG']), Schedule.hour == int(t['UUR']),
-                                                                 Schedule.grade == find_grade, Schedule.teacher == find_teacher,
-                                                                 Schedule.lesson == lesson, Schedule.schoolyear == schoolyear).first()
-                        if not find_classmoment:
-                            classmoment = Schedule(day = int(t['DAG']), hour = int(t['UUR']),
-                                                   grade = find_grade, teacher = find_teacher, lesson = lesson, schoolyear = schoolyear)
-                            db.session.add(classmoment)
-                            nbr_classmoments += 1
-                    else:
-                        log.info(u'import timetable: grade not found {}'.format(grade))
-                        error_message += u'{} : niet gevonden<br>'.format(grade)
+                    grade_code = t['KLAS'][:2] #leave out the grade
+
+                    # check for grade.  If it not exists, add it first
+                    find_grade = Grade.query.filter(Grade.code == grade_code).first()
+                    if not find_grade:
+                        find_grade = Grade(code=grade_code)
+                        db.session.add(find_grade)
+                        nbr_grades += 1
+                    #add lesson, if not already present
+                    lesson = Lesson.query.filter(Lesson.code == t['VAK']).first()
+                    if not lesson:
+                        lesson =  Lesson(code=t['VAK'])
+                        db.session.add(lesson)
+                        nbr_lessons += 1
+                    find_classmoment = Schedule.query.filter(Schedule.day == int(t['DAG']), Schedule.hour == int(t['UUR']),
+                                                             Schedule.grade == find_grade, Schedule.teacher == find_teacher,
+                                                             Schedule.lesson == lesson, Schedule.schoolyear == schoolyear).first()
+                    if not find_classmoment:
+                        classmoment = Schedule(day = int(t['DAG']), hour = int(t['UUR']),
+                                               grade = find_grade, teacher = find_teacher, lesson = lesson, schoolyear = schoolyear)
+                        db.session.add(classmoment)
+                        nbr_classmoments += 1
                 else:
                     log.info(u'import timetable: teacher not found: {}'.format(t['LEERKRACHT']))
                     error_message += u'{} : niet gevonden<br>'.format(t['LEERKRACHT'])
 
         db.session.commit()
-        log.info(u'import: added {} classmoments and {} lessons'.format(nbr_classmoments, nbr_lessons))
+        log.info(u'import: added {} classmoments, {} grades and {} lessons'.format(nbr_classmoments, nbr_grades, nbr_lessons))
         if error_message == '':
-            flash_plus(u'Lesrooster is geïmporteerd, {} lestijden en {} lessen toegevoegd'.format(nbr_classmoments, nbr_lessons))
+            flash_plus(u'Lesrooster is geïmporteerd, {} lestijden, {} klassen en {} lessen toegevoegd'.format(nbr_classmoments, nbr_grades,  nbr_lessons))
         else:
             flash_plus(u'Lesrooster kan niet worden geïmporteerd', format(error_message))
 
@@ -291,40 +293,34 @@ def delete_schedule():
 remark_dates = [
     ['5/1', '15/1', '16/1', '22/1', '24/1', '8/2', '1/3', '13/3', '15/3'],
     ['5/1', '15/1', '16/1', '22/1', '24/1', '8/2', '1/3', '13/3'],
-    #['5/1', '15/1', '16/1', '22/1', '24/1', '8/2', '9/2', '13/3', '15/3', '19/3', '21/3'],
-    #['5/1', '15/1', '16/1', '22/1', '24/1', '8/2', '9/2', '1/3'],
-    #['5/1', '15/1', '16/1', '22/1', '24/1', '8/2', '9/2', '1/3', '2/3'],
-    #['5/1', '15/1', '16/1', '22/1', '24/1', '8/2', '9/2', '10/2', '11/3', '19/3', '21/3'],
-    #['5/1', '15/1', '16/1', '22/1', '24/1', '8/2', '10/2', '15/2', '16/2', '23/3', '27/3'],
+    ['5/1', '15/1', '16/1', '22/1', '24/1', '8/2', '9/2', '13/3', '15/3', '19/3', '21/3'],
+    ['5/1', '15/1', '16/1', '22/1', '24/1', '8/2', '9/2', '1/3'],
+    ['5/1', '15/1', '16/1', '22/1', '24/1', '8/2', '9/2', '1/3', '2/3'],
+    ['5/1', '15/1', '16/1', '22/1', '24/1', '8/2', '9/2', '10/2', '11/3', '19/3', '21/3'],
+    ['5/1', '15/1', '16/1', '22/1', '24/1', '8/2', '10/2', '15/2', '16/2', '23/3', '27/3'],
 ]
 
 def add_test_students():
     schoolyear = request.form['selected_schoolyear']
+    nbr_test_students = int(request.form['nbr-test-students'])
+    add_extra_measure = 'chkb-extra-measure' in request.form
     random.seed()
     try:
-        #fetch the first classmoment
         classmoments = Schedule.query.join(Grade).join(Lesson).join(Teacher).all()
-        students = Student.query.join(Remark).filter(Student.first_name.like('TEST%'),
-                                                     Student.last_name.like('TEST%'), Student.schoolyear == schoolyear).all()
-        for s in students:
-            for o in s.remarks:
-                if o.extra_measure:
-                    db.session.delete(o.extra_measure)
-            #delete students/...
-            db.session.delete(s)
-        students = []
-        for i, dates in enumerate(remark_dates):
-            classmoment = random.choice(classmoments)
-            student = Student(first_name='TEST{}'.format(i), last_name='TEST{}'.format(i), schoolyear=schoolyear,
-                              grade=classmoment.grade)
-            db.session.add(student)
-            students.append(student)
+        students_query = Student.query.filter(Student.schoolyear == schoolyear)
+        students = students_query.all()
+
+        for i in range(nbr_test_students):
+            student = random.choice(students)
+            dates = remark_dates[i % len(remark_dates)]
             for d in dates:
+                classmoment = random.choice(classmoments)
                 h = random.randint(10, 16)
                 m = random.randint(1, 50)
-                timestamp = datetime.datetime.strptime('{}/2018 {}:{}'.format(d, h, m), '%d/%m/%Y %H:%M')
+                timestamp = datetime.datetime.strptime('{}/20{} {}:{}'.format(d, schoolyear[2:4], h, m), '%d/%m/%Y %H:%M')
                 remark = Remark(student=student, grade=student.grade, timestamp=timestamp,
-                                 lesson=classmoment.lesson, teacher=classmoment.teacher, measure_note='', subject_note='')
+                                 lesson=classmoment.lesson, teacher=classmoment.teacher, measure_note='', subject_note='', test=True,
+                                extra_attention=random.choice([True, False, False, False]))
                 s = random.choice(SubjectTopic.query.all())
                 m = random.choice(MeasureTopic.query.all())
                 subject = RemarkSubject(topic=s, remark=remark)
@@ -332,7 +328,14 @@ def add_test_students():
                 db.session.add(subject)
                 db.session.add(measure)
                 db.session.add(remark)
-        db.session.commit()
+
+        if add_extra_measure:
+            matched_remarks, non_matched_remarks = db_filter_remarks_to_be_reviewed(schoolyear, test_remark = True, commit = False)
+            for s, rll in matched_remarks:
+                for id, extra_measure, rl in rll:
+                    rids = [i.id for i in rl]
+                    db_add_extra_measure(rids, 'extra sanctie voor {} {}'.format(s.first_name, s.last_name), commit = False)
+        db_tag_remarks_as_reviewed()
         log.info(u'Added test students/remarks')
         flash_plus(u'Test studenten toegevoegd voor jaar {} '.format(schoolyear))
     except Exception as e:
@@ -343,14 +346,13 @@ def add_test_students():
 def delete_test_students():
     schoolyear = request.form['selected_schoolyear']
     try:
-        students = Student.query.join(Remark).filter(Student.first_name.like('TEST%'),
-                                                     Student.last_name.like('TEST%'), Student.schoolyear == schoolyear).all()
-        for s in students:
-            for o in s.remarks:
-                if o.extra_measure:
-                    db.session.delete(o.extra_measure)
-            #delete students/...
-            db.session.delete(s)
+        remarks = Remark.query.filter(Remark.test==True).all()
+        for r in remarks:
+            if r.extra_measure and r.first_remark:
+                db.session.delete(r.extra_measure)
+            db.session.delete(r)
+
+
         db.session.commit()
         log.info(u'Removed test students/remarks')
         flash_plus(u'Test studenten verwijderd voor jaar {} '.format(schoolyear))

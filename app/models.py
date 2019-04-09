@@ -374,6 +374,11 @@ class Remark(db.Model):
     reviewed = db.Column(db.Boolean, default=False)
     extra_measure_id = db.Column(db.Integer, db.ForeignKey('extra_measures.id'))
 
+    #of a list of remarks, leading to an extra measure, only one remark will have first_remark set to true
+    first_remark = db.Column(db.Boolean, default=False)
+
+    test = db.Column(db.Boolean, default=False)
+
     def ret_subjects(self):
         l = ''
         for s in self.subjects:

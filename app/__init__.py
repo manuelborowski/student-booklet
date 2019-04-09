@@ -12,6 +12,7 @@ from flask_jsglue import JSGlue
 from werkzeug.routing import IntegerConverter as OrigIntegerConvertor
 import config, logging, logging.handlers, os, sys, datetime
 from functools import wraps
+from werkzeug.contrib.profiler import ProfilerMiddleware
 
 app = Flask(__name__, instance_relative_config=True)
 
@@ -38,10 +39,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V2.10 : esthetical improvement
 #V2.11 : import students, teachers and timetable direct from export
 #V2.12 : esthetical improvement
+#V2.13 : bugfix column order in case of table with row_detail.  Esthetical improvements
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.12')
+    return dict(version = 'V2.13')
 
 #enable logging
 LOG_HANDLE = 'SB'
@@ -114,6 +116,10 @@ from app import models
 #flask db upgrade
 #uncheck when migrating database
 #return app
+
+
+#app.config['PROFILE'] = True
+#app.wsgi_app = ProfilerMiddleware(app.wsgi_app, restrictions=['sql', 0.4])
 
 #decorator to grant access to admins only
 def admin_required(func):

@@ -150,7 +150,7 @@ $(document).ready(function() {
            }
        },
        pagingType: "full_numbers",
-       lengthMenu: [50, 100, 200],
+       lengthMenu: [50, 100, 200, 500, 1000],
        "buttons": [{extend: 'pdfHtml5', text: 'Exporteer naar PDF'}],
        "order" : [[1, 'desc']],
        "columns": [
@@ -181,6 +181,15 @@ $(document).ready(function() {
             if ( data.overwrite_row_color != "" ) {
                 $(row).attr("style", "background-color: " + data.overwrite_row_color + ";");
             }
+        },
+
+        "preDrawCallback": function( settings ) {
+            busy_indication_on();
+            console.log("busy ON");
+        },
+        "drawCallback": function( settings ) {
+            busy_indication_off();
+            console.log("busy OFF");
         }
 
     });
@@ -286,6 +295,5 @@ $(document).ready(function() {
     $("#select_all").change(function() {
         $(".cb_all").prop('checked', this.checked);
     });
-
-
+    //busy_indication_on();
 });

@@ -6,7 +6,6 @@ from flask_login import login_required
 from . import reviewed
 from ..base_multiple_items import build_filter_and_filter_data, prepare_data_for_html
 from ..tables_config import  tables_configuration
-
 @reviewed.route('/reviewed/data', methods=['GET', 'POST'])
 @login_required
 def source_data():

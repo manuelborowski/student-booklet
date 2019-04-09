@@ -70,18 +70,18 @@
                     </span>
             </div>
             <div class="row">
-                <a class="btn btn-default" onclick="select_schoolyear('upload_students2')">2) Importeer studenten</a>
+                <a class="btn btn-default" onclick="select_schoolyear('upload_schedule');">2) Importeer lesrooster</a>
+                <input id='upload_schedule' type='file' name='upload_schedule' style="display:none" accept=".csv" onchange="$('#save_settings_submit').click();">
+                <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="tooltip"
+                      title="Exporteer uit UNTIS : lesrooster.csv" .>
+                    </span>
+            </div>
+            <div class="row">
+                <a class="btn btn-default" onclick="select_schoolyear('upload_students')">3) Importeer studenten</a>
                 <input id='upload_students' type='file' name='upload_students' style="display:none" accept=".csv" onchange="$('#save_settings_submit').click();">
                 <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="tooltip"
                       title="Exporteer uit Wisa : Query = badgeprnt, Formaat = Text File, ANSI = aan, Schrijven in bestand = aan, Eerste lijn met veldnamen = aan,
                           Scheidingsteken = ; (puntkomma), Bestand = .../leerlingen.csv" .>
-                    </span>
-            </div>
-            <div class="row">
-                <a class="btn btn-default" onclick="select_schoolyear('upload_schedule');">3) Importeer lesrooster"</a>
-                <input id='upload_schedule' type='file' name='upload_schedule' style="display:none" accept=".csv" onchange="$('#save_settings_submit').click();">
-                <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="tooltip"
-                      title="Exporteer uit UNTIS : lesrooster.csv" .>
                     </span>
             </div>
             <div class="row">
@@ -97,16 +97,10 @@
         <h2>Testen : </h2>
         <div class="container">
             <div class="row">
-                <div class="col-sm-3">
-                    <button class="btn btn-default" type="button" onclick="submit_subject('add_test_students', 'save_settings_submit');">Voeg teststudenten
-                        toe
-                    </button>
-                </div>
-                <div class="col-sm-2">
-                    <button class="btn btn-default" type="button" onclick="submit_subject('delete_test_students', 'save_settings_submit');">Wis teststudenten
-                    </button>
-                </div>
-            </div>
+                    <a class="btn btn-default" onclick="submit_subject('add_test_students', 'save_settings_submit');">Voeg testopmerkingen toe</a>
+                    <a class="btn btn-default" onclick="submit_subject('delete_test_students', 'save_settings_submit');">Wis testopmerkingen</a>
+                        Aantal leerlingen <input name="nbr-test-students" value="10">
+                        Extra sanctie <input type="checkbox" name="chkb-extra-measure">
             <br>
             <div style="border: 2px; border-style: solid;border-color: #aec251;padding: 25px;">
                 <p>Simuleer een willekeurig uur in de week, bvb vrijdag 8:32. Geef in als 5/8/32</p>

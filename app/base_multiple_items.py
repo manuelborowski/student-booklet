@@ -2,9 +2,9 @@
 from wtforms.widgets.core import html_params
 from wtforms.widgets import HTMLString
 from wtforms import BooleanField
-from flask import request, get_flashed_messages, jsonify, url_for
+from flask import request, get_flashed_messages, jsonify
 from sqlalchemy import or_
-import time, cgi
+import time
 from .models import User, Teacher, Grade, Lesson, Student, Remark, ExtraMeasure
 from .forms import GradeFilter, TeacherFilter, SchoolyearFilter
 from . import log
@@ -80,7 +80,7 @@ def build_filter_and_filter_data(table, paginate=True):
         _filtered_list = _filtered_list.join(Student)
         _filtered_list = _filtered_list.join(Grade)
         _filtered_list = _filtered_list.join(Teacher)
-        _filtered_list = _filtered_list.join(Lesson).filter(Remark.reviewed == True)
+        _filtered_list = _filtered_list.join(Lesson).filter(Remark.reviewed == True, Remark.first_remark == True)
 
 
 
@@ -176,13 +176,16 @@ def build_filter_and_filter_data(table, paginate=True):
     #order, if required, first stage
     column_number = check_value_in_form('order[0][column]', request.values)
     if column_number:
+        column_number = int(column_number)
+        if 'row_detail' in table:
+            column_number -= 1
         column_name = check_string_in_form('columns[' + str(column_number) + '][data]', request.values)
-        if _template[int(column_number)]['order_by'] and  not callable(_template[int(column_number)]['order_by']) :
+        if _template[column_number]['order_by'] and  not callable(_template[column_number]['order_by']) :
             direction = check_string_in_form('order[0][dir]', request.values)
             if direction == 'desc':
-                _filtered_list = _filtered_list.order_by(_template[int(column_number)]['order_by'].desc())
+                _filtered_list = _filtered_list.order_by(_template[column_number]['order_by'].desc())
             else:
-                _filtered_list = _filtered_list.order_by(_template[int(column_number)]['order_by'])
+                _filtered_list = _filtered_list.order_by(_template[column_number]['order_by'])
 
     if paginate:
         #paginate, if required
@@ -199,7 +202,7 @@ def build_filter_and_filter_data(table, paginate=True):
 
 
 
-def prepare_data_for_html(table, only_checkbox_for=None):
+def prepare_data_for_html(table):
     try:
         _filters_enabled,  _filter_forms, _filtered_list, _total_count, _filtered_count = build_filter_and_filter_data(table)
         _filtered_dict = [i.ret_dict() for i in _filtered_list] #objects to dictionary
@@ -216,9 +219,13 @@ def prepare_data_for_html(table, only_checkbox_for=None):
         #order, if required, 2nd stage
         _template = table['template']
         column_number = check_value_in_form('order[0][column]', request.values)
-        if column_number and _template[int(column_number)]['order_by'] and  callable(_template[int(column_number)]['order_by']):
-            reverse = False if check_string_in_form('order[0][dir]', request.values) == 'desc' else True
-            _filtered_dict = sorted(_filtered_dict, key= _template[int(column_number)]['order_by'], reverse=reverse)
+        column_number = int(column_number)
+        if column_number:
+            if 'row_detail' in table:
+                column_number -= 1
+            if _template[column_number]['order_by'] and  callable(_template[column_number]['order_by']):
+                reverse = False if check_string_in_form('order[0][dir]', request.values) == 'desc' else True
+                _filtered_dict = sorted(_filtered_dict, key= _template[column_number]['order_by'], reverse=reverse)
     except Exception as e:
         log.error('could not prepare data for html : {}'.format(e))
         flash_plus('Er is een fout opgetreden en de tabel kan niet getoond worden.', e)
