@@ -7,7 +7,7 @@ from . import reviewed
 from ..base_multiple_items import build_filter_and_filter_data, prepare_data_for_html
 from ..tables_config import  tables_configuration
 from .. import log, db
-from .. models import Remark, Student, Teacher, RemarkSubject, RemarkMeasure
+from .. models import Remark, Student, Teacher, Grade, Lesson
 
 @reviewed.route('/reviewed/data', methods=['GET', 'POST'])
 @login_required
@@ -29,8 +29,9 @@ def show():
 def get_row_detail(data):
     try:
         jd = json.loads(data)
-        remarks = Remark.query.join(Student, Teacher, RemarkSubject, RemarkMeasure).filter(Remark.extra_measure_id==jd['id'])
-        details = [r.ret_dict() for r in remarks]
+        remarks = db.session.query(Remark, Student, Grade, Teacher, Lesson).join(Student, Grade, Teacher, Lesson). \
+            filter(Remark.extra_measure_id==jd['id']).all()
+        details = Remark.format_data(remarks)
         return jsonify({"status": True, "details" : details})
     except Exception as e:
         log.error('could not change the status')

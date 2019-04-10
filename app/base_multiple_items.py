@@ -63,23 +63,16 @@ def check_string_in_form(value_key, form):
     return ''
 
 def build_filter_and_filter_data(table, paginate=True):
-    #depending on the table, multiple joins are required to get the necessary data
     _model = table['model']
     _filters_enabled = table['filter']
     _template = table['template']
-    _filtered_list = _model.query
 
     if _model is Remark:
-        _filtered_list = _filtered_list.join(Student)
-        _filtered_list = _filtered_list.join(Grade)
-        _filtered_list = _filtered_list.join(Teacher)
-        _filtered_list = _filtered_list.join(Lesson)
-
-    if _model is ExtraMeasure:
-        #_filtered_list = db.session.query(ExtraMeasure, Remark, Student, Grade).join(Remark, Student, Grade).filter(Remark.reviewed == True, Remark.first_remark == True)
-         _filtered_list = _filtered_list.join(Remark)
-         _filtered_list = _filtered_list.join(Student)
-         _filtered_list = _filtered_list.join(Grade).filter(Remark.reviewed == True, Remark.first_remark == True)
+        _filtered_list = db.session.query(Remark, Student, Grade, Teacher, Lesson).join(Student, Grade, Teacher, Lesson)
+    elif _model is ExtraMeasure:
+        _filtered_list = db.session.query(ExtraMeasure, Remark, Student, Grade).join(Remark, Student, Grade).filter(Remark.reviewed == True, Remark.first_remark == True)
+    else:
+        _filtered_list = db.session.query(User)
 
     if 'query_filter' in table:
         _filtered_list = table['query_filter'](_filtered_list)
@@ -180,7 +173,6 @@ def build_filter_and_filter_data(table, paginate=True):
             start = int(start)
             _filtered_list = _filtered_list.slice(start, start+length)
 
-
     _filtered_list = _filtered_list.all()
 
     return _filters_enabled,  _filter_forms, _filtered_list, _total_count, _filtered_count,
@@ -190,16 +182,7 @@ def build_filter_and_filter_data(table, paginate=True):
 def prepare_data_for_html(table):
     try:
         _filters_enabled,  _filter_forms, _filtered_list, _total_count, _filtered_count = build_filter_and_filter_data(table)
-        _filtered_dict = [i.ret_dict() for i in _filtered_list] #objects to dictionary
-        for i in _filtered_dict: #some columns are links to other pages
-            for h in table['href']:
-                exec("i" + h['attribute'] + "= \"<a href=\\\"{}\\\">{}</a>\".format(url_for(" + h['route'] + ", id=i" + h['id'] + "), i" + h['attribute'] + ')')
-            i['DT_RowId'] = i['id']
-
-        if _filtered_dict and 'cb' in _filtered_dict[0]: #rows in the table have a checkbox to select them
-            for i in _filtered_dict:
-                i['cb'] = "<input type='checkbox' class='cb_all' name='cb' value='{}'>".format(i['id'], i['id']) if i['cb'] else ''
-
+        _filtered_dict = table['format_data'](_filtered_list)
 
         #order, if required, 2nd stage
         _template = table['template']
@@ -214,7 +197,7 @@ def prepare_data_for_html(table):
     except Exception as e:
         log.error('could not prepare data for html : {}'.format(e))
         flash_plus('Er is een fout opgetreden en de tabel kan niet getoond worden.', e)
-        _total_count = _filtered_list = 0
+        _total_count = _filtered_list = _filtered_count = 0
         _filtered_dict = []
 
     #prepare for json/ajax

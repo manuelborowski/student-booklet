@@ -25,7 +25,7 @@ tables_configuration = {
         'filter' :  ['schoolyear', 'teacher', 'grade', 'lesson', 'reviewed'],
         'href': [],
         'floating_menu' : [],
-        'disable_add_button' : True,
+        'format_data': Remark.format_data,
     },
     'extra_measure' : {
         'model' : ExtraMeasure,
@@ -41,8 +41,8 @@ tables_configuration = {
         'filter' :  ['schoolyear', 'grade', 'lesson'],
         'href': [],
         'floating_menu' : [],
-        'disable_add_button' : True,
         'row_detail' : 'reviewed',
+        'format_data' : ExtraMeasure.format_data,
     },
     'user': {
         'model': User,
@@ -63,6 +63,7 @@ tables_configuration = {
         'href': [],
         'floating_menu' : default_menu_config,
         'query_filter' : filter,
+        'format_data': User.format_data,
     }
 }
 

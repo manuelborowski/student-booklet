@@ -106,8 +106,16 @@ class User(UserMixin, db.Model):
         return '<User: {}/{}>'.format(self.id, self.username)
 
     def ret_dict(self):
-        return {'id':self.id, 'email':self.email, 'username':self.username, 'first_name':self.first_name, 'last_name':self.last_name,
+        return {'id':self.id, 'DT_RowId':self.id, 'email':self.email, 'username':self.username, 'first_name':self.first_name, 'last_name':self.last_name,
                 'level': User.LEVEL.i2s(self.level), 'user_type': self.user_type, 'last_login': self.last_login, 'cb': ''}
+
+    @staticmethod
+    def format_data(db_list):
+        out = []
+        for i in db_list:
+            em = i.ret_dict()
+            out.append(em)
+        return out
 
 # Set up user_loader
 @login_manager.user_loader
@@ -149,13 +157,16 @@ class Student(db.Model):
     grade_id = db.Column(db.Integer, db.ForeignKey('grades.id', ondelete='CASCADE'))
 
 
+    def nbr_of_remarks(self):
+        return Remark.query.join(Student).filter(Student.id == self.id).count()
+
     def __repr__(self):
         return '<Student: {}/{}/{}>'.format(self.id, self.first_name, self.last_name)
 
     def ret_dict(self):
         return {'id':self.id, 'first_name':self.first_name, 'last_name': self.last_name, 'grade': self.grade.ret_dict(),
                 'full_name': u'{} {}'.format(self.first_name, self.last_name),
-                'number' : Remark.query.join(Student).filter(Student.id == self.id).count()}
+                'number' : self.nbr_of_remarks}
 
     # def log(self):
     #     return '<Asset: {}/{}/{}/{}/{}>'.format(self.id, self.name, self.qr_code, self.purchase.since, self.purchase.value)
@@ -339,7 +350,16 @@ class ExtraMeasure(db.Model):
         return ol
 
     def ret_dict(self):
-        return {'id':self.id, 'note':cgi.escape(self.note), 'date':self.timestamp.strftime('%d-%m-%Y %H:%M'), 'remark' : self.remarks[0].ret_dict()}
+        return {'id':self.id, 'DT_RowId':self.id, 'note':cgi.escape(self.note), 'date':self.timestamp.strftime('%d-%m-%Y %H:%M')}
+
+    @staticmethod
+    def format_data(db_list):
+        out = []
+        for i in db_list:
+            em = i.ExtraMeasure.ret_dict()
+            em['remark'] = {'student': {'full_name': i.Student.first_name + ' ' + i.Student.last_name}, 'grade': {'code': i.Grade.code}}
+            out.append(em)
+        return out
 
 # class Hub(db.Model):
 #     __tablename__ = 'hub'
@@ -409,17 +429,31 @@ class Remark(db.Model):
 
 
     def ret_dict(self):
-        return {'id':self.id, 'date':self.timestamp.strftime('%d-%m-%Y %H:%M'), 'measure_note': cgi.escape(self.measure_note),
-                'subject_note': cgi.escape(self.subject_note), 'teacher':self.teacher.ret_dict(), 'grade': self.grade.ret_dict(),
-                'lesson': self.lesson.ret_dict(), 'cb': self.checkbox_required(), 'reviewed' : 'X' if self.reviewed else '',
-                'subjects': self.ret_subjects(), 'measures': self.ret_measures(), 'student': self.student.ret_dict(),
-                'extra_measure': self.ret_extra_measure(), 'measure_id': self.extra_measure_id, 'extra_attention': self.extra_attention, 'overwrite_row_color': self.row_color()}
+        return {'id':self.id, 'DT_RowId':self.id, 'date':self.timestamp.strftime('%d-%m-%Y %H:%M'), 'measure_note': cgi.escape(self.measure_note),
+                'subject_note': cgi.escape(self.subject_note), 'reviewed' : 'X' if self.reviewed else '',
+                'subjects': self.ret_subjects(), 'measures': self.ret_measures(), 'extra_attention': self.extra_attention, 'overwrite_row_color': self.row_color()}
 
     def __repr__(self):
         return u'ID({}) TS({}) SDNT({})'.format(self.id, self.timestamp.strftime('%d-%m-%Y %H:%M'), self.student.first_name + ' ' + self.student.last_name)
 
     def __str__(self):
         return self.__repr__()
+
+    @staticmethod
+    def format_data(db_list):
+        out = []
+        for i in db_list:
+            em = i.Remark.ret_dict()
+            em['student'] = {'full_name': i.Student.first_name + ' ' + i.Student.last_name, 'number': i.Student.nbr_of_remarks()}
+            em['grade'] = {'code': i.Grade.code}
+            em['teacher'] = {'code': i.Teacher.code}
+            em['lesson'] = {'code': i.Lesson.code}
+            em['cb'] = "<input type='checkbox' class='cb_all' name='cb' value='{}'>".format(i.Remark.id, i.Remark.id) if i.Remark.checkbox_required else ''
+
+            out.append(em)
+        return out
+
+
 
 class SubjectTopic(db.Model):
     __tablename__ = 'subject_topics'

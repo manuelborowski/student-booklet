@@ -52,6 +52,7 @@ function confirm_before_delete() {
         if ('{{ config.delete_message }}') {message='{{ config.delete_message }}';}
         bootbox.confirm(message, function(result) {
             if (result) {
+                busy_indication_on();
                 document.getElementById('button_form').action = Flask.url_for('{{config.subject}}' + ".delete");
                 document.getElementById('button_form').submit();
             }
@@ -150,7 +151,11 @@ $(document).ready(function() {
            }
        },
        pagingType: "full_numbers",
+       {% if current_user.is_at_least_admin %}
+       lengthMenu: [50, 100, 200, 500, 1000],
+       {% else %}
        lengthMenu: [50, 100, 200],
+       {% endif %}
        "buttons": [{extend: 'pdfHtml5', text: 'Exporteer naar PDF'}],
        "order" : [[1, 'desc']],
        "columns": [

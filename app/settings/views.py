@@ -319,7 +319,7 @@ def add_test_students():
                 m = random.randint(1, 50)
                 timestamp = datetime.datetime.strptime('{}/20{} {}:{}'.format(d, schoolyear[2:4], h, m), '%d/%m/%Y %H:%M')
                 remark = Remark(student=student, grade=student.grade, timestamp=timestamp,
-                                 lesson=classmoment.lesson, teacher=classmoment.teacher, measure_note='', subject_note='', test=True,
+                                 lesson=classmoment.lesson, teacher=classmoment.teacher, measure_note='', subject_note='TESTOPMERKING', test=True,
                                 extra_attention=random.choice([True, False, False, False]))
                 s = random.choice(SubjectTopic.query.all())
                 m = random.choice(MeasureTopic.query.all())
@@ -334,7 +334,7 @@ def add_test_students():
             for s, rll in matched_remarks:
                 for id, extra_measure, rl in rll:
                     rids = [i.id for i in rl]
-                    db_add_extra_measure(rids, 'extra sanctie voor {} {}'.format(s.first_name, s.last_name), commit = False)
+                    db_add_extra_measure(rids, 'TEST: extra sanctie voor {} {}'.format(s.first_name, s.last_name), commit = False)
         db_tag_remarks_as_reviewed()
         log.info(u'Added test students/remarks')
         flash_plus(u'Test studenten toegevoegd voor jaar {} '.format(schoolyear))
