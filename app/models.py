@@ -339,9 +339,7 @@ class ExtraMeasure(db.Model):
         return ol
 
     def ret_dict(self):
-        return {'id':self.id, 'note':cgi.escape(self.note), 'date':self.timestamp.strftime('%d-%m-%Y %H:%M'), 'remark' : self.remarks[0].ret_dict(),
-                'remarks' : self.get_remarks()}
-
+        return {'id':self.id, 'note':cgi.escape(self.note), 'date':self.timestamp.strftime('%d-%m-%Y %H:%M'), 'remark' : self.remarks[0].ret_dict()}
 
 # class Hub(db.Model):
 #     __tablename__ = 'hub'

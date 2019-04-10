@@ -10,10 +10,10 @@ var floating_menu = JSON.parse('{{config.floating_menu|tojson}}');
 function handle_floating_menu(menu_id) {
     console.log(menu_id + ' : ' + row_id);
     for(var i=0; i < floating_menu.length; i++) {
-        if(floating_menu[i].menu_id == menu_id) {
-            if(floating_menu[i].flags.includes('confirm_before_delete_single_id')) {
+        if (floating_menu[i].menu_id == menu_id) {
+            if (floating_menu[i].flags.includes('confirm_before_delete_single_id')) {
                 confirm_before_delete_single_id(row_id);
-            } else if(floating_menu[i].flags.includes('id_required')) {
+            } else if (floating_menu[i].flags.includes('id_required')) {
                 window.location.href=Flask.url_for('{{config.subject}}.' + floating_menu[i].route, {'id':row_id});
             } else {
                 window.location.href=Flask.url_for('{{config.subject}}.' + floating_menu[i].route);
@@ -36,7 +36,7 @@ function confirm_before_delete_single_id(id) {
 //If one or more checkboxes are checked, return true.  Else display warning and return false
 function is_checkbox_selected() {
     var nbr_checked = 0;
-    $(".cb_all").each(function(i){if(this.checked) {nbr_checked++;}});
+    $(".cb_all").each(function(i){if (this.checked) {nbr_checked++;}});
     if (nbr_checked==0) {
         bootbox.alert("U hebt niets geselecteerd, probeer nogmaals");
         return false;
@@ -146,11 +146,11 @@ $(document).ready(function() {
            url: '/{{config.subject}}/data',
            type: 'POST',
            data : function (d) {
-               return $.extend( {}, d, filter_settings);
+               return $.extend({}, d, filter_settings);
            }
        },
        pagingType: "full_numbers",
-       lengthMenu: [50, 100, 200, 500, 1000],
+       lengthMenu: [50, 100, 200],
        "buttons": [{extend: 'pdfHtml5', text: 'Exporteer naar PDF'}],
        "order" : [[1, 'desc']],
        "columns": [
@@ -177,19 +177,17 @@ $(document).ready(function() {
             }
         },
 
-        "createdRow": function( row, data, dataIndex ) {
-            if ( data.overwrite_row_color != "" ) {
+        "createdRow": function(row, data, dataIndex) {
+            if (data.overwrite_row_color != "") {
                 $(row).attr("style", "background-color: " + data.overwrite_row_color + ";");
             }
         },
 
-        "preDrawCallback": function( settings ) {
+        "preDrawCallback": function(settings) {
             busy_indication_on();
-            console.log("busy ON");
         },
-        "drawCallback": function( settings ) {
+        "drawCallback": function(settings) {
             busy_indication_off();
-            console.log("busy OFF");
         }
 
     });
@@ -203,62 +201,69 @@ $(document).ready(function() {
     var d_header = '<tr><td>Datum</td><td>Leerling</td><td>LKR</td><td>KL</td><td>Les</td><td>Opmerking</td><td>Maatregel</td></tr>'
     var d_row    = '<tr><td>%s</td><td>{}</td><td>LKR</td><td>KL</td><td>Les</td><td>Opmerking</td><td>Maatregel</td></tr>'
 
-    function format ( d ) {
+    function format_row_detail(data) {
         s = d_table_start;
         s += d_header;
-        for (i=0; i < d.remarks.length; i++) {
-            if(d.remarks[i].overwrite_row_color != "") {
-                s += '<tr style="background-color: ' + d.remarks[i].overwrite_row_color + '">"';
-            } else {
-                s += '<tr>'
+        if (data) {
+            for (i=0; i < data.length; i++) {
+                if (data[i].overwrite_row_color != "") {
+                    s += '<tr style="background-color: ' + data[i].overwrite_row_color + '">';
+                } else {
+                    s += '<tr>'
+                }
+                s = s + '<td>' + data[i].date + '</td>';
+                s = s + '<td>' + data[i].student.full_name + '</td>';
+                s = s + '<td>' + data[i].teacher.code + '</td>';
+                s = s + '<td>' + data[i].grade.code + '</td>';
+                s = s + '<td>' + data[i].lesson.code + '</td>';
+                s = s + '<td>' + data[i].subjects + '</td>';
+                s = s + '<td>' + data[i].measures + '</td>';
+                s += '</tr>'
             }
-            s = s + '<td>' + d.remarks[i].date + '</td>';
-            s = s + '<td>' + d.remarks[i].student.full_name + '</td>';
-            s = s + '<td>' + d.remarks[i].teacher.code + '</td>';
-            s = s + '<td>' + d.remarks[i].grade.code + '</td>';
-            s = s + '<td>' + d.remarks[i].lesson.code + '</td>';
-            s = s + '<td>' + d.remarks[i].subjects + '</td>';
-            s = s + '<td>' + d.remarks[i].measures + '</td>';
-            s += '</tr>'
+            s += d_table_stop;
+            return s;
         }
-        s += d_table_stop;
-        return s;
+       return 'Geen gegevens';
     }
 
     // Array to track the ids of the details displayed rows
-    var detailRows = [];
+    var detail_rows_cache = [];
 
-    $('#datatable tbody').on( 'click', 'tr td.details-control', function () {
+    $('#datatable tbody').on('click', 'tr td.details-control', function () {
         var tr = $(this).closest('tr');
-        var row = table.row( tr );
-        var idx = $.inArray( tr.attr('DT_RowId'), detailRows );
+        var row = table.row(tr);
+        var idx = $.inArray(tr.attr('DT_RowId'), detail_rows_cache);
 
-        if ( row.child.isShown() ) {
-            tr.removeClass( 'details' );
+        if (row.child.isShown()) {
+            tr.removeClass('details');
             row.child.hide();
-
-            // Remove from the 'open' array
-            detailRows.splice( idx, 1 );
+            detail_rows_cache.splice(idx, 1);
         }
         else {
-            tr.addClass( 'details' );
-            row.child( format( row.data() ) ).show();
-
-            // Add to the 'open' array
-            if ( idx === -1 ) {
-                detailRows.push( tr.attr('DT_RowId') );
-            }
+            var tx_data = {"id" : row.data().DT_RowId};
+            $.getJSON(Flask.url_for('reviewed.get_row_detail', {'data' : JSON.stringify(tx_data)}),
+                function(rx_data) {
+                if (rx_data.status) {
+                    row.child(format_row_detail(rx_data.details)).show();
+                    tr.addClass('details');
+                    if (idx === -1) {
+                        detail_rows_cache.push(tr.attr('DT_RowId'));
+                    }
+                } else {
+                    bootbox.alert('Fout: kan details niet ophalen');
+                }
+            });
         }
-    } );
+    });
 
     {% endif %}
 
-    table.on( 'draw', function () {
+    table.on('draw', function () {
     {% if 'row_detail' in config %}
         //Row details
-        $.each( detailRows, function ( i, id ) {
-            $('#'+id+' td.details-control').trigger( 'click' );
-        } );
+        $.each(detail_rows_cache, function (i, id) {
+            $('#'+id+' td.details-control').trigger('click');
+        });
     {% endif %}
     });
 
@@ -278,9 +283,9 @@ $(document).ready(function() {
     }, false);
 
     // Get column index when right clicking on a cell
-    //$('#datatable tbody').on( 'contextmenu', 'td', function () {
-    //    column_id = table.cell( this ).index().column;
-    //    console.log( 'Clicked on cell in visible column: '+column_id );
+    //$('#datatable tbody').on('contextmenu', 'td', function () {
+    //    column_id = table.cell(this).index().column;
+    //    console.log('Clicked on cell in visible column: '+column_id);
     //});
 
 

@@ -7,7 +7,7 @@ from sqlalchemy import or_
 import time
 from .models import User, Teacher, Grade, Lesson, Student, Remark, ExtraMeasure
 from .forms import GradeFilter, TeacherFilter, SchoolyearFilter
-from . import log
+from . import log, db
 from .base import flash_plus
 
 class InlineButtonWidget(object):
@@ -76,18 +76,10 @@ def build_filter_and_filter_data(table, paginate=True):
         _filtered_list = _filtered_list.join(Lesson)
 
     if _model is ExtraMeasure:
-        _filtered_list = _filtered_list.join(Remark)
-        _filtered_list = _filtered_list.join(Student)
-        _filtered_list = _filtered_list.join(Grade)
-        _filtered_list = _filtered_list.join(Teacher)
-        _filtered_list = _filtered_list.join(Lesson).filter(Remark.reviewed == True, Remark.first_remark == True)
-
-
-
-    # if ('category' in _filters_enabled or 'device' in _filters_enabled) and _model is not Device:
-    #     _filtered_list = _filtered_list.join(Device)
-    # if 'supplier' in _filters_enabled and _model is not Supplier :
-    #     _filtered_list = _filtered_list.join(Supplier)
+        #_filtered_list = db.session.query(ExtraMeasure, Remark, Student, Grade).join(Remark, Student, Grade).filter(Remark.reviewed == True, Remark.first_remark == True)
+         _filtered_list = _filtered_list.join(Remark)
+         _filtered_list = _filtered_list.join(Student)
+         _filtered_list = _filtered_list.join(Grade).filter(Remark.reviewed == True, Remark.first_remark == True)
 
     if 'query_filter' in table:
         _filtered_list = table['query_filter'](_filtered_list)
@@ -129,13 +121,6 @@ def build_filter_and_filter_data(table, paginate=True):
             _filtered_list = _filtered_list.filter(Remark.reviewed == True, Remark.extra_measure_id != None).join(ExtraMeasure)
         elif value == 'false' or value == '': #default
             _filtered_list = _filtered_list.filter(Remark.reviewed == False)
-
-
-    # if 'lesson' in _filters_enabled:
-    #     _filter_forms['category'] = CategoryFilter()
-    #     value = check_string_in_form('category', request.values)
-    #     if value:
-    #         _filtered_list = _filtered_list.filter(Device.category == value)
 
     #search, if required
     #from template, take order_by and put in a list.  This is user later on, to get the columns in which can be searched

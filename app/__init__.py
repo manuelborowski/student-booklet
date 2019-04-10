@@ -40,10 +40,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V2.11 : import students, teachers and timetable direct from export
 #V2.12 : esthetical improvement
 #V2.13 : bugfix column order in case of table with row_detail.  Esthetical improvements
+#V2.14 : row_detail : get row_detail data via ajax only when required
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.13')
+    return dict(version = 'V2.14')
 
 #enable logging
 LOG_HANDLE = 'SB'
