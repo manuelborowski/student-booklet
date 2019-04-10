@@ -125,8 +125,8 @@ def upload_students(rfile):
 
         nbr_students = 0
         schoolyear = request.form['selected_schoolyear']
-        grades_sql = Grade.query.all()
-        grades = {g.code: g.id for g in grades_sql }
+        db_grades = Grade.query.all()
+        grades = {g.code: g.id for g in db_grades }
 
         if grades:
             for s in students_file:
@@ -139,7 +139,7 @@ def upload_students(rfile):
                                                                 Student.schoolyear==schoolyear).first()
                         if find_student:
                             find_student.photo = s['FOTO']
-                            find_student.grade = s['KLAS']
+                            find_student.grade_id = grades[s['KLAS']]
                         else:
                             student = Student(first_name=s['VOORNAAM'], last_name=s['NAAM'], number=int(s['LEERLINGNUMMER']),
                                               photo=s['FOTO'], grade_id=grades[s['KLAS']], schoolyear=schoolyear)

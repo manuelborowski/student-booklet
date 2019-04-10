@@ -42,10 +42,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V2.13 : bugfix column order in case of table with row_detail.  Esthetical improvements
 #V2.14 : row_detail : get row_detail data via ajax only when required
 #V2.15 : speed improvement ; switched to correct sql statements
+#V2.16 : bugfix upload students
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.15')
+    return dict(version = 'V2.16')
 
 #enable logging
 LOG_HANDLE = 'SB'
