@@ -339,10 +339,12 @@ class ExtraMeasure(db.Model):
 
 # class Hub(db.Model):
 #     __tablename__ = 'hub'
+#
 #     id = db.Column(db.Integer, primary_key=True)
 #     school = db.Column(db.String(1024), default='Lyceum')
 #     valid_from = db.Column(db.Date, default=None)
 #     academic_year = db.Column(db.Integer, default=None)
+#     test = db.Column(db.Boolean, default = False)
 
 
 
@@ -358,11 +360,11 @@ class Remark(db.Model):
     measure_note = db.Column(db.String(1024), default='')
     timestamp = db.Column(db.DateTime(timezone=True), server_default=func.now())
     extra_attention = db.Column(db.Boolean, default=False)
-    student_id = db.Column(db.Integer, db.ForeignKey('students.id', ondelete='CASCADE'))
+    student_id = db.Column(db.Integer, db.ForeignKey('students.id', ondelete='CASCADE')) #child
     lesson_id = db.Column(db.Integer, db.ForeignKey('lessons.id', ondelete='CASCADE'))
     teacher_id = db.Column(db.Integer, db.ForeignKey('teachers.id', ondelete='CASCADE'))
     grade_id = db.Column(db.Integer, db.ForeignKey('grades.id', ondelete='CASCADE'))
-    subjects = db.relationship('RemarkSubject', cascade='all, delete', backref='remark', lazy='dynamic')
+    subjects = db.relationship('RemarkSubject', cascade='all, delete', backref='remark', lazy='dynamic') #parent
     measures = db.relationship('RemarkMeasure', cascade='all, delete', backref='remark', lazy='dynamic')
 
     reviewed = db.Column(db.Boolean, default=False)

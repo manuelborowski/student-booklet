@@ -351,14 +351,12 @@ def delete_test_students():
             if r.extra_measure and r.first_remark:
                 db.session.delete(r.extra_measure)
             db.session.delete(r)
-
-
         db.session.commit()
-        log.info(u'Removed test students/remarks')
-        flash_plus(u'Test studenten verwijderd voor jaar {} '.format(schoolyear))
+        log.info(u'Removed test remarks')
+        flash_plus(u'Test opmerkingen verwijderd voor jaar {} '.format(schoolyear))
     except Exception as e:
-        log.error(u'Could not delete test students error {}'.format(e))
-        flash_plus(u'Kan test studenten voor jaar {} niet verwijderen'.format(schoolyear), e)
+        log.error(u'Could not delete test remarks error {}'.format(e))
+        flash_plus(u'Kan test opmerkingen voor jaar {} niet verwijderen'.format(schoolyear), e)
     return redirect(url_for('settings.show'))
 
 
