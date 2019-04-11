@@ -4,7 +4,12 @@ import datetime
 from flask import flash, request
 from .models import Teacher, Schedule, Grade, Lesson, Student
 from .base_settings import get_global_setting_sim_dayhour_state, get_global_setting_sim_dayhour
-from . import db, log
+from . import db, log, app
+
+#This will make the variable 'schoolyear' default available in all templates
+@app.context_processor
+def inject_schoolyear():
+    return dict(schoolyear=calculate_current_schoolyear())
 
 def get_all_schoolyears_from_database():
     schoolyears = Student.query.with_entities(Student.schoolyear).distinct().order_by(Student.schoolyear).all()
@@ -13,7 +18,7 @@ def get_all_schoolyears_from_database():
 
 def calculate_current_schoolyear():
     now = datetime.datetime.now()
-    reference = datetime.datetime(year=now.year, month=9, day=1)
+    reference = datetime.datetime(year=now.year, month=8, day=1)
     now_year = int(str(now.year)[2:4])
     if now < reference:
         year = (now_year - 1) * 100 + now_year

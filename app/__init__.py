@@ -43,10 +43,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V2.14 : row_detail : get row_detail data via ajax only when required
 #V2.15 : speed improvement ; switched to correct sql statements
 #V2.16 : bugfix upload students
+#V2.17 : small refactoring
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.16')
+    return dict(version = 'V2.17')
 
 #enable logging
 LOG_HANDLE = 'SB'

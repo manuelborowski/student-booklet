@@ -14,16 +14,6 @@ from ..process_remarks import db_filter_remarks_to_be_reviewed, db_add_extra_mea
 
 import datetime, json
 
-#This will make the variable 'schoolyear' default available in all templates
-@app.context_processor
-def inject_schoolyear():
-    return dict(schoolyear=calculate_current_schoolyear())
-
-
-@app.context_processor
-def inject_url_rule():
-    return dict(url_rule=request.url_rule)
-
 @remarks.route('/remarks/data', methods=['GET', 'POST'])
 @login_required
 def source_data():
