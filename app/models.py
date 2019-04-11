@@ -168,13 +168,6 @@ class Student(db.Model):
                 'full_name': u'{} {}'.format(self.first_name, self.last_name),
                 'number' : self.nbr_of_remarks}
 
-    # def log(self):
-    #     return '<Asset: {}/{}/{}/{}/{}>'.format(self.id, self.name, self.qr_code, self.purchase.since, self.purchase.value)
-    #
-    # def ret_dict(self):
-    #     return {'id':self.id, 'name':self.name, 'qr_code':self.qr_code, 'status':self.status, 'location':self.location,
-    #             'db_status':self.db_status,  'serial':self.serial, 'description':self.description,'purchase':self.purchase.ret_dict()}
-
 class Grade(db.Model):
     __tablename__= 'grades'
 
@@ -204,10 +197,7 @@ class Grade(db.Model):
 
     def __repr__(self):
         return 'Grade: {}/{}'.format(self.id, self.code)
-    #
-    # def log(self):
-    #     return '<Purchase: {}/{}/{}/{}/{}/{}>'.format(self.id, self.since, self.value, self.device.brand, self.device.type, self.supplier.name)
-    #
+
     def ret_dict(self):
          return {'id':self.id, 'code': self.code}
 
@@ -264,14 +254,6 @@ class Schedule(db.Model):
 
     def __repr__(self):
         return 'Schedule: {}/{}/{}/{}/{}/{}/{}'.format(self.id, self.day, self.hour, self.schoolyear, self.grade.code, self.teacher.code, self.lesson.code)
-    #
-    # def log(self):
-    #     return '<Device: {}/{}/{}>'.format(self.id, self.brand, self.type)
-    #
-    # def ret_dict(self):
-    #     return {'id':self.id, 'brand':self.brand, 'type':self.type, 'category':self.category, 'power':float(self.power), 'photo':self.photo,
-    #     'risk_analysis': self.risk_analysis, 'manual':self.manual, 'safety_information':self.safety_information, 'ce':self.ce,
-    #     'brandtype':self.brand + ' / ' + self.type}
 
 class Lesson(db.Model):
     __tablename__ = 'lessons'
@@ -300,12 +282,6 @@ class Lesson(db.Model):
 
     def ret_dict(self):
         return {'id':self.id, 'code': self.code}
-    #
-    # def log(self):
-    #     return '<Supplier: {}/{}>'.format(self.id, self.name)
-    #
-    # def ret_dict(self):
-    #     return {'id':self.id, 'name':self.name, 'description':self.description}
 
 class Teacher(db.Model):
     __tablename__ = 'teachers'
@@ -492,7 +468,6 @@ class RemarkSubject(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    #subject = db.Column(db.Integer)
     topic_id = db.Column(db.Integer, db.ForeignKey('subject_topics.id'))
     remark_id = db.Column(db.Integer, db.ForeignKey('remarks.id', ondelete='CASCADE'))
 
@@ -532,6 +507,5 @@ class RemarkMeasure(db.Model):
     __tablename__ = 'remark_measures'
 
     id = db.Column(db.Integer, primary_key=True)
-    #measure = db.Column(db.Integer)
     topic_id = db.Column(db.Integer, db.ForeignKey('measure_topics.id'))
     remark_id = db.Column(db.Integer, db.ForeignKey('remarks.id', ondelete='CASCADE'))
