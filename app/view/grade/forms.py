@@ -3,8 +3,6 @@
 from flask_wtf import FlaskForm
 from wtforms import SelectField
 
-from ..models import Schedule, Lesson
-
 
 class FilterForm(FlaskForm):
     teacher = SelectField('Leerkracht', choices=[])

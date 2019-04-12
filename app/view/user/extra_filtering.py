@@ -1,5 +1,5 @@
 from flask_login import current_user
-from ..models import User
+from app.database.models import User
 
 def filter(query_in):
     #If the logged in user is NOT administrator, display the data of the current user only

@@ -14,7 +14,7 @@ $(document).ready(function(){
     })
 
 
-    $('#mdl_select_schoolyear').on('hide.bs.modal', function (e) {
+    $('#mdl_select_academic_year').on('hide.bs.modal', function (e) {
         if (document.activeElement.id == 'close_modal') {
             $('#' + action_id).click();
         }
@@ -42,7 +42,7 @@ $(document).ready(function(){
 
 //Before removing an entry, a confirm-box is shown.
 function confirm_before_delete(url) {
-    var message = "Bent u zeker dat u dit van {{schoolyear}} wilt wissen?"
+    var message = "Bent u zeker dat u dit van {{academic_year}} wilt wissen?"
     bootbox.confirm(message, function(result) {
         if (result) {
             window.location.href = Flask.url_for(url)
@@ -51,9 +51,9 @@ function confirm_before_delete(url) {
 }
 
 
-function select_schoolyear(id) {
+function select_academic_year(id) {
     action_id = id;
-    $('#mdl_select_schoolyear').modal();
+    $('#mdl_select_academic_year').modal();
 }
 
 
@@ -64,5 +64,5 @@ function add_topic(subject) {
 
 function submit_subject(subject, id){
     $('#save_subject').val(subject);
-    select_schoolyear(id);
+    select_academic_year(id);
 }

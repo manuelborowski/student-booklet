@@ -1,7 +1,7 @@
 from flask_login import current_user
-from .models import Settings
-from . import log
-from . import db
+from app.database.models import Settings
+from app import log
+from app import db
 
 #return : found, value
 # found : if True, setting was found else not
@@ -73,11 +73,11 @@ def get_global_setting_sim_dayhour_state():
 def set_global_setting_sim_dayhour_state(value):
     return set_setting('simulate_dayhour_state', str(value), 1)
 
-def get_global_setting_current_schoolyear():
-    found, value = get_setting('current_schoolyear', 1)
+def get_global_setting_current_academic_year():
+    found, value = get_setting('current_academic_year', 1)
     if found: return value
-    add_setting('current_schoolyear', '1718', Settings.SETTING_TYPE.E_STRING, 1)
+    add_setting('current_academic_year', '1718', Settings.SETTING_TYPE.E_STRING, 1)
     return '1718'
 
-def set_global_setting_current_schoolyear(value):
-    return set_setting('current_schoolyear', str(value), 1)
+def set_global_setting_current_academic_year(value):
+    return set_setting('current_academic_year', str(value), 1)

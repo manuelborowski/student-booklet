@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 
 from flask import render_template, url_for, request, redirect, jsonify
-from flask_login import login_required, current_user
+from flask_login import login_required
 
-from .. import db, log, app
+from app import db, log
 from . import remarks
-from ..models import Remark, RemarkSubject, RemarkMeasure, Student, ExtraMeasure, SubjectTopic, MeasureTopic
-from ..forms import RemarkForm
-from ..base_multiple_items import build_filter_and_filter_data, prepare_data_for_html
-from ..base import calculate_current_schoolyear, flash_plus, button_save_pushed
-from ..tables_config import  tables_configuration
-from ..process_remarks import db_filter_remarks_to_be_reviewed, db_add_extra_measure, db_tag_remarks_as_reviewed
+from app.database.models import Remark, RemarkSubject, RemarkMeasure, SubjectTopic, MeasureTopic
+from app.layout.forms import RemarkForm
+from app.database.multiple_items import build_filter_and_filter_data, prepare_data_for_html
+from app.utils.base import get_academic_year, flash_plus, button_save_pushed
+from app.layout.tables_config import  tables_configuration
+from app.database.remarks import db_filter_remarks_to_be_reviewed, db_add_extra_measure, db_tag_remarks_as_reviewed
 
-import datetime, json
+import json
 
 @remarks.route('/remarks/data', methods=['GET', 'POST'])
 @login_required
@@ -95,9 +95,9 @@ def edit():
 @login_required
 def start_review():
     try:
-        schoolyear = calculate_current_schoolyear() if request.form['schoolyear'] == '' else request.form['schoolyear']
+        academic_year = get_academic_year() if request.form['academic_year'] == '' else request.form['academic_year']
 
-        matched_remarks, non_matched_remarks = db_filter_remarks_to_be_reviewed(schoolyear)
+        matched_remarks, non_matched_remarks = db_filter_remarks_to_be_reviewed(academic_year)
 
         for s, rll in matched_remarks:
             for id, extra_measure, rl in rll:
@@ -120,7 +120,7 @@ def start_review():
     return render_template('remark/review.html',
                         matched_remarks=matched_remarks,
                         non_matched_remarks=non_matched_remarks,
-                        selected_schoolyear=schoolyear)
+                        selected_academic_year=academic_year)
 
 
 @remarks.route('/remarks/add_extra_measure/<string:remark_ids>/<string:em>', methods=['GET', 'POST'])

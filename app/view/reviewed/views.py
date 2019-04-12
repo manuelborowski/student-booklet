@@ -4,10 +4,10 @@ from flask import render_template, jsonify
 from flask_login import login_required
 import json
 from . import reviewed
-from ..base_multiple_items import build_filter_and_filter_data, prepare_data_for_html
-from ..tables_config import  tables_configuration
-from .. import log, db
-from .. models import Remark, Student, Teacher, Grade, Lesson
+from app.database.multiple_items import build_filter_and_filter_data, prepare_data_for_html
+from app.layout.tables_config import  tables_configuration
+from app import log, db
+from app.database.models import Remark, Student, Teacher, Grade, Lesson
 
 @reviewed.route('/reviewed/data', methods=['GET', 'POST'])
 @login_required

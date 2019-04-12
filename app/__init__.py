@@ -3,16 +3,15 @@
 # app/__init__.py
 
 # third-party imports
-from flask import Flask, render_template, abort, session
+from flask import Flask, render_template, abort
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user
 from flask_migrate import Migrate
 from flask_bootstrap import Bootstrap
 from flask_jsglue import JSGlue
 from werkzeug.routing import IntegerConverter as OrigIntegerConvertor
-import config, logging, logging.handlers, os, sys, datetime
+import logging.handlers, os, sys
 from functools import wraps
-from werkzeug.contrib.profiler import ProfilerMiddleware
 
 app = Flask(__name__, instance_relative_config=True)
 
@@ -66,7 +65,7 @@ class IntegerConverter(OrigIntegerConvertor):
 
 
 def create_admin(db):
-    from app.models import User
+    from app.database.models import User
     admin = User(username='admin', password='admin', level=User.LEVEL.ADMIN, user_type=User.USER_TYPE.LOCAL)
     db.session.add(admin)
     db.session.commit()
@@ -112,15 +111,14 @@ login_manager.login_view = 'auth.login'
 
 migrate = Migrate(app, db)
 
-from app import models
+#from app.database import models
 
-#create_admin(db) # Only once
+#create_admin(database) # Only once
 
-#flask db migrate
-#flask db upgrade
+#flask database migrate
+#flask database upgrade
 #uncheck when migrating database
 #return app
-
 
 #app.config['PROFILE'] = True
 #app.wsgi_app = ProfilerMiddleware(app.wsgi_app, restrictions=['sql', 0.4])
@@ -146,25 +144,25 @@ def supervisor_required(func):
 
 
 
-from .grade import grade as grade_blueprint
+from app.view.grade import grade as grade_blueprint
 app.register_blueprint(grade_blueprint)
 
-from .auth import auth as auth_blueprint
+from app.view.auth import auth as auth_blueprint
 app.register_blueprint(auth_blueprint)
 
-from .settings import settings as settings_blueprint
+from app.view.settings import settings as settings_blueprint
 app.register_blueprint(settings_blueprint)
 
-from .user import user as user_blueprint
+from app.view.user import user as user_blueprint
 app.register_blueprint(user_blueprint)
 
-from .remarks import remarks as remarks_blueprint
+from app.view.remarks import remarks as remarks_blueprint
 app.register_blueprint(remarks_blueprint)
 
-from .reviewed import reviewed as reviewed_blueprint
+from app.view.reviewed import reviewed as reviewed_blueprint
 app.register_blueprint(reviewed_blueprint)
 
-from .documents import init_documents
+from app.utils.documents import init_documents
 init_documents(app, 'photo')
 
 @app.errorhandler(403)

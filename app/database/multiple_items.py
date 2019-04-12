@@ -5,10 +5,10 @@ from wtforms import BooleanField
 from flask import request, get_flashed_messages, jsonify
 from sqlalchemy import or_
 import time
-from .models import User, Teacher, Grade, Lesson, Student, Remark, ExtraMeasure
-from .forms import GradeFilter, TeacherFilter, SchoolyearFilter
-from . import log, db
-from .base import flash_plus
+from app.database.models import User, Teacher, Grade, Lesson, Student, Remark, ExtraMeasure
+from app.layout.forms import GradeFilter, TeacherFilter, SchoolyearFilter
+from app import log, db
+from app.utils.base import flash_plus
 
 class InlineButtonWidget(object):
     """
@@ -90,11 +90,11 @@ def build_filter_and_filter_data(table, paginate=True):
         if date:
             _filtered_list = _filtered_list.filter(Remark.timestamp <= Remark.reverse_date(date))
 
-    if 'schoolyear' in _filters_enabled:
-        _filter_forms['schoolyear'] = SchoolyearFilter()
-        value = check_string_in_form('schoolyear', request.values)
+    if 'academic_year' in _filters_enabled:
+        _filter_forms['academic_year'] = SchoolyearFilter()
+        value = check_string_in_form('academic_year', request.values)
         if value != '':
-            _filtered_list = _filtered_list.filter(Student.schoolyear == value)
+            _filtered_list = _filtered_list.filter(Student.academic_year == value)
 
     if 'teacher' in _filters_enabled:
         _filter_forms['teacher'] = TeacherFilter()

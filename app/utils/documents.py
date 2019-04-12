@@ -2,7 +2,7 @@
 
 from flask_uploads import UploadSet, configure_uploads, ALL
 from flask import send_file
-from . import app
+from app import app
 import os, sys
 
 documents_config = {}

@@ -70,14 +70,14 @@
                     </span>
             </div>
             <div class="row">
-                <a class="btn btn-default" onclick="select_schoolyear('upload_schedule');">2) Importeer lesrooster</a>
+                <a class="btn btn-default" onclick="select_academic_year('upload_schedule');">2) Importeer lesrooster</a>
                 <input id='upload_schedule' type='file' name='upload_schedule' style="display:none" accept=".csv" onchange="$('#save_settings_submit').click();">
                 <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="tooltip"
                       title="Exporteer uit UNTIS : lesrooster.csv" .>
                     </span>
             </div>
             <div class="row">
-                <a class="btn btn-default" onclick="select_schoolyear('upload_students')">3) Importeer studenten</a>
+                <a class="btn btn-default" onclick="select_academic_year('upload_students')">3) Importeer studenten</a>
                 <input id='upload_students' type='file' name='upload_students' style="display:none" accept=".csv" onchange="$('#save_settings_submit').click();">
                 <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="tooltip"
                       title="Exporteer uit Wisa : Query = badgeprnt, Formaat = Text File, ANSI = aan, Schrijven in bestand = aan, Eerste lijn met veldnamen = aan,
@@ -118,8 +118,8 @@
                     <button class="btn btn-default">Bewaar</button>
                 </div>
             </div>
-            <!-- modal to select schoolyear -->
-            <div class="modal fade" id="mdl_select_schoolyear" role="dialog">
+            <!-- modal to select academic_year -->
+            <div class="modal fade" id="mdl_select_academic_year" role="dialog">
                 <div class="modal-dialog">
                     <!-- Modal content-->
                     <div class="modal-content">
@@ -129,9 +129,9 @@
                             <h4 class="modal-title" id="modal_title">Welke schooljaar?</h4>
                         </div>
                         <div class="modal-body">
-                            <select class="form-control" name="selected_schoolyear">
-                                {% for i in schoolyear_list %}
-                                {% if i == schoolyear|int %}
+                            <select class="form-control" name="selected_academic_year">
+                                {% for i in academic_year_list %}
+                                {% if i == academic_year|int %}
                                 <option val="{{i}}" selected="selected">{{i}}</option>
                                 {% else %}
                                 <option val="{{i}}">{{i}}</option>

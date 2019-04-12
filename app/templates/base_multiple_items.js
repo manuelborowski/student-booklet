@@ -82,8 +82,8 @@ function start_review() {
 
 
 $(document).ready(function() {
-        {% if 'schoolyear' in filter %}
-        $('#schoolyear').change(function(){$('#filter').click();});
+        {% if 'academic_year' in filter %}
+        $('#academic_year').change(function(){$('#filter').click();});
         {% endif %}
         {% if 'teacher' in filter %}
         $('#teacher').change(function(){$('#filter').click();});
@@ -99,8 +99,8 @@ $(document).ready(function() {
     //The clear button of the filter is pushed
     $('#clear').click(function() {
         $('.filter').val('');
-        {% if 'schoolyear' in filter %}
-        $('#schoolyear').val('{{filter_form.schoolyear.default_schoolyear}}');
+        {% if 'academic_year' in filter %}
+        $('#academic_year').val('{{filter_form.academic_year.default_academic_year}}');
         {% endif %}
         {% if 'teacher' in filter %}
         $('#teacher').val('');
@@ -121,8 +121,8 @@ $(document).ready(function() {
     $('#filter').click(function() {
         //Store filter in localstorage
         filter_settings = {
-            {% if 'schoolyear' in filter %}
-            "schoolyear" : $('#schoolyear').val(),
+            {% if 'academic_year' in filter %}
+            "academic_year" : $('#academic_year').val(),
             {% endif %}
             {% if 'teacher' in filter %}
             "teacher" : $('#teacher').val(),

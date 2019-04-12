@@ -5,11 +5,11 @@ from flask import redirect, render_template, url_for, request
 from flask_login import login_required, login_user, logout_user
 from sqlalchemy import func
 
-from .. import log, db, app
+from app import log, db, app
 from . import auth
 from .forms import LoginForm
-from ..models import User
-from ..base import flash_plus
+from app.database.models import User
+from app.utils.base import flash_plus
 import datetime, json
 from authlib.flask.client import OAuth
 

@@ -5,11 +5,12 @@ from flask_login import login_required, current_user
 from sqlalchemy import func
 
 from .forms import FilterForm
-from .. import db, log
+from app import db, log
 from . import grade
-from ..models import Grade, Student, Remark, RemarkSubject, RemarkMeasure, Teacher, Schedule, Lesson, SubjectTopic, MeasureTopic
-from ..base import  filter_overview, filter_duplicates_out, calculate_current_schoolyear, flash_plus, button_save_pushed
-from ..forms import RemarkForm
+from app.database.models import Grade, Student, Remark, RemarkSubject, RemarkMeasure, Teacher, Schedule, Lesson, SubjectTopic, MeasureTopic
+from app.database.grade import  db_filter_grade
+from app.utils.base import  filter_duplicates_out, get_academic_year, flash_plus, button_save_pushed
+from app.layout.forms import RemarkForm
 import datetime
 
 def filter_grade():
@@ -22,21 +23,21 @@ def filter_grade():
 
         if 'change_id' in request.form:
             if request.form['dayhour'] == 'disabled' or request.form['grade'] == 'disabled' or request.form['lesson'] == 'disabled':
-                schedule = filter_overview(int(request.form['teacher']), '', 0, 0, 'teacher')
+                schedule = db_filter_grade(int(request.form['teacher']), '', 0, 0, 'teacher')
             else:
-                schedule = filter_overview(int(request.form['teacher']), request.form['dayhour'], int(request.form['grade']), int(request.form['lesson']), request.form['change_id'])
+                schedule = db_filter_grade(int(request.form['teacher']), request.form['dayhour'], int(request.form['grade']), int(request.form['lesson']), request.form['change_id'])
         else:
             if teacher_found_in_schedule:
-                schedule = filter_overview(teacher_found_in_schedule.teacher_id,'', 0, 0, 'teacher')
+                schedule = db_filter_grade(teacher_found_in_schedule.teacher_id, '', 0, 0, 'teacher')
             else:
-                schedule = filter_overview(0, 0, 0, 0) #default settings
+                schedule = db_filter_grade(0, 0, 0, 0) #default settings
     except Exception as e:
         log.error(u'No schedule found {}'.format(e))
         flash_plus(u'Er is nog geen lesrooster geladen')
         return FilterForm(), []
     try:
         students = Student.query.join(Grade).\
-            filter(Grade.id == schedule.grade.id, Student.schoolyear == calculate_current_schoolyear()).all()
+            filter(Grade.id == schedule.grade.id, Student.academic_year == get_academic_year()).all()
         teacher_grades = Grade.get_all_grades_for_teacher(schedule.teacher)
         teacher_lessons = Lesson.get_all_lessons_for_teacher(schedule.teacher)
         teacher_schedules = Schedule.get_all_schedules_for_teacher(schedule.teacher)

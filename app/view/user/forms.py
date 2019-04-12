@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from flask_wtf import FlaskForm
-from wtforms import PasswordField, StringField, BooleanField, ValidationError, IntegerField, SelectField
-from wtforms.validators import DataRequired, Email, EqualTo
+from wtforms import PasswordField, StringField, ValidationError, IntegerField, SelectField
+from wtforms.validators import DataRequired
 from wtforms.widgets import HiddenInput
 from sqlalchemy import func
 
-from ..models import User
+from app.database.models import User
 
 
 class EditForm(FlaskForm):

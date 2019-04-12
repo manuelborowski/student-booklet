@@ -9,8 +9,8 @@
         <form method="post" id="filter_form" enctype=multipart/form-data>
             <table class="table-condensed ">
                 <tr>
-                    {% if 'schoolyear' in filter %}
-                    <td>{{ wtf.form_field(filter_form.schoolyear.schoolyear) }}</td>
+                    {% if 'academic_year' in filter %}
+                    <td>{{ wtf.form_field(filter_form.academic_year.academic_year) }}</td>
                     {% endif %}
                     {% if 'teacher' in filter %}
                     <td>{{ wtf.form_field(filter_form.teacher.teacher) }}</td>

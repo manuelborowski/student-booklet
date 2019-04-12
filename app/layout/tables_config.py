@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from .models import User, Remark, Teacher, Student, Grade, Lesson, RemarkSubject, RemarkMeasure, ExtraMeasure
-from .user.extra_filtering import filter
-from .floating_menu import default_menu_config, offence_menu_config
+from app.database.models import User, Remark, Teacher, Student, Grade, Lesson, ExtraMeasure
+from app.view.user.extra_filtering import filter
+from app.layout.floating_menu import default_menu_config
 
 tables_configuration = {
     'remark' : {
@@ -22,7 +22,7 @@ tables_configuration = {
                       {'name': 'Opmerking', 'data':'subjects', 'order_by': lambda k: k['subjects'], 'width': '30%', 'orderable' : True},
                       {'name': 'Maatregel', 'data':'measures', 'order_by': lambda k: k['measures'], 'width': '30%', 'orderable' : True},
                       ],
-        'filter' :  ['schoolyear', 'teacher', 'grade', 'lesson', 'reviewed'],
+        'filter' :  ['academic_year', 'teacher', 'grade', 'lesson', 'reviewed'],
         'href': [],
         'floating_menu' : [],
         'format_data': Remark.format_data,
@@ -38,7 +38,7 @@ tables_configuration = {
                       {'name': 'KL', 'data':'remark.grade.code', 'order_by': Grade.code, 'width': '1%', 'orderable' : True},
                       {'name': 'Maatregel', 'data':'note', 'order_by': lambda k: k['note'], 'width': '30%', 'orderable' : True},
                       ],
-        'filter' :  ['schoolyear', 'grade', 'lesson'],
+        'filter' :  ['academic_year', 'grade', 'lesson'],
         'href': [],
         'floating_menu' : [],
         'row_detail' : 'reviewed',

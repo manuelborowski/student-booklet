@@ -4,19 +4,19 @@
 from flask_wtf import FlaskForm
 from wtforms import SelectField, IntegerField
 from wtforms.widgets import HiddenInput
-from .models import Schedule, MeasureTopic, SubjectTopic
-from .base import get_all_schoolyears_from_database, calculate_current_schoolyear
+from app.database.models import Schedule, MeasureTopic, SubjectTopic, Hub
+from app.utils.base import get_academic_year
 
 
 class SchoolyearFilter(FlaskForm):
     def __init__(self, *args, **kwargs):
         super(SchoolyearFilter, self).__init__(*args, **kwargs)
-        sys = get_all_schoolyears_from_database()
+        sys = Hub.get_all_academic_years_from_database()
         sys = [''] + sys
-        self.schoolyear.choices=list(zip(sys, sys))
+        self.academic_year.choices=list(zip(sys, sys))
 
-    schoolyear = SelectField(default=calculate_current_schoolyear(), label='Schooljaar')
-    default_schoolyear = calculate_current_schoolyear()
+    academic_year = SelectField(default=get_academic_year(), label='Schooljaar')
+    default_academic_year = get_academic_year()
 
 class GradeFilter(FlaskForm):
     def __init__(self, *args, **kwargs):
