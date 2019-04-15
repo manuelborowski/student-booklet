@@ -7,9 +7,13 @@ from app import app
 #This will make the variable 'academic_year' default available in all templates
 @app.context_processor
 def inject_academic_year():
-    return dict(academic_year=get_academic_year())
+    return dict(academic_year=academic_year())
 
-def get_academic_year():
+def school():
+    return 'Lyceum'
+
+
+def academic_year():
     now = datetime.datetime.now()
     reference = datetime.datetime(year=now.year, month=8, day=1)
     now_year = int(str(now.year)[2:4])

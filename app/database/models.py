@@ -7,15 +7,20 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app import login_manager
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.sql import func
-from app.utils.base import get_academic_year
+from app.utils.utils import academic_year
 import cgi
 
 #cascade delete : if a table is truncated, what tables are truncated as wel?
-#Grade -> Remark, Student, Schedule
-#Lesson -> Remark, Schedule
 #Remark -> RemarkSubject, RemarkMeasure
+#Lesson -> Remark, Schedule
 #Teacher -> Remark, Schedule
-#Hub -> Student, Grade, Lesson, Schedule, Teacher, Remark, MeasureTopic, SubjectTopic
+#Student -> Remark
+#Grade -> Student, Schedule
+
+class SCHOOL:
+    LYCEUM = 'Lyceum'
+    MIDDENSCHOOL = 'Middenschool'
+    INSTITUUT = 'Instituut'
 
 class User(UserMixin, db.Model):
     # Ensures table will be named in plural and not in singular
@@ -153,10 +158,10 @@ class Student(db.Model):
     last_name = db.Column(db.String(256))
     number = db.Column(db.Integer)
     photo = db.Column(db.String(256))
+    hidden = db.Column(db.Boolean, default=False)
     remarks = db.relationship('Remark', cascade='all, delete', backref='student', lazy='dynamic')
     grade_id = db.Column(db.Integer, db.ForeignKey('grades.id', ondelete='CASCADE'))
-    hub_id = db.Column(db.Integer, db.ForeignKey('hub.id', ondelete='CASCADE'))
-
+    academic_year = db.Column(db.Integer, default=None)
 
     def nbr_of_remarks(self):
         return Remark.query.join(Student).filter(Student.id == self.id).count()
@@ -171,6 +176,13 @@ class Student(db.Model):
 
 class Grade(db.Model):
     __tablename__= 'grades'
+
+    id = db.Column(db.Integer, primary_key=True)
+    code = db.Column(db.String(256))
+    students = db.relationship('Student', cascade='all, delete', backref='grade', lazy='dynamic')
+    remarks = db.relationship('Remark', cascade='all, delete', backref='grade', lazy='dynamic')
+    schedules = db.relationship('Schedule', cascade='all, delete', backref='grade', lazy='dynamic')
+    school = db.Column(db.String(256))
 
     @staticmethod
     def get_choices_list():
@@ -189,13 +201,6 @@ class Grade(db.Model):
 
     def get_choice(self):
         return(self.id, self.code)
-
-    id = db.Column(db.Integer, primary_key=True)
-    code = db.Column(db.String(256))
-    students = db.relationship('Student', cascade='all, delete', backref='grade', lazy='dynamic')
-    remarks = db.relationship('Remark', cascade='all, delete', backref='grade', lazy='dynamic')
-    schedules = db.relationship('Schedule', cascade='all, delete', backref='grade', lazy='dynamic')
-    hub_id = db.Column(db.Integer, db.ForeignKey('hub.id', ondelete='CASCADE'))
 
     def __repr__(self):
         return 'Grade: {}/{}'.format(self.id, self.code)
@@ -252,13 +257,22 @@ class Schedule(db.Model):
     grade_id = db.Column(db.Integer, db.ForeignKey('grades.id', ondelete='CASCADE'))
     teacher_id = db.Column(db.Integer, db.ForeignKey('teachers.id', ondelete='CASCADE'))
     lesson_id = db.Column(db.Integer, db.ForeignKey('lessons.id', ondelete='CASCADE'))
-    hub_id = db.Column(db.Integer, db.ForeignKey('hub.id', ondelete='CASCADE'))
+    school = db.Column(db.String(1024), default='Lyceum')
+    valid_from = db.Column(db.Date, default=None)
+    academic_year = db.Column(db.Integer, default=None)
+    test = db.Column(db.Boolean, default = False)
 
     def __repr__(self):
         return 'Schedule: {}/{}/{}/{}/{}/{}'.format(self.id, self.day, self.hour, self.grade.code, self.teacher.code, self.lesson.code)
 
 class Lesson(db.Model):
     __tablename__ = 'lessons'
+
+    id = db.Column(db.Integer, primary_key=True)
+    code = db.Column(db.String(256), unique=True)
+    remarks = db.relationship('Remark', cascade='all, delete', backref='lesson', lazy='dynamic')
+    schedules = db.relationship('Schedule', cascade='all, delete', backref='lesson', lazy='dynamic')
+    school = db.Column(db.String(256), default='Lyceum')
 
     @staticmethod
     def get_choices_list():
@@ -274,12 +288,6 @@ class Lesson(db.Model):
     def get_choice(self):
         return (self.id, self.code)
 
-    id = db.Column(db.Integer, primary_key=True)
-    code = db.Column(db.String(256), unique=True)
-    remarks = db.relationship('Remark', cascade='all, delete', backref='lesson', lazy='dynamic')
-    schedules = db.relationship('Schedule', cascade='all, delete', backref='lesson', lazy='dynamic')
-    hub_id = db.Column(db.Integer, db.ForeignKey('hub.id', ondelete='CASCADE'))
-
     def __repr__(self):
         return 'Lesson: {}/{}'.format(self.id, self.code)
 
@@ -289,15 +297,6 @@ class Lesson(db.Model):
 class Teacher(db.Model):
     __tablename__ = 'teachers'
 
-    @staticmethod
-    def get_choices_list():
-        l = [i for i in db.session.query(Teacher.id, Teacher.code).distinct(Teacher.code).order_by(Teacher.code).all()]
-        return l
-
-    @staticmethod
-    def get_choices_with_empty_list():
-        return [(-1, '')] + Teacher.get_choices_list()
-
     def get_choice(self):
         return(self.id, self.code)
 
@@ -305,6 +304,8 @@ class Teacher(db.Model):
     first_name = db.Column(db.String(256))
     last_name = db.Column(db.String(256))
     code = db.Column(db.String(256))
+    academic_year = db.Column(db.Integer, default=None)
+    hidden = db.Column(db.Boolean, default=False)
     remarks = db.relationship('Remark', cascade='all, delete', backref='teacher', lazy='dynamic')
     schedules = db.relationship('Schedule', cascade='all, delete', backref='teacher', lazy='dynamic')
 
@@ -314,12 +315,21 @@ class Teacher(db.Model):
     def ret_dict(self):
         return {'id':self.id, 'code':self.code}
 
+
+class Forward(db.Model):
+    __tablename__ = 'forwards'
+
+    id = db.Column(db.Integer, primary_key=True)
+    note = db.Column(db.String(1024), default='')
+
+
 class ExtraMeasure(db.Model):
     __tablename__ = 'extra_measures'
 
     id = db.Column(db.Integer, primary_key=True)
     note = db.Column(db.String(1024), default='')
     timestamp = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    forward_to = db.Column(db.Integer, db.ForeignKey('users.id'), default=None)
     remarks = db.relationship('Remark', backref='extra_measure', lazy='dynamic')
 
     def get_remarks(self):
@@ -340,61 +350,6 @@ class ExtraMeasure(db.Model):
             out.append(em)
         return out
 
-class Hub(db.Model):
-    __tablename__ = 'hub'
-
-    class SCHOOL:
-        LYCEUM = 'Lyceum'
-        MIDDENSCHOOL = 'Middenschool'
-        INSTITUUT = 'Instituut'
-
-    id = db.Column(db.Integer, primary_key=True)
-    school = db.Column(db.String(1024), default='Lyceum')
-    valid_from = db.Column(db.Date, default=None)
-    academic_year = db.Column(db.Integer, default=None)
-    test = db.Column(db.Boolean, default = False)
-    measure_topics = db.relationship('MeasureTopic', cascade='all, delete', backref='hub', lazy='dynamic')
-    subject_topics = db.relationship('SubjectTopic', cascade='all, delete', backref='hub', lazy='dynamic')
-    remarks = db.relationship('Remark', cascade='all, delete', backref='hub', lazy='dynamic')
-    schedules = db.relationship('Schedule', cascade='all, delete', backref='hub', lazy='dynamic')
-    lessons = db.relationship('Lesson', cascade='all, delete', backref='hub', lazy='dynamic')
-    grades = db.relationship('Grade', cascade='all, delete', backref='hub', lazy='dynamic')
-    students = db.relationship('Student', cascade='all, delete', backref='hub', lazy='dynamic')
-
-    @staticmethod
-    def get_school_list():
-        return [Hub.SCHOOL.LYCEUM, Hub.SCHOOL.MIDDENSCHOOL, Hub.SCHOOL.INSTITUUT]
-
-    @staticmethod
-    def add_default_values_if_empty():
-        for s in Hub.get_school_list():
-            find_school = Hub.query.filter(Hub.school==s, Hub.academic_year==None, Hub.valid_from==None, Hub.test==False).first()
-            if not find_school:
-                hub = Hub(school=s)
-                db.session.add(hub)
-            find_school = Hub.query.filter(Hub.school == s, Hub.academic_year == get_academic_year(), Hub.valid_from == None, Hub.test == False).first()
-            if not find_school:
-                hub = Hub(school=s, academic_year=get_academic_year())
-                db.session.add(hub)
-        db.session.commit()
-
-    @staticmethod
-    def get_hub(school=None, academic_year=None, valid_from=None, test=False):
-        try:
-            hub = Hub.query.filter(Hub.school==school, Hub.academic_year==academic_year, Hub.valid_from==valid_from, Hub.test==test).first()
-            return hub
-        except Exception as e:
-            log.info('Could not find hub {}/{}/{}/{}.  Will add hub'.format(school, academic_year, valid_from, test))
-            hub = Hub(school=school, academic_year=academic_year, valid_from=valid_from, test=test)
-            db.session.add(hub)
-            return hub
-        return None
-
-    @staticmethod
-    def get_all_academic_years_from_database():
-        academic_years = db.session.query(Hub.academic_year).distinct().filter(Hub.academic_year!=None).order_by(Hub.academic_year).all()
-        return [int(i) for i, in academic_years]
-
 
 class Remark(db.Model):
     __tablename__ = 'remarks'
@@ -412,12 +367,15 @@ class Remark(db.Model):
     lesson_id = db.Column(db.Integer, db.ForeignKey('lessons.id', ondelete='CASCADE'))
     teacher_id = db.Column(db.Integer, db.ForeignKey('teachers.id', ondelete='CASCADE'))
     grade_id = db.Column(db.Integer, db.ForeignKey('grades.id', ondelete='CASCADE'))
-    hub_id = db.Column(db.Integer, db.ForeignKey('hub.id', ondelete='CASCADE'))
     subjects = db.relationship('RemarkSubject', cascade='all, delete', backref='remark', lazy='dynamic') #parent
     measures = db.relationship('RemarkMeasure', cascade='all, delete', backref='remark', lazy='dynamic')
 
     reviewed = db.Column(db.Boolean, default=False)
     extra_measure_id = db.Column(db.Integer, db.ForeignKey('extra_measures.id'))
+
+    school = db.Column(db.String(256), default='Lyceum')
+    academic_year = db.Column(db.Integer, default=None)
+    test = db.Column(db.Boolean, default=False)
 
     #of a list of remarks, leading to an extra measure, only one remark will have first_remark set to true
     first_remark = db.Column(db.Boolean, default=False)
@@ -473,7 +431,7 @@ class Remark(db.Model):
             em['grade'] = {'code': i.Grade.code}
             em['teacher'] = {'code': i.Teacher.code}
             em['lesson'] = {'code': i.Lesson.code}
-            em['cb'] = "<input type='checkbox' class='cb_all' name='cb' value='{}'>".format(i.Remark.id, i.Remark.id) if i.Remark.checkbox_required else ''
+            em['cb'] = "<input type='checkbox' class='cb_all' name='cb' value='{}'>".format(i.Remark.id, i.Remark.id) if i.Remark.checkbox_required() else ''
 
             out.append(em)
         return out
@@ -484,7 +442,7 @@ class SubjectTopic(db.Model):
     __tablename__ = 'subject_topics'
 
     default_topics = [
-        (Hub.SCHOOL.LYCEUM , [
+        (SCHOOL.LYCEUM , [
         'gsm-gebruik',
         'Materiaal vergeten',
         'Neemt geen notities',
@@ -495,28 +453,11 @@ class SubjectTopic(db.Model):
         ])
     ]
 
-    @staticmethod
-    def add_default_values_if_empty():
-        for school, topics in SubjectTopic.default_topics:
-            find_topics = SubjectTopic.query.join(Hub).filter(Hub.school==school).all()
-            if not find_topics:
-                log.info('SubjectTopic table is empty, adding default values')
-                hub = Hub.get_hub(school)
-                for t in topics:
-                    db.session.add(SubjectTopic(topic=t, hub=hub))
-        db.session.commit()
-
-    @staticmethod
-    def get_choices_list():
-        hub = Hub.get_hub()
-        l = db.session.query(SubjectTopic.id, SubjectTopic.topic).filter(SubjectTopic.enabled==True).order_by(SubjectTopic.topic).all()
-        return l
-
     id = db.Column(db.Integer, primary_key=True)
     topic = db.Column(db.String(1024))
     enabled = db.Column(db.Boolean, default=True)
     subject = db.relationship('RemarkSubject', cascade='all', backref='topic', lazy='dynamic')
-    hub_id = db.Column(db.Integer, db.ForeignKey('hub.id', ondelete='CASCADE'))
+    school = db.Column(db.String(256), default='Lyceum')
 
 
 class RemarkSubject(db.Model):
@@ -532,7 +473,7 @@ class MeasureTopic(db.Model):
     __tablename__ = 'measure_topics'
 
     default_topics = [
-        (Hub.SCHOOL.LYCEUM, [
+        (SCHOOL.LYCEUM, [
         'Andere plaats gegeven',
         'gsm afgenomen',
         'Opmerking gegeven',
@@ -541,27 +482,16 @@ class MeasureTopic(db.Model):
         ])
     ]
 
-    @staticmethod
-    def add_default_values_if_empty():
-        for school, topics in MeasureTopic.default_topics:
-            find_topics = MeasureTopic.query.join(Hub).filter(Hub.school==school).all()
-            if not find_topics:
-                log.info('MeasureTopic table is empty, adding default values')
-                hub = Hub.get_hub(school)
-                for t in topics:
-                    db.session.add(MeasureTopic(topic=t, hub=hub))
-        db.session.commit()
+    id = db.Column(db.Integer, primary_key=True)
+    topic = db.Column(db.String(1024))
+    enabled = db.Column(db.Boolean, default=True)
+    measure = db.relationship('RemarkMeasure', cascade='all', backref='topic', lazy='dynamic')
+    school = db.Column(db.String(256), default='Lyceum')
 
     @staticmethod
     def get_choices_list():
         l = db.session.query(MeasureTopic.id, MeasureTopic.topic).filter(MeasureTopic.enabled==True).order_by(MeasureTopic.topic).all()
         return l
-
-    id = db.Column(db.Integer, primary_key=True)
-    topic = db.Column(db.String(1024))
-    enabled = db.Column(db.Boolean, default=True)
-    measure = db.relationship('RemarkMeasure', cascade='all', backref='topic', lazy='dynamic')
-    hub_id = db.Column(db.Integer, db.ForeignKey('hub.id', ondelete='CASCADE'))
 
 
 

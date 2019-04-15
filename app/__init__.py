@@ -43,10 +43,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V2.15 : speed improvement ; switched to correct sql statements
 #V2.16 : bugfix upload students
 #V2.17 : small refactoring
+#V2.18 : huge refactor
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.17')
+    return dict(version = 'V2.18')
 
 #enable logging
 LOG_HANDLE = 'SB'

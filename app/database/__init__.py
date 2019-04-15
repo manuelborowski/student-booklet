@@ -1,9 +1,8 @@
 from app import app
-from app.database.models import Hub, SubjectTopic, MeasureTopic
+from . import db_measure_topic, db_subject_topic
 
 
 @app.before_first_request
 def at_start():
-    Hub.add_default_values_if_empty()
-    SubjectTopic.add_default_values_if_empty()
-    MeasureTopic.add_default_values_if_empty()
+    db_subject_topic.add_default_values_if_empty()
+    db_measure_topic.add_default_values_if_empty()

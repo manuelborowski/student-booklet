@@ -10,7 +10,7 @@ from . import user
 from app.database.models import User
 
 from app.database.multiple_items import build_filter_and_filter_data, prepare_data_for_html
-from app.utils.base import flash_plus, button_save_pushed
+from app.utils.utils import flash_plus, button_save_pushed
 from app.layout.tables_config import  tables_configuration
 from app.layout.floating_menu import user_menu_config, admin_menu_config
 

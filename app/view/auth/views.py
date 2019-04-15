@@ -9,7 +9,7 @@ from app import log, db, app
 from . import auth
 from .forms import LoginForm
 from app.database.models import User
-from app.utils.base import flash_plus
+from app.utils.utils import flash_plus
 import datetime, json
 from authlib.flask.client import OAuth
 

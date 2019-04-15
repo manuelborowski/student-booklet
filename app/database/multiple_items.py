@@ -8,7 +8,7 @@ import time
 from app.database.models import User, Teacher, Grade, Lesson, Student, Remark, ExtraMeasure
 from app.layout.forms import GradeFilter, TeacherFilter, SchoolyearFilter
 from app import log, db
-from app.utils.base import flash_plus
+from app.utils import utils
 
 class InlineButtonWidget(object):
     """
@@ -41,7 +41,7 @@ def check_date_in_form(date_key, form):
             time.strptime(form[date_key].strip(), '%d-%M-%Y')
             return form[date_key].strip()
         except Exception as e:
-            flash_plus('Verkeerd datumformaat, moet in de vorm zijn : d-m-y', e)
+            utils.flash_plus('Verkeerd datumformaat, moet in de vorm zijn : d-m-y', e)
     return ''
 
 def check_value_in_form(value_key, form):
@@ -50,7 +50,7 @@ def check_value_in_form(value_key, form):
             float(form[value_key])
             return form[value_key]
         except Exception as e:
-            flash_plus('Verkeerde getal notatie', e)
+            utils.flash_plus('Verkeerde getal notatie', e)
     return ''
 
 def check_string_in_form(value_key, form):
@@ -59,7 +59,7 @@ def check_string_in_form(value_key, form):
             str(form[value_key])
             return form[value_key]
         except Exception as e:
-            flash_plus('Verkeerde tekst notatie', e)
+            utils.flash_plus('Verkeerde tekst notatie', e)
     return ''
 
 def build_filter_and_filter_data(table, paginate=True):
@@ -68,9 +68,11 @@ def build_filter_and_filter_data(table, paginate=True):
     _template = table['template']
 
     if _model is Remark:
-        _filtered_list = db.session.query(Remark, Student, Grade, Teacher, Lesson).join(Student, Grade, Teacher, Lesson)
+        _filtered_list = db.session.query(Remark, Student, Grade, Teacher, Lesson).join(Student, Grade, Teacher, Lesson)\
+            .filter(Remark.school == utils.school())
     elif _model is ExtraMeasure:
-        _filtered_list = db.session.query(ExtraMeasure, Remark, Student, Grade).join(Remark, Student, Grade).filter(Remark.reviewed == True, Remark.first_remark == True)
+        _filtered_list = db.session.query(ExtraMeasure, Remark, Student, Grade).join(Remark, Student, Grade)\
+            .filter(Remark.reviewed == True, Remark.first_remark == True, Remark.school == utils.school())
     else:
         _filtered_list = db.session.query(User)
 
@@ -94,7 +96,7 @@ def build_filter_and_filter_data(table, paginate=True):
         _filter_forms['academic_year'] = SchoolyearFilter()
         value = check_string_in_form('academic_year', request.values)
         if value != '':
-            _filtered_list = _filtered_list.filter(Student.academic_year == value)
+            _filtered_list = _filtered_list.filter(Remark.academic_year == value)
 
     if 'teacher' in _filters_enabled:
         _filter_forms['teacher'] = TeacherFilter()
@@ -196,7 +198,7 @@ def prepare_data_for_html(table):
                 _filtered_dict = sorted(_filtered_dict, key= _template[column_number]['order_by'], reverse=reverse)
     except Exception as e:
         log.error('could not prepare data for html : {}'.format(e))
-        flash_plus('Er is een fout opgetreden en de tabel kan niet getoond worden.', e)
+        utils.flash_plus('Er is een fout opgetreden en de tabel kan niet getoond worden.', e)
         _total_count = _filtered_list = _filtered_count = 0
         _filtered_dict = []
 

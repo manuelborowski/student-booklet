@@ -1,16 +1,14 @@
-# -*- coding: utf-8 -*-
-
 from flask import render_template, url_for, request, redirect, jsonify
 from flask_login import login_required
 
-from app import db, log
 from . import remarks
+from app import db, log
 from app.database.models import Remark, RemarkSubject, RemarkMeasure, SubjectTopic, MeasureTopic
 from app.layout.forms import RemarkForm
 from app.database.multiple_items import build_filter_and_filter_data, prepare_data_for_html
-from app.utils.base import get_academic_year, flash_plus, button_save_pushed
+from app.utils import utils
 from app.layout.tables_config import  tables_configuration
-from app.database.remarks import db_filter_remarks_to_be_reviewed, db_add_extra_measure, db_tag_remarks_as_reviewed
+from app.database.db_remark import db_filter_remarks_to_be_reviewed, db_add_extra_measure, db_tag_remarks_as_reviewed
 
 import json
 
@@ -44,7 +42,7 @@ def delete():
         return redirect(url_for('remarks.show'))
     except Exception as e:
         log.error(u'Could not delete remark : {}'.format(e))
-        flash_plus('Kan de opmerkingen niet verwijderen', e)
+        utils.flash_plus('Kan de opmerkingen niet verwijderen', e)
     _filter, _filter_form, a,b, c = build_filter_and_filter_data(tables_configuration['remark'])
     return render_template('base_multiple_items.html',
                            filter=_filter, filter_form=_filter_form,
@@ -54,7 +52,7 @@ def delete():
 @login_required
 def edit():
     try:
-        if button_save_pushed(): #second pass
+        if utils.button_save_pushed(): #second pass
             # iterate over the remarks, delete the old subjects and measures and attach the new
             for r in request.form.getlist('remark_id'):
                 remark = Remark.query.get(int(r))
@@ -87,7 +85,7 @@ def edit():
                                    students=students)
     except Exception as e:
         log.error(u'Could not edit remarks {}'.format(e))
-        flash_plus(u'Kan opmerkingen niet aanpassen', e)
+        utils.flash_plus(u'Kan opmerkingen niet aanpassen', e)
     return redirect(url_for('remarks.show'))
 
 
@@ -95,10 +93,8 @@ def edit():
 @login_required
 def start_review():
     try:
-        academic_year = get_academic_year() if request.form['academic_year'] == '' else request.form['academic_year']
-
+        academic_year = utils.academic_year() if request.form['academic_year'] == '' else request.form['academic_year']
         matched_remarks, non_matched_remarks = db_filter_remarks_to_be_reviewed(academic_year)
-
         for s, rll in matched_remarks:
             for id, extra_measure, rl in rll:
                 for r in rl:
@@ -114,7 +110,7 @@ def start_review():
 
     except Exception as e:
         log.error(u'Could not prepare the review : {}'.format(e))
-        flash_plus(u'Kan de controle niet voorbereiden', e)
+        utils.flash_plus(u'Kan de controle niet voorbereiden', e)
         return redirect(url_for('remarks.show'))
 
     return render_template('remark/review.html',
