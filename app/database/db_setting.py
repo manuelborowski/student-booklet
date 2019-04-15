@@ -58,8 +58,8 @@ def set_setting_copy_from_last_add(value):
 def get_global_setting_sim_dayhour():
     found, value = get_setting('simulate_dayhour', 1)
     if found: return value
-    add_setting('simulate_dayhour', '2/14/3', Settings.SETTING_TYPE.E_STRING, 1)
-    return '2/14/3'
+    add_setting('simulate_dayhour', '01-01-2019 14:10', Settings.SETTING_TYPE.E_STRING, 1)
+    return '01-01-2019 14:10'
 
 def set_global_setting_sim_dayhour(value):
     return set_setting('simulate_dayhour', value, 1)

@@ -1,18 +1,18 @@
 from app import db
+from  app.database import db_utils
 from app.database.models import Lesson, Schedule, Teacher
-from app.utils import utils
 
 
-def db_lesson_list(teacher=None, select=False, academic_year=None):
+def db_lesson_list(teacher=None, select=False):
     if select:
         q = db.session.query(Lesson.id, Lesson.code)
     else:
         q = Lesson.query
-    q = q.join(Schedule)
     if teacher:
-        q = q.join(Teacher).filter(Teacher.id == teacher.id)
-    academic_year = academic_year if academic_year else utils.academic_year()
-    q = q.filter(Schedule.school == utils.school(), Schedule.academic_year == academic_year)
+        academic_year = db_utils.academic_year()
+        q = q.join(Schedule, Teacher).filter(Teacher.id == teacher.id, Schedule.school == db_utils.school(), Schedule.academic_year == academic_year)
+    else:
+        q = q.filter(Lesson.school == db_utils.school())
     return q.distinct(Lesson.code).order_by(Lesson.code).all()
 
 def db_lesson(id):

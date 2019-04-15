@@ -92,6 +92,9 @@
                       title="Op de suc-server, pasfoto-leerlingen.  Zip de correcte folder" .>
                     </span>
             </div>
+            <div class="row">
+                    <a class="btn btn-default" onclick="truncate_database_confirm('truncate-database', 'save_settings_submit');">Wis database</a>
+            </div>
         </div>
 
         <h2>Testen : </h2>
@@ -108,10 +111,13 @@
                 <p>5 : vijfde dag (vrijdag), 8 : 8 uur, 32 : 32 minuten</p>
                 <div class="row">
                     <div class="col-sm-2">
-                        Activeer <input type="checkbox" name="chkb_sim_dayhour" {% if settings.sim_dayhour_state== True %}checked{% endif %}>
+                        Activeer <input type="checkbox" name="chkb-sim-dayhour" {% if settings.sim_dayhour_state== True %}checked{% endif %}>
                     </div>
-                    <div class="col-sm-5">
-                        dag en tijd <input name="txt_sim_dayhour" value="{{settings.sim_dayhour}}">
+                    <div class="col-sm-4">
+                        dag <input id='input-sim-day' name="txt-sim-day" value="{{settings.sim_day}}">
+                    </div>
+                    <div class="col-sm-4">
+                        uur <input id='input-sim-hour' name="txt-sim-hour" value="{{settings.sim_hour}}">
                     </div>
                 </div>
                 <div class="row">

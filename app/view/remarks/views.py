@@ -1,6 +1,7 @@
 from flask import render_template, url_for, request, redirect, jsonify
 from flask_login import login_required
 
+import app.database.db_utils
 from . import remarks
 from app import db, log
 from app.database.models import Remark, RemarkSubject, RemarkMeasure, SubjectTopic, MeasureTopic
@@ -93,7 +94,7 @@ def edit():
 @login_required
 def start_review():
     try:
-        academic_year = utils.academic_year() if request.form['academic_year'] == '' else request.form['academic_year']
+        academic_year = app.database.db_utils.academic_year() if request.form['academic_year'] == '' else request.form['academic_year']
         matched_remarks, non_matched_remarks = db_filter_remarks_to_be_reviewed(academic_year)
         for s, rll in matched_remarks:
             for id, extra_measure, rl in rll:

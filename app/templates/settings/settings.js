@@ -37,10 +37,12 @@ $(document).ready(function(){
 
    $('[data-toggle="tooltip"]').tooltip();
 
+   $('input[name="txt-sim-day"]').datepicker(datepicker_options);
+   $('input[name="txt-sim-hour"]').clockpicker({autoclose: true});
+
 });
 
 
-//Before removing an entry, a confirm-box is shown.
 function confirm_before_delete(url) {
     var message = "Bent u zeker dat u dit van {{academic_year}} wilt wissen?"
     bootbox.confirm(message, function(result) {
@@ -65,4 +67,13 @@ function add_topic(subject) {
 function submit_subject(subject, id){
     $('#save_subject').val(subject);
     select_academic_year(id);
+}
+
+function truncate_database_confirm(subject, id){
+    bootbox.confirm("Bent u heel zeker dat u de database wil wissen?", function(result) {
+        if (result) {
+            $('#save_subject').val(subject);
+            $('#' + id).click();
+        }
+    });
 }

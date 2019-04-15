@@ -5,6 +5,8 @@ from wtforms import BooleanField
 from flask import request, get_flashed_messages, jsonify
 from sqlalchemy import or_
 import time
+
+import app.database.db_utils
 from app.database.models import User, Teacher, Grade, Lesson, Student, Remark, ExtraMeasure
 from app.layout.forms import GradeFilter, TeacherFilter, SchoolyearFilter
 from app import log, db
@@ -69,10 +71,10 @@ def build_filter_and_filter_data(table, paginate=True):
 
     if _model is Remark:
         _filtered_list = db.session.query(Remark, Student, Grade, Teacher, Lesson).join(Student, Grade, Teacher, Lesson)\
-            .filter(Remark.school == utils.school())
+            .filter(Remark.school == app.database.db_utils.school())
     elif _model is ExtraMeasure:
         _filtered_list = db.session.query(ExtraMeasure, Remark, Student, Grade).join(Remark, Student, Grade)\
-            .filter(Remark.reviewed == True, Remark.first_remark == True, Remark.school == utils.school())
+            .filter(Remark.reviewed == True, Remark.first_remark == True, Remark.school == app.database.db_utils.school())
     else:
         _filtered_list = db.session.query(User)
 

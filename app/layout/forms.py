@@ -1,6 +1,8 @@
 from flask_wtf import FlaskForm
 from wtforms import SelectField, IntegerField
 from wtforms.widgets import HiddenInput
+
+import app.database.db_utils
 from app.database.models import Schedule
 from app.utils import utils
 from app.database import db_subject_topic, db_measure_topic, db_schedule
@@ -12,8 +14,8 @@ class SchoolyearFilter(FlaskForm):
         sys = [''] + sys
         self.academic_year.choices = list(zip(sys, sys))
 
-    academic_year = SelectField(default=utils.academic_year(), label='Schooljaar')
-    default_academic_year = utils.academic_year()
+    academic_year = SelectField(default=app.database.db_utils.academic_year(), label='Schooljaar')
+    default_academic_year = app.database.db_utils.academic_year()
 
 
 class GradeFilter(FlaskForm):

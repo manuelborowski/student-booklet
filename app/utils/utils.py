@@ -1,27 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import datetime
 from flask import flash, request
-from app import app
+
 
 #This will make the variable 'academic_year' default available in all templates
-@app.context_processor
-def inject_academic_year():
-    return dict(academic_year=academic_year())
-
-def school():
-    return 'Lyceum'
-
-
-def academic_year():
-    now = datetime.datetime.now()
-    reference = datetime.datetime(year=now.year, month=8, day=1)
-    now_year = int(str(now.year)[2:4])
-    if now < reference:
-        year = (now_year - 1) * 100 + now_year
-    else:
-        year = now_year * 100 + now_year + 1
-    return year
 
 
 def filter_duplicates_out(keep_list, filter_list):

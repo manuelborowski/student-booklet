@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import datetime
 
-from app.database import db_teacher
+from app.database import db_teacher, db_utils
 from app.database.models import Teacher, Schedule, Grade, Lesson
 from app import db, log
 from app.database.db_setting import get_global_setting_sim_dayhour_state, get_global_setting_sim_dayhour
@@ -33,7 +33,7 @@ def db_filter_grade(teacher_id, dayhour_str, grade_id, lesson_id, changed_item=N
     if changed_item == 'teacher':
         d, h = db_get_timeslot_from_current_time()
         #try to find the classmoment, equal to or earlier than the given day and hour
-        schedules = Schedule.query.join(Teacher).filter(Schedule.school == utils.school(), Schedule.academic_year == utils.academic_year(),
+        schedules = Schedule.query.join(Teacher).filter(Schedule.school == db_utils.school(), Schedule.academic_year == db_utils.academic_year(),
                                                         Schedule.teacher == teacher)\
             .order_by(Schedule.day.desc(), Schedule.hour.desc()).all()
         dh = d * 10 + h
@@ -41,7 +41,7 @@ def db_filter_grade(teacher_id, dayhour_str, grade_id, lesson_id, changed_item=N
             if dh >= schedule.day * 10 + schedule.hour: break
         else: schedule = None
         if not schedule:
-            schedule = Schedule.query.join(Teacher).filter(Schedule.school == utils.school(), Schedule.academic_year == utils.academic_year(),
+            schedule = Schedule.query.join(Teacher).filter(Schedule.school == db_utils.school(), Schedule.academic_year == db_utils.academic_year(),
                                                            Schedule.teacher == teacher)\
                 .order_by(Schedule.day, Schedule.hour).first()
         if schedule:
@@ -54,14 +54,14 @@ def db_filter_grade(teacher_id, dayhour_str, grade_id, lesson_id, changed_item=N
 
     if changed_item == 'dayhour':
         #fetch grade from timetable
-        schedule = Schedule.query.join(Teacher).filter(Schedule.school == utils.school(), Schedule.academic_year == utils.academic_year(),
+        schedule = Schedule.query.join(Teacher).filter(Schedule.school == db_utils.school(), Schedule.academic_year == db_utils.academic_year(),
                                                        Schedule.day == d, Schedule.hour == h, Schedule.teacher == teacher).first()
         if schedule:
             #the classmoment points to a single teacher, grade and lesson
             return schedule
         # find the first grade, teached by given teacher
-        grade = Grade.query.join(Schedule, Teacher).filter(Schedule.school == utils.school(), Schedule.academic_year == utils.academic_year(),
-                                                                Schedule.teacher == teacher).distinct(Grade.code).order_by(Grade.code).first()
+        grade = Grade.query.join(Schedule, Teacher).filter(Schedule.school == db_utils.school(), Schedule.academic_year == db_utils.academic_year(),
+                                                           Schedule.teacher == teacher).distinct(Grade.code).order_by(Grade.code).first()
         if not grade:
             #just pick the first grade from all grades
             grade = Grade.query.distinct(Grade.code).order_by(Grade.code).first()
@@ -71,17 +71,17 @@ def db_filter_grade(teacher_id, dayhour_str, grade_id, lesson_id, changed_item=N
 
     if changed_item == 'grade':
         #find the first lesson, taken by given grade
-        lesson = Lesson.query.join(Schedule, Grade, Teacher).filter(Schedule.school == utils.school(), Schedule.academic_year == utils.academic_year(),
+        lesson = Lesson.query.join(Schedule, Grade, Teacher).filter(Schedule.school == db_utils.school(), Schedule.academic_year == db_utils.academic_year(),
                                                                     Grade.id == grade.id, Schedule.teacher == teacher)\
                 .distinct(Lesson.code).order_by(Lesson.code).first()
         if not lesson:
             #just pick the first lesson
-            lesson = Lesson.query.filter(Lesson.school == utils.school()).distinct(Lesson.code).order_by(Lesson.code).first()
+            lesson = Lesson.query.filter(Lesson.school == db_utils.school()).distinct(Lesson.code).order_by(Lesson.code).first()
     else:
         lesson = Lesson.query.get(lesson_id)
 
     #create a dummy classmoment
-    schedule = Schedule(day=d, hour=h, school=utils.school(), academic_year=utils.academic_year(), teacher=teacher, lesson=lesson, grade=grade)
+    schedule = Schedule(day=d, hour=h, school=db_utils.school(), academic_year=db_utils.academic_year(), teacher=teacher, lesson=lesson, grade=grade)
     return schedule
 
 
@@ -107,20 +107,14 @@ def db_get_timeslot_from_current_time():
         (11*60+10, 24*60,          4), #the whole evening count as timeslot 4
     ]
 
+    now = datetime.datetime.now()
     if get_global_setting_sim_dayhour_state():
         try:
-            dh = get_global_setting_sim_dayhour().split('/')
-            day = int(dh[0])
-            m = int(dh[1]) * 60 + int(dh[2])
-        except:
-            log.error('bad sim dayhour string : {}'.format(get_global_setting_sim_dayhour()))
-            now = datetime.datetime.now()
-            day = now.weekday() + 1
-            m = now.hour * 60 + now.minute
-    else:
-        now = datetime.datetime.now()
-        day = now.weekday()+1
-        m = now.hour * 60 + now.minute
+            now = datetime.datetime.strptime(get_global_setting_sim_dayhour(), '%d-%m-%Y %H:%M')
+        except Exception as e:
+            log.error('bad sim dayhour string : {}'.format(e))
+    day = now.weekday()+1
+    m = now.hour * 60 + now.minute
 
     tt = TT_W if day == 3 else TT
     d = h = 1
@@ -145,14 +139,14 @@ def db_get_timeslot_from_current_time():
             d = day
     return d, h
 
-def db_grade_list(teacher=None, select=False, academic_year=None):
+def db_grade_list(teacher=None, select=False):
     if select:
         q = db.session.query(Grade.id, Grade.code)
     else:
         q = Grade.query
-    q = q.join(Schedule)
     if teacher:
-        q = q.join(Teacher).filter(Teacher.id == teacher.id)
-    academic_year = academic_year if academic_year else utils.academic_year()
-    q = q.filter(Schedule.school == utils.school(), Schedule.academic_year == academic_year)
+        academic_year = db_utils.academic_year()
+        q = q.join(Schedule, Teacher).filter(Teacher.id == teacher.id, Schedule.school == db_utils.school(), Schedule.academic_year == academic_year)
+    else:
+        q = q.filter(Grade.school == db_utils.school())
     return q.distinct(Grade.code).order_by(Grade.code).all()

@@ -4,6 +4,7 @@ from flask import render_template, url_for, request, redirect
 from flask_login import login_required, current_user
 import datetime
 
+import app.database.db_utils
 from . import grade
 from .forms import FilterForm
 from app import db, log
@@ -93,7 +94,7 @@ def add_remark():
                     remark = Remark(student=student, lesson=lesson, teacher=teacher, timestamp=datetime.datetime.now(),
                                     measure_note=request.form['measure_note'], subject_note=request.form['subject_note'],
                                     grade=student.grade, extra_attention='chkb_extra_attention' in request.form,
-                                    school=utils.school(), academic_year=utils.academic_year())
+                                    school=app.database.db_utils.school(), academic_year=app.database.db_utils.academic_year())
                     for s in subjects:
                         subject = RemarkSubject(topic=SubjectTopic.query.get(int(s)), remark=remark)
                         db.session.add(subject)

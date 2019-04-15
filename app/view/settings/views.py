@@ -1,6 +1,7 @@
 from flask import render_template, redirect, url_for, request, json, jsonify
 from flask_login import login_required
 
+import app.database.db_utils
 from . import settings
 from app import db, log, admin_required, supervisor_required
 
@@ -18,7 +19,7 @@ def get_settings_and_show():
     settings = {}
     try:
         academic_year_list = db_schedule.db_schedule_academic_year_list()
-        academic_year_list = academic_year_list if academic_year_list else [utils.academic_year()]
+        academic_year_list = academic_year_list if academic_year_list else [app.database.db_utils.academic_year()]
         last = academic_year_list[-1]
         academic_year_list.append(last + 101)
         topics = []
@@ -29,7 +30,10 @@ def get_settings_and_show():
         st_list = [{'id': i.id, 'enabled': i.enabled, 'topic': i.topic} for i in subject_topics]
         topics.append(('subject_topic', 'Opmerkingen', st_list))
 
-        settings['sim_dayhour'] = db_setting.get_global_setting_sim_dayhour()
+
+        sim_day_hour = db_setting.get_global_setting_sim_dayhour()
+        settings['sim_day'] = sim_day_hour.split(' ')[0]
+        settings['sim_hour'] = sim_day_hour.split(' ')[1]
         settings['sim_dayhour_state'] = db_setting.get_global_setting_sim_dayhour_state()
     except Exception as e:
         log.error(u'Could not check the database for students or timetables, error {}'.format(e))
@@ -68,15 +72,17 @@ def save():
         delete_test_remarks()
     elif request.form['save_subject'] == 'delete_schedule':
         delete_schedule()
-    elif 'txt_sim_dayhour' in request.form:
+    elif request.form['save_subject'] == 'truncate-database':
+        truncate_database()
+    elif 'txt-sim-day' in request.form:
         save_sim_dayhour()
     return redirect(url_for('settings.show'))
 
 
 def save_sim_dayhour():
     try:
-        db_setting.set_global_setting_sim_dayhour_state('chkb_sim_dayhour' in request.form)
-        db_setting.set_global_setting_sim_dayhour(request.form['txt_sim_dayhour'])
+        db_setting.set_global_setting_sim_dayhour_state('chkb-sim-dayhour' in request.form)
+        db_setting.set_global_setting_sim_dayhour(request.form['txt-sim-day'] +  ' ' + request.form['txt-sim-hour'])
     except Exception as e:
         log.error(u'Cannot save simulate dayhour: {}'.format(e))
         utils.flash_plus(u'Kan simulatie dag en uur niet bewaren', e)
@@ -129,7 +135,7 @@ def upload_students(rfile):
 
         nbr_students = 0
         academic_year = request.form['selected_academic_year']
-        grades = {g.code: g for g in db_grade.db_grade_list(academic_year=academic_year)}
+        grades = {g.code: g for g in db_grade.db_grade_list()}
 
         if grades:
             for s in students_file:
@@ -238,7 +244,7 @@ def upload_schedule(rfile):
                     if grade_code in grades:
                         find_grade = grades[grade_code]
                     else:
-                        find_grade = Grade(code=grade_code, school=utils.school())
+                        find_grade = Grade(code=grade_code, school=app.database.db_utils.school())
                         db.session.add(find_grade)
                         grades[grade_code] = find_grade
                         nbr_grades += 1
@@ -246,18 +252,18 @@ def upload_schedule(rfile):
                     if lesson_code in lessons:
                         find_lesson = lessons[lesson_code]
                     else:
-                        find_lesson = Lesson(code=lesson_code, school=utils.school())
+                        find_lesson = Lesson(code=lesson_code, school=app.database.db_utils.school())
                         db.session.add(find_lesson)
                         lessons[lesson_code] = find_lesson
                         nbr_lessons += 1
                     find_classmoment = Schedule.query.filter(Schedule.day == int(t['DAG']), Schedule.hour == int(t['UUR']),
                                                              Schedule.grade == find_grade, Schedule.teacher == find_teacher,
                                                              Schedule.lesson == find_lesson,
-                                                             Schedule.school == utils.school(), Schedule.academic_year == utils.academic_year()).first()
+                                                             Schedule.school == app.database.db_utils.school(), Schedule.academic_year == app.database.db_utils.academic_year()).first()
                     if not find_classmoment:
                         classmoment = Schedule(day=int(t['DAG']), hour=int(t['UUR']),
                                                grade=find_grade, teacher=find_teacher, lesson=find_lesson,
-                                               school=utils.school(), academic_year=utils.academic_year())
+                                               school=app.database.db_utils.school(), academic_year=app.database.db_utils.academic_year())
                         db.session.add(classmoment)
                         nbr_classmoments += 1
                 else:
@@ -277,7 +283,7 @@ def upload_schedule(rfile):
 
 
 def delete_classmoments(academic_year):
-    classmoments = Schedule.query.filter(Schedule.school == utils.school(), Schedule.academic_year == academic_year).all()
+    classmoments = Schedule.query.filter(Schedule.school == app.database.db_utils.school(), Schedule.academic_year == academic_year).all()
     for c in classmoments:
         db.session.delete(c)
     db.session.commit()
@@ -312,9 +318,9 @@ def add_test_remarks():
     add_extra_measure = 'chkb-extra-measure' in request.form
     random.seed()
     try:
-        classmoments = Schedule.query.join(Grade, Lesson, Teacher).filter(Schedule.school == utils.school(), Schedule.academic_year == utils.academic_year()) \
+        classmoments = Schedule.query.join(Grade, Lesson, Teacher).filter(Schedule.school == app.database.db_utils.school(), Schedule.academic_year == app.database.db_utils.academic_year()) \
             .all()
-        students = Student.query.join(Grade, Schedule).filter(Schedule.school == utils.school(), Schedule.academic_year == utils.academic_year()).all()
+        students = Student.query.join(Grade, Schedule).filter(Schedule.school == app.database.db_utils.school(), Schedule.academic_year == app.database.db_utils.academic_year()).all()
 
         for i in range(nbr_test_students):
             student = random.choice(students)
@@ -325,7 +331,7 @@ def add_test_remarks():
                 m = random.randint(1, 50)
                 timestamp = datetime.datetime.strptime('{}/20{} {}:{}'.format(d, academic_year[2:4], h, m), '%d/%m/%Y %H:%M')
                 remark = Remark(student=student, grade=student.grade, timestamp=timestamp, lesson=classmoment.lesson, teacher=classmoment.teacher,
-                                measure_note='', subject_note='TESTOPMERKING', school=utils.school(), academic_year=utils.academic_year(), test=True,
+                                measure_note='', subject_note='TESTOPMERKING', school=app.database.db_utils.school(), academic_year=app.database.db_utils.academic_year(), test=True,
                                 extra_attention=random.choice([True, False, False, False]))
                 s = random.choice(db_subject_topic.db_subject_topic_list())
                 m = random.choice(db_measure_topic.db_measure_topic_list())
@@ -353,7 +359,7 @@ def add_test_remarks():
 def delete_test_remarks():
     academic_year = request.form['selected_academic_year']
     try:
-        remarks = Remark.query.filter(Remark.school == utils.school(), Remark.academic_year == utils.academic_year(), Remark.test == True).all()
+        remarks = Remark.query.filter(Remark.school == app.database.db_utils.school(), Remark.academic_year == app.database.db_utils.academic_year(), Remark.test == True).all()
         for r in remarks:
             if r.extra_measure and r.first_remark:
                 db.session.delete(r.extra_measure)
@@ -373,9 +379,9 @@ def delete_test_remarks():
 def add_topic(subject, topic):
     try:
         if subject == 'measure_topic':
-            topic = MeasureTopic(topic=topic, school=utils.school())
+            topic = MeasureTopic(topic=topic, school=app.database.db_utils.school())
         elif subject == 'subject_topic':
-            topic = SubjectTopic(topic=topic, school=utils.school())
+            topic = SubjectTopic(topic=topic, school=app.database.db_utils.school())
         db.session.add(topic)
         db.session.commit()
     except Exception as e:
@@ -404,3 +410,26 @@ def set_topic_status(data):
         return jsonify({"status": False})
 
     return jsonify({"status": True})
+
+def truncate_database():
+    try:
+        grades = Grade.query.all()
+        for g in grades:
+            db.session.delete(g)
+        lessons = Lesson.query.all()
+        for l in lessons:
+            db.session.delete(l)
+        teachers = Teacher.query.all()
+        for t in teachers:
+            db.session.delete(t)
+        for mt in MeasureTopic.query.all():
+            db.session.delete(mt)
+        for st in SubjectTopic.query.all():
+            db.session.delete(st)
+        db.session.commit()
+        log.info('Database truncated')
+        utils.flash_plus('Database is gewist')
+    except Exception as e:
+        log.error('Could not truncate database: error {}'.format(e))
+        utils.flash_plus('Kan database niet wissen', e)
+    return redirect(url_for('settings.show'))

@@ -1,10 +1,11 @@
+import app.database.db_utils
 from app import db, log
 from app.utils import utils
 from app.database.models import  MeasureTopic
 
 
 def db_measure_topic_list(select=False, all=False):
-    school = utils.school()
+    school = app.database.db_utils.school()
     if select:
         q = db.session.query(MeasureTopic.id, MeasureTopic.topic)
     else:

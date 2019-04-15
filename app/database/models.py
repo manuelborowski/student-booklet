@@ -7,7 +7,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app import login_manager
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.sql import func
-from app.utils.utils import academic_year
 import cgi
 
 #cascade delete : if a table is truncated, what tables are truncated as wel?

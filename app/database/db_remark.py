@@ -1,4 +1,6 @@
 import datetime
+
+import app.database.db_utils
 from app import db
 from app.utils import utils
 from app.database.models import Remark, Student, ExtraMeasure
@@ -30,7 +32,7 @@ match_periods = [
 
 
 def db_filter_remarks_to_be_reviewed(academic_year, test=False, commit=True):
-    q = db.session.query(Student).join(Remark).filter(Remark.reviewed == False, Remark.school == utils.school(), Remark.academic_year == academic_year)
+    q = db.session.query(Student).join(Remark).filter(Remark.reviewed == False, Remark.school == app.database.db_utils.school(), Remark.academic_year == academic_year)
     if test:
         q = q.filter(Remark.test == True)
     students = q.distinct(Remark.student_id).order_by(Student.last_name, Student.first_name).all()
@@ -40,7 +42,7 @@ def db_filter_remarks_to_be_reviewed(academic_year, test=False, commit=True):
     match_id = 0
     for s in students:
         match_temp = []
-        q = Remark.query.filter(Remark.reviewed == False, Remark.student == s, Remark.school == utils.school(), Remark.academic_year == academic_year)
+        q = Remark.query.filter(Remark.reviewed == False, Remark.student == s, Remark.school == app.database.db_utils.school(), Remark.academic_year == academic_year)
         if test:
             q = q.filter(Remark.test == True)
         remarks = q.order_by(Remark.timestamp).all()
