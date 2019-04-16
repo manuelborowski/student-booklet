@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import SelectField, IntegerField
 from wtforms.widgets import HiddenInput
 
-import app.database.db_utils
+from  app.database import db_utils, db_lesson, db_grade, db_teacher
 from app.database.models import Schedule
 from app.utils import utils
 from app.database import db_subject_topic, db_measure_topic, db_schedule
@@ -14,14 +14,14 @@ class SchoolyearFilter(FlaskForm):
         sys = [''] + sys
         self.academic_year.choices = list(zip(sys, sys))
 
-    academic_year = SelectField(default=app.database.db_utils.academic_year(), label='Schooljaar')
-    default_academic_year = app.database.db_utils.academic_year()
+    academic_year = SelectField(default=db_utils.academic_year(), label='Schooljaar')
+    default_academic_year = db_utils.academic_year()
 
 
 class GradeFilter(FlaskForm):
     def __init__(self, *args, **kwargs):
         super(GradeFilter, self).__init__(*args, **kwargs)
-        self.grade.choices = [('', '')] + Schedule.get_all_grades()
+        self.grade.choices = [('', '')] + db_grade.db_grade_list(select=True)
 
     grade = SelectField(default='', label='Klas')
 
@@ -29,7 +29,7 @@ class GradeFilter(FlaskForm):
 class TeacherFilter(FlaskForm):
     def __init__(self, *args, **kwargs):
         super(TeacherFilter, self).__init__(*args, **kwargs)
-        self.teacher.choices = [('', '')] + Schedule.get_all_teachers()
+        self.teacher.choices = [('', '')] + db_teacher.db_teacher_list(select=True)
 
     teacher = SelectField(default='', label='leerkracht')
 

@@ -1,12 +1,11 @@
 from flask import render_template, redirect, url_for, request, json, jsonify
 from flask_login import login_required
 
-import app.database.db_utils
 from . import settings
 from app import db, log, admin_required, supervisor_required
 
 from app.utils import utils, documents
-from app.database import db_measure_topic, db_subject_topic, db_setting, db_grade, db_remark, db_schedule, db_lesson
+from app.database import db_measure_topic, db_subject_topic, db_setting, db_grade, db_remark, db_schedule, db_lesson, db_utils
 
 from app.database.models import Grade, Student, Teacher, Lesson, Schedule, Remark, RemarkSubject, RemarkMeasure, ExtraMeasure, SubjectTopic, MeasureTopic
 
@@ -19,7 +18,7 @@ def get_settings_and_show():
     settings = {}
     try:
         academic_year_list = db_schedule.db_schedule_academic_year_list()
-        academic_year_list = academic_year_list if academic_year_list else [app.database.db_utils.academic_year()]
+        academic_year_list = academic_year_list if academic_year_list else [db_utils.academic_year()]
         last = academic_year_list[-1]
         academic_year_list.append(last + 101)
         topics = []
@@ -215,14 +214,17 @@ def upload_teachers(rfile):
 # REMOVE OLD SCHEDULE AND UPLOAD NEW SCHEDULE
 # if a grade does not exist yet, add it
 # if a lesson does not exist yet, add it
+# Store the selected academic year and valid-from-date
+# A schedule is selected by the current academic year and the current date is equal to or later than the valid-from-date
 def upload_schedule(rfile):
     try:
         # format csv file :
         log.info(u'Import timetable from : {}'.format(rfile))
         academic_year = request.form['selected_academic_year']
+        valid_from = datetime.datetime.strptime(request.form['select-date-from'], '%d-%m-%Y')
 
         # first, delete current timetable
-        delete_classmoments(academic_year)
+        delete_classmoments(academic_year, valid_from)
 
         fieldnames = ['VOLGNUMMER', 'KLAS', 'LEERKRACHT', 'VAK', 'LOKAAL', 'DAG', 'UUR']
         timetable_file = csv.DictReader(rfile, fieldnames=fieldnames, delimiter=',', encoding='utf-8-sig')
@@ -230,8 +232,8 @@ def upload_schedule(rfile):
         nbr_lessons = 0
         error_message = ''
         nbr_grades = 0
-        grades = {g.code: g for g in db_grade.db_grade_list()}
-        lessons = {l.code: l for l in db_lesson.db_lesson_list()}
+        grades = {g.code: g for g in db_grade.db_grade_list(schedule=False)}
+        lessons = {l.code: l for l in db_lesson.db_lesson_list(schedule=False)}
 
         for t in timetable_file:
             # skip empy records
@@ -244,7 +246,7 @@ def upload_schedule(rfile):
                     if grade_code in grades:
                         find_grade = grades[grade_code]
                     else:
-                        find_grade = Grade(code=grade_code, school=app.database.db_utils.school())
+                        find_grade = Grade(code=grade_code, school=db_utils.school())
                         db.session.add(find_grade)
                         grades[grade_code] = find_grade
                         nbr_grades += 1
@@ -252,20 +254,15 @@ def upload_schedule(rfile):
                     if lesson_code in lessons:
                         find_lesson = lessons[lesson_code]
                     else:
-                        find_lesson = Lesson(code=lesson_code, school=app.database.db_utils.school())
+                        find_lesson = Lesson(code=lesson_code, school=db_utils.school())
                         db.session.add(find_lesson)
                         lessons[lesson_code] = find_lesson
                         nbr_lessons += 1
-                    find_classmoment = Schedule.query.filter(Schedule.day == int(t['DAG']), Schedule.hour == int(t['UUR']),
-                                                             Schedule.grade == find_grade, Schedule.teacher == find_teacher,
-                                                             Schedule.lesson == find_lesson,
-                                                             Schedule.school == app.database.db_utils.school(), Schedule.academic_year == app.database.db_utils.academic_year()).first()
-                    if not find_classmoment:
-                        classmoment = Schedule(day=int(t['DAG']), hour=int(t['UUR']),
-                                               grade=find_grade, teacher=find_teacher, lesson=find_lesson,
-                                               school=app.database.db_utils.school(), academic_year=app.database.db_utils.academic_year())
-                        db.session.add(classmoment)
-                        nbr_classmoments += 1
+                    classmoment = Schedule(day=int(t['DAG']), hour=int(t['UUR']),
+                                           grade=find_grade, teacher=find_teacher, lesson=find_lesson, school=db_utils.school(), academic_year=academic_year,
+                                           valid_from=valid_from)
+                    db.session.add(classmoment)
+                    nbr_classmoments += 1
                 else:
                     log.info(u'import timetable: teacher not found: {}'.format(t['LEERKRACHT']))
                     error_message += u'{} : niet gevonden<br>'.format(t['LEERKRACHT'])
@@ -282,8 +279,8 @@ def upload_schedule(rfile):
     return
 
 
-def delete_classmoments(academic_year):
-    classmoments = Schedule.query.filter(Schedule.school == app.database.db_utils.school(), Schedule.academic_year == academic_year).all()
+def delete_classmoments(academic_year, valid_from):
+    classmoments = Schedule.query.filter(Schedule.academic_year == academic_year, Schedule.school == db_utils.school(), Schedule.valid_from == valid_from).all()
     for c in classmoments:
         db.session.delete(c)
     db.session.commit()
@@ -318,9 +315,8 @@ def add_test_remarks():
     add_extra_measure = 'chkb-extra-measure' in request.form
     random.seed()
     try:
-        classmoments = Schedule.query.join(Grade, Lesson, Teacher).filter(Schedule.school == app.database.db_utils.school(), Schedule.academic_year == app.database.db_utils.academic_year()) \
-            .all()
-        students = Student.query.join(Grade, Schedule).filter(Schedule.school == app.database.db_utils.school(), Schedule.academic_year == app.database.db_utils.academic_year()).all()
+        classmoments = db_schedule.query_filter(Schedule.query.join(Grade, Lesson, Teacher)).all()
+        students = db_schedule.query_filter(Student.query.join(Grade, Schedule)).all()
 
         for i in range(nbr_test_students):
             student = random.choice(students)
@@ -331,7 +327,7 @@ def add_test_remarks():
                 m = random.randint(1, 50)
                 timestamp = datetime.datetime.strptime('{}/20{} {}:{}'.format(d, academic_year[2:4], h, m), '%d/%m/%Y %H:%M')
                 remark = Remark(student=student, grade=student.grade, timestamp=timestamp, lesson=classmoment.lesson, teacher=classmoment.teacher,
-                                measure_note='', subject_note='TESTOPMERKING', school=app.database.db_utils.school(), academic_year=app.database.db_utils.academic_year(), test=True,
+                                measure_note='', subject_note='TESTOPMERKING', school=db_utils.school(), academic_year=db_utils.academic_year(), test=True,
                                 extra_attention=random.choice([True, False, False, False]))
                 s = random.choice(db_subject_topic.db_subject_topic_list())
                 m = random.choice(db_measure_topic.db_measure_topic_list())
@@ -359,7 +355,7 @@ def add_test_remarks():
 def delete_test_remarks():
     academic_year = request.form['selected_academic_year']
     try:
-        remarks = Remark.query.filter(Remark.school == app.database.db_utils.school(), Remark.academic_year == app.database.db_utils.academic_year(), Remark.test == True).all()
+        remarks = Remark.query.filter(Remark.school == db_utils.school(), Remark.academic_year == db_utils.academic_year(), Remark.test == True).all()
         for r in remarks:
             if r.extra_measure and r.first_remark:
                 db.session.delete(r.extra_measure)
@@ -379,9 +375,9 @@ def delete_test_remarks():
 def add_topic(subject, topic):
     try:
         if subject == 'measure_topic':
-            topic = MeasureTopic(topic=topic, school=app.database.db_utils.school())
+            topic = MeasureTopic(topic=topic, school=db_utils.school())
         elif subject == 'subject_topic':
-            topic = SubjectTopic(topic=topic, school=app.database.db_utils.school())
+            topic = SubjectTopic(topic=topic, school=db_utils.school())
         db.session.add(topic)
         db.session.commit()
     except Exception as e:

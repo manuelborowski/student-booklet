@@ -14,7 +14,7 @@ $(document).ready(function(){
     })
 
 
-    $('#mdl_select_academic_year').on('hide.bs.modal', function (e) {
+    $('#modal_import').on('hide.bs.modal', function (e) {
         if (document.activeElement.id == 'close_modal') {
             $('#' + action_id).click();
         }
@@ -33,12 +33,15 @@ $(document).ready(function(){
                 }
             }
         );
-   });
+    });
 
-   $('[data-toggle="tooltip"]').tooltip();
+    $('[data-toggle="tooltip"]').tooltip();
 
-   $('input[name="txt-sim-day"]').datepicker(datepicker_options);
-   $('input[name="txt-sim-hour"]').clockpicker({autoclose: true});
+    $('input[name="txt-sim-day"]').datepicker(datepicker_options);
+    $('input[name="select-date-from"]').datepicker(datepicker_options);
+    $('input[name="txt-sim-hour"]').clockpicker({autoclose: true});
+    var now = new Date();
+    $("#select-date-from").val(now.getDate() + "-" + (now.getMonth() + 1) + "-" + now.getFullYear());
 
 });
 
@@ -55,9 +58,14 @@ function confirm_before_delete(url) {
 
 function select_academic_year(id) {
     action_id = id;
-    $('#mdl_select_academic_year').modal();
+    $('#modal_import').modal();
 }
 
+function select_academic_year_and_valid_from(id) {
+    action_id = id;
+    $("#div-select-date-from").removeClass("default-hidden");
+    $('#modal_import').modal();
+}
 
 function add_topic(subject) {
     topic_subject = subject;

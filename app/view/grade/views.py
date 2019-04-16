@@ -4,7 +4,6 @@ from flask import render_template, url_for, request, redirect
 from flask_login import login_required, current_user
 import datetime
 
-import app.database.db_utils
 from . import grade
 from .forms import FilterForm
 from app import db, log
@@ -57,10 +56,10 @@ def filter_grade():
         form_filter.dayhour.choices = utils.filter_duplicates_out(teacher_schedules, Schedule.get_choices_day_hour())
 
         form_filter.grade.data = str(schedule.grade.id)
-        form_filter.grade.choices = utils.filter_duplicates_out(teacher_grades, Schedule.get_all_grades())
+        form_filter.grade.choices = utils.filter_duplicates_out(teacher_grades, db_grade.db_grade_list(select=True))
 
         form_filter.lesson.data = str(schedule.lesson.id)
-        form_filter.lesson.choices = utils.filter_duplicates_out(teacher_lessons, Lesson.get_choices_list())
+        form_filter.lesson.choices = utils.filter_duplicates_out(teacher_lessons, db_lesson.db_lesson_list(select=True))
     except Exception as e:
         log.error(u'Cannot filter the grade {}'.format(e))
         utils.flash_plus(u'Er is een probleem met de filter', e)

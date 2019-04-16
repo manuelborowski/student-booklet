@@ -223,24 +223,8 @@ class Schedule(db.Model):
             day_count += 1
         return l
 
-    @staticmethod
-    def get_all_schedules_for_teacher(teacher):
-        l = db.session.query(Schedule.day, Schedule.hour).filter(Schedule.teacher == teacher).distinct().order_by(Schedule.day, Schedule.hour).all()
-        ll = [('{}/{}'.format(d, h), '{} : {}'.format(Schedule.WEEK_DAYS[d-1], h)) for (d, h) in l]
-        return ll
-
     def get_data_day_hour(self):
         return '{}/{}'.format(self.day, self.hour)
-
-    @staticmethod
-    def get_all_teachers():
-        l = db.session.query(Schedule.teacher_id, Teacher.code).join(Teacher).distinct().order_by(Teacher.code).all()
-        return l
-
-    @staticmethod
-    def get_all_grades():
-        l = db.session.query(Schedule.grade_id, Grade.code).join(Grade).distinct().order_by(Grade.code).all()
-        return l
 
     @staticmethod
     def decode_dayhour(dayhour):

@@ -63,22 +63,25 @@
         <div class="container">
             <div class="row">
                 <a class="btn btn-default" onclick="select_academic_year('upload_teachers');">1) Importeer leerkrachten</a>
-                <input id='upload_teachers' type='file' name='upload_teachers' style="display:none" accept=".csv" onchange="$('#save_settings_submit').click();">
+                <input id='upload_teachers' type='file' name='upload_teachers' style="display:none" accept=".csv"
+                       onchange="$('#save_settings_submit').click();">
                 <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="tooltip"
                       title="Exporteer uit Wisa : Query = badgeLKR, Formaat = Text File, ANSI = aan, Schrijven in bestand = aan, Eerste lijn met veldnamen = aan,
                           Scheidingsteken = ; (puntkomma), Bestand = .../leerkrachten.csv" .>
                     </span>
             </div>
             <div class="row">
-                <a class="btn btn-default" onclick="select_academic_year('upload_schedule');">2) Importeer lesrooster</a>
-                <input id='upload_schedule' type='file' name='upload_schedule' style="display:none" accept=".csv" onchange="$('#save_settings_submit').click();">
+                <a class="btn btn-default" onclick="select_academic_year_and_valid_from('upload_schedule');">2) Importeer lesrooster</a>
+                <input id='upload_schedule' type='file' name='upload_schedule' style="display:none" accept=".csv"
+                       onchange="$('#save_settings_submit').click();">
                 <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="tooltip"
                       title="Exporteer uit UNTIS : lesrooster.csv" .>
                     </span>
             </div>
             <div class="row">
                 <a class="btn btn-default" onclick="select_academic_year('upload_students')">3) Importeer studenten</a>
-                <input id='upload_students' type='file' name='upload_students' style="display:none" accept=".csv" onchange="$('#save_settings_submit').click();">
+                <input id='upload_students' type='file' name='upload_students' style="display:none" accept=".csv"
+                       onchange="$('#save_settings_submit').click();">
                 <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="tooltip"
                       title="Exporteer uit Wisa : Query = badgeprnt, Formaat = Text File, ANSI = aan, Schrijven in bestand = aan, Eerste lijn met veldnamen = aan,
                           Scheidingsteken = ; (puntkomma), Bestand = .../leerlingen.csv" .>
@@ -93,30 +96,29 @@
                     </span>
             </div>
             <div class="row">
-                    <a class="btn btn-default" onclick="truncate_database_confirm('truncate-database', 'save_settings_submit');">Wis database</a>
+                <a class="btn btn-default" onclick="truncate_database_confirm('truncate-database', 'save_settings_submit');">Wis database</a>
             </div>
         </div>
 
         <h2>Testen : </h2>
         <div class="container">
             <div class="row">
-                    <a class="btn btn-default" onclick="submit_subject('add_test_students', 'save_settings_submit');">Voeg testopmerkingen toe</a>
-                    <a class="btn btn-default" onclick="submit_subject('delete_test_students', 'save_settings_submit');">Wis testopmerkingen</a>
-                        Aantal leerlingen <input name="nbr-test-students" value="10">
-                        Extra sanctie <input type="checkbox" name="chkb-extra-measure">
+                <a class="btn btn-default" onclick="submit_subject('add_test_students', 'save_settings_submit');">Voeg testopmerkingen toe</a>
+                <a class="btn btn-default" onclick="submit_subject('delete_test_students', 'save_settings_submit');">Wis testopmerkingen</a>
+                Aantal leerlingen <input name="nbr-test-students" value="10">
+                Extra sanctie <input type="checkbox" name="chkb-extra-measure">
             </div>
             <br>
             <div style="border: 2px; border-style: solid;border-color: #aec251;padding: 25px;">
-                <p>Simuleer een willekeurig uur in de week, bvb vrijdag 8:32. Geef in als 5/8/32</p>
-                <p>5 : vijfde dag (vrijdag), 8 : 8 uur, 32 : 32 minuten</p>
+                <p>Simuleer een willekeurig uur in de week</p>
                 <div class="row">
                     <div class="col-sm-2">
                         Activeer <input type="checkbox" name="chkb-sim-dayhour" {% if settings.sim_dayhour_state== True %}checked{% endif %}>
                     </div>
-                    <div class="col-sm-4">
+                    <div class="col-sm-5">
                         dag <input id='input-sim-day' name="txt-sim-day" value="{{settings.sim_day}}">
                     </div>
-                    <div class="col-sm-4">
+                    <div class="col-sm-5">
                         uur <input id='input-sim-hour' name="txt-sim-hour" value="{{settings.sim_hour}}">
                     </div>
                 </div>
@@ -126,25 +128,33 @@
                 </div>
             </div>
             <!-- modal to select academic_year -->
-            <div class="modal fade" id="mdl_select_academic_year" role="dialog">
+            <div class="modal fade" id="modal_import" role="dialog">
                 <div class="modal-dialog">
                     <!-- Modal content-->
                     <div class="modal-content">
                         <div class="modal-header">
                             <button type="button" class="close" id="dismiss_modal" data-dismiss="modal">&times;
                             </button>
-                            <h4 class="modal-title" id="modal_title">Welke schooljaar?</h4>
+                            <h4 class="modal-title" id="modal_title">Importeer</h4>
                         </div>
                         <div class="modal-body">
-                            <select class="form-control" name="selected_academic_year">
-                                {% for i in academic_year_list %}
-                                {% if i == academic_year|int %}
-                                <option val="{{i}}" selected="selected">{{i}}</option>
-                                {% else %}
-                                <option val="{{i}}">{{i}}</option>
-                                {% endif %}
-                                {% endfor %}
-                            </select>
+                            <div class="single-line">
+                                <label for="selected_academic_year">Schooljaar</label>
+                                <select class="form-control" name="selected_academic_year" id="selected_academic_year">
+                                    {% for i in academic_year_list %}
+                                    {% if i == academic_year|int %}
+                                    <option val="{{i}}" selected="selected">{{i}}</option>
+                                    {% else %}
+                                    <option val="{{i}}">{{i}}</option>
+                                    {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <br>
+                            <div class="default-hidden single-line" id="div-select-date-from">
+                                <label for="select-date-from">Geldig vanaf</label>
+                                <input name="select-date-from" id="select-date-from">
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button id="close_modal" type="button" class="btn btn-default" data-dismiss="modal">Ga

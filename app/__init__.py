@@ -44,10 +44,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V2.16 : bugfix upload students
 #V2.17 : small refactoring
 #V2.18 : huge refactor
+#V2.19 : implemented logic to handle valid_from in schedule.
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.18')
+    return dict(version = 'V2.19')
 
 #enable logging
 LOG_HANDLE = 'SB'

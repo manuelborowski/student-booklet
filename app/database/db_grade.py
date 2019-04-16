@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 import datetime
 
-from app.database import db_teacher, db_utils
+from app.database import db_teacher, db_utils, db_schedule
 from app.database.models import Teacher, Schedule, Grade, Lesson
 from app import db, log
 from app.database.db_setting import get_global_setting_sim_dayhour_state, get_global_setting_sim_dayhour
-from app.utils import utils
 
 
 def db_filter_grade(teacher_id, dayhour_str, grade_id, lesson_id, changed_item=None):
@@ -33,35 +32,28 @@ def db_filter_grade(teacher_id, dayhour_str, grade_id, lesson_id, changed_item=N
     if changed_item == 'teacher':
         d, h = db_get_timeslot_from_current_time()
         #try to find the classmoment, equal to or earlier than the given day and hour
-        schedules = Schedule.query.join(Teacher).filter(Schedule.school == db_utils.school(), Schedule.academic_year == db_utils.academic_year(),
-                                                        Schedule.teacher == teacher)\
-            .order_by(Schedule.day.desc(), Schedule.hour.desc()).all()
+        schedules = db_schedule.query_filter(Schedule.query.join(Teacher)).filter(Schedule.teacher == teacher).order_by(Schedule.day.desc(), Schedule.hour.desc()).all()
         dh = d * 10 + h
         for schedule in schedules:
             if dh >= schedule.day * 10 + schedule.hour: break
         else: schedule = None
         if not schedule:
-            schedule = Schedule.query.join(Teacher).filter(Schedule.school == db_utils.school(), Schedule.academic_year == db_utils.academic_year(),
-                                                           Schedule.teacher == teacher)\
-                .order_by(Schedule.day, Schedule.hour).first()
+            schedule = db_schedule.query_filter(Schedule.query.join(Teacher)).filter(Schedule.teacher == teacher).order_by(Schedule.day, Schedule.hour).first()
         if schedule:
             d = schedule.day
             h = schedule.hour
-        #dayhour_str = '{}/{}'.format(d,h)
         changed_item = 'dayhour'
     else:
         d, h = Schedule.decode_dayhour(dayhour_str)
 
     if changed_item == 'dayhour':
         #fetch grade from timetable
-        schedule = Schedule.query.join(Teacher).filter(Schedule.school == db_utils.school(), Schedule.academic_year == db_utils.academic_year(),
-                                                       Schedule.day == d, Schedule.hour == h, Schedule.teacher == teacher).first()
+        schedule = db_schedule.query_filter(Schedule.query.join(Teacher)).filter(Schedule.day == d, Schedule.hour == h, Schedule.teacher == teacher).first()
         if schedule:
             #the classmoment points to a single teacher, grade and lesson
             return schedule
         # find the first grade, teached by given teacher
-        grade = Grade.query.join(Schedule, Teacher).filter(Schedule.school == db_utils.school(), Schedule.academic_year == db_utils.academic_year(),
-                                                           Schedule.teacher == teacher).distinct(Grade.code).order_by(Grade.code).first()
+        grade = db_schedule.query_filter(Grade.query.join(Schedule, Teacher)).filter(Schedule.teacher == teacher).distinct(Grade.code).order_by(Grade.code).first()
         if not grade:
             #just pick the first grade from all grades
             grade = Grade.query.distinct(Grade.code).order_by(Grade.code).first()
@@ -71,8 +63,7 @@ def db_filter_grade(teacher_id, dayhour_str, grade_id, lesson_id, changed_item=N
 
     if changed_item == 'grade':
         #find the first lesson, taken by given grade
-        lesson = Lesson.query.join(Schedule, Grade, Teacher).filter(Schedule.school == db_utils.school(), Schedule.academic_year == db_utils.academic_year(),
-                                                                    Grade.id == grade.id, Schedule.teacher == teacher)\
+        lesson = db_schedule.query_filter(Lesson.query.join(Schedule, Grade, Teacher)).filter(Grade.id == grade.id, Schedule.teacher == teacher)\
                 .distinct(Lesson.code).order_by(Lesson.code).first()
         if not lesson:
             #just pick the first lesson
@@ -139,14 +130,16 @@ def db_get_timeslot_from_current_time():
             d = day
     return d, h
 
-def db_grade_list(teacher=None, select=False):
+def db_grade_list(teacher=None, select=False, schedule=True):
     if select:
         q = db.session.query(Grade.id, Grade.code)
     else:
         q = Grade.query
     if teacher:
-        academic_year = db_utils.academic_year()
-        q = q.join(Schedule, Teacher).filter(Teacher.id == teacher.id, Schedule.school == db_utils.school(), Schedule.academic_year == academic_year)
+        q = db_schedule.query_filter(q.join(Schedule, Teacher)).filter(Teacher.id == teacher.id)
     else:
-        q = q.filter(Grade.school == db_utils.school())
+        if schedule:
+            q = db_schedule.query_filter(q.join(Schedule))
+        else:
+            q = q.join(Schedule).filter(Schedule.school == db_utils.school())
     return q.distinct(Grade.code).order_by(Grade.code).all()
