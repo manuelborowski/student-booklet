@@ -2,6 +2,7 @@ import datetime
 
 from app import app, log
 from app.database import db_setting
+from app.database.models import SCHOOL
 
 @app.context_processor
 def inject_academic_year():
@@ -9,7 +10,7 @@ def inject_academic_year():
 
 
 def school():
-    return 'Lyceum'
+    return SCHOOL.LYCEUM
 
 
 def academic_year():

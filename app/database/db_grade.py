@@ -136,7 +136,7 @@ def db_grade_list(teacher=None, select=False, schedule=True):
     else:
         q = Grade.query
     if teacher:
-        q = db_schedule.query_filter(q.join(Schedule, Teacher)).filter(Teacher.id == teacher.id)
+        q = db_schedule.query_filter(q.join(Schedule)).filter(Schedule.teacher == teacher)
     else:
         if schedule:
             q = db_schedule.query_filter(q.join(Schedule))

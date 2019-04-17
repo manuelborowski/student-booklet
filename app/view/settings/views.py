@@ -7,7 +7,7 @@ from app import db, log, admin_required, supervisor_required
 from app.utils import utils, documents
 from app.database import db_measure_topic, db_subject_topic, db_setting, db_grade, db_remark, db_schedule, db_lesson, db_utils
 
-from app.database.models import Grade, Student, Teacher, Lesson, Schedule, Remark, RemarkSubject, RemarkMeasure, ExtraMeasure, SubjectTopic, MeasureTopic
+from app.database.models import Grade, Student, Teacher, Lesson, Schedule, Remark, RemarkSubject, RemarkMeasure, ExtraMeasure, SubjectTopic, MeasureTopic, SCHOOL
 
 import os, datetime, random
 import unicodecsv  as  csv
@@ -167,9 +167,16 @@ def upload_students(rfile):
     return
 
 
-# FAMILIENAAM    last_name
-# VOORNAAM       first_name
 # CODE           code
+# VOORNAAM       first_name
+# FAMILIENAAM    last_name
+# GROEP          LeerkrachtenInstituut, LeerkrachtenMiddenschool, LeerkrachtenLyceum
+
+group_to_school = {
+    'LeerkrachtenInstituut' : SCHOOL.INSTITUUT,
+    'LeerkrachtenMiddenschool' : SCHOOL.MIDDENSCHOOL,
+    'LeerkrachtenLyceum' : SCHOOL.LYCEUM
+}
 
 # NO TEACHERS ARE REMOVED, TEACHERS ARE ADDED ONLY
 def upload_teachers(rfile):
@@ -177,20 +184,24 @@ def upload_teachers(rfile):
         # format csv file :
         log.info(u'Import teachers from : {}'.format(rfile))
         academic_year = request.form['selected_academic_year']
+
+        fieldnames = ['CODE', 'VOORNAAM', 'FAMILIENAAM', 'GROEP']
         # teachers_file=csv.DictReader(rfile,  delimiter=';', encoding='utf-8-sig')
-        teachers_file = csv.DictReader(rfile, delimiter=';', encoding='latin_1')  # ansi encoding
+        teachers_file = csv.DictReader(rfile, delimiter=';', fieldnames=fieldnames, encoding='latin_1')  # ansi encoding
         nbr_teachers = 0
         for t in teachers_file:
-            # skip empy records
-            if t['VOORNAAM'] != '' and t['FAMILIENAAM'] != '' and t['CODE'] != '':
+            # skip empty and not relevant records
+            teacher_code = t['CODE'].upper()
+            if t['VOORNAAM'] != '' and t['FAMILIENAAM'] != '' and teacher_code != '' and t['GROEP'] in group_to_school:
+                school = group_to_school[t['GROEP']]
                 # add teacher, if not already present
-                find_teacher = Teacher.query.filter(Teacher.code == t['CODE']).first()
+                find_teacher = Teacher.query.filter(Teacher.code == teacher_code, Teacher.school == school).first()
                 if find_teacher:
                     find_teacher.first_name = t['VOORNAAM']
                     find_teacher.last_name = t['FAMILIENAAM']
                     find_teacher.academic_year = academic_year
                 if not find_teacher:
-                    teacher = Teacher(first_name=t['VOORNAAM'], last_name=t['FAMILIENAAM'], code=t['CODE'], academic_year=academic_year)
+                    teacher = Teacher(first_name=t['VOORNAAM'], last_name=t['FAMILIENAAM'], code=teacher_code, academic_year=academic_year, school=school)
                     db.session.add(teacher)
                     nbr_teachers += 1
 
@@ -238,7 +249,7 @@ def upload_schedule(rfile):
         for t in timetable_file:
             # skip empy records
             if t['KLAS'] != '' and t['LEERKRACHT'] != '' and t['VAK'] != '' and t['DAG'] != '' and t['UUR'] != '':
-                find_teacher = Teacher.query.filter(Teacher.code == t['LEERKRACHT']).first()
+                find_teacher = Teacher.query.filter(Teacher.code == t['LEERKRACHT'], Teacher.school == db_utils.school()).first()
                 if find_teacher:
                     grade_code = t['KLAS'][:2]  # leave out the grade
                     lesson_code = t['VAK']

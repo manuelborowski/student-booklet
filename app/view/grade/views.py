@@ -7,7 +7,7 @@ import datetime
 from . import grade
 from .forms import FilterForm
 from app import db, log
-from app.database import db_lesson, db_schedule, db_teacher, db_grade, db_student
+from app.database import db_lesson, db_schedule, db_teacher, db_grade, db_student, db_utils
 from app.utils import utils
 from app.database.models import Student, Remark, RemarkSubject, RemarkMeasure, Teacher, Schedule, Lesson, SubjectTopic, MeasureTopic
 from app.layout.forms import RemarkForm
@@ -60,6 +60,7 @@ def filter_grade():
 
         form_filter.lesson.data = str(schedule.lesson.id)
         form_filter.lesson.choices = utils.filter_duplicates_out(teacher_lessons, db_lesson.db_lesson_list(select=True))
+
     except Exception as e:
         log.error(u'Cannot filter the grade {}'.format(e))
         utils.flash_plus(u'Er is een probleem met de filter', e)
@@ -81,7 +82,7 @@ def add_remark():
         if utils.button_save_pushed():  # second pass
             subjects = request.form.getlist('subject')
             measures = request.form.getlist('measure')
-            teacher = Teacher.query.filter(Teacher.id == request.form['teacher']).first()
+            teacher = Teacher.query.filter(Teacher.id == request.form['teacher'], Teacher.school == db_utils.school()).first()
             d, h = Schedule.decode_dayhour(request.form['dayhour'])
             lesson = db_lesson.db_lesson(request.form['lesson'])
             # iterate over all students involved.  Create an remark per student.
@@ -93,7 +94,7 @@ def add_remark():
                     remark = Remark(student=student, lesson=lesson, teacher=teacher, timestamp=datetime.datetime.now(),
                                     measure_note=request.form['measure_note'], subject_note=request.form['subject_note'],
                                     grade=student.grade, extra_attention='chkb_extra_attention' in request.form,
-                                    school=app.database.db_utils.school(), academic_year=app.database.db_utils.academic_year())
+                                    school=db_utils.school(), academic_year=db_utils.academic_year())
                     for s in subjects:
                         subject = RemarkSubject(topic=SubjectTopic.query.get(int(s)), remark=remark)
                         db.session.add(subject)

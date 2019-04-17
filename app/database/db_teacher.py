@@ -6,7 +6,7 @@ from app.database.models import Teacher, Schedule
 from app.utils import utils
 
 
-def db_teacher_list(select=False):
+def db_teacher_list(select=False, school=None):
     if select:
         q = db.session.query(Teacher.id, Teacher.code)
     else:
@@ -17,4 +17,4 @@ def db_teacher(id=None, code=None):
     if id:
         return Teacher.query.get(id)
     elif code:
-        return Teacher.query.filter(Teacher.code == func.binary(code)).first()
+        return Teacher.query.filter(Teacher.code == func.binary(code), Teacher.school == db_utils.school()).first()

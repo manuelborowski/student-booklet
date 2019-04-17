@@ -192,12 +192,6 @@ class Grade(db.Model):
     def get_choices_with_empty_list():
         return [(-1, '')] + Grade.get_choices_list()
 
-    @staticmethod
-    def get_all_grades_for_teacher(teacher):
-        l = db.session.query(Grade.id, Grade.code).join(Schedule) \
-            .join(Teacher).filter(Teacher.id == teacher.id).distinct(Grade.code).order_by(Grade.code).all()
-        return l
-
     def get_choice(self):
         return(self.id, self.code)
 
@@ -257,17 +251,6 @@ class Lesson(db.Model):
     schedules = db.relationship('Schedule', cascade='all, delete', backref='lesson', lazy='dynamic')
     school = db.Column(db.String(256), default='Lyceum')
 
-    @staticmethod
-    def get_choices_list():
-        l = db.session.query(Lesson.id, Lesson.code).distinct(Lesson.code).order_by(Lesson.code).all()
-        return l
-
-    @staticmethod
-    def get_all_lessons_for_teacher(teacher):
-        l = db.session.query(Lesson.id, Lesson.code).join(Schedule) \
-            .join(Teacher).filter(Teacher.id == teacher.id).distinct(Lesson.code).order_by(Lesson.code).all()
-        return l
-
     def get_choice(self):
         return (self.id, self.code)
 
@@ -288,6 +271,7 @@ class Teacher(db.Model):
     last_name = db.Column(db.String(256))
     code = db.Column(db.String(256))
     academic_year = db.Column(db.Integer, default=None)
+    school = db.Column(db.String(256), default='Lyceum')
     hidden = db.Column(db.Boolean, default=False)
     remarks = db.relationship('Remark', cascade='all, delete', backref='teacher', lazy='dynamic')
     schedules = db.relationship('Schedule', cascade='all, delete', backref='teacher', lazy='dynamic')
@@ -299,11 +283,23 @@ class Teacher(db.Model):
         return {'id':self.id, 'code':self.code}
 
 
+class ReplacementTeacher(db.Model):
+    __tablename__ = 'replacement_teachers'
+
+    id = db.Column(db.Integer, primary_key=True)
+    replacing_id = db.Column(db.Integer, db.ForeignKey('teachers.id', ondelete='CASCADE'))
+    replaced_by_id = db.Column(db.Integer, db.ForeignKey('teachers.id', ondelete='CASCADE'))
+    school = db.Column(db.String(256), default='Lyceum')
+    academic_year = db.Column(db.Integer, default=None)
+
+
 class Forward(db.Model):
     __tablename__ = 'forwards'
 
     id = db.Column(db.Integer, primary_key=True)
     note = db.Column(db.String(1024), default='')
+
+
 
 
 class ExtraMeasure(db.Model):
