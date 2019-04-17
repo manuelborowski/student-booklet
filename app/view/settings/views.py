@@ -5,8 +5,9 @@ from . import settings
 from app import db, log, admin_required, supervisor_required
 
 from app.utils import utils, documents
-from app.database import db_measure_topic, db_subject_topic, db_setting, db_grade, db_remark, db_schedule, db_lesson, db_utils
-
+from app.database import db_measure_topic, db_subject_topic, db_setting, db_grade, db_remark, db_schedule, db_lesson, db_utils, db_teacher, db_replacement, \
+    multiple_items
+from app.layout import tables_config
 from app.database.models import Grade, Student, Teacher, Lesson, Schedule, Remark, RemarkSubject, RemarkMeasure, ExtraMeasure, SubjectTopic, MeasureTopic, SCHOOL
 
 import os, datetime, random
@@ -38,18 +39,74 @@ def get_settings_and_show():
         log.error(u'Could not check the database for students or timetables, error {}'.format(e))
         utils.flash_plus(u'Er is een fout opgetreden bij het ophalen van de instellingen', e)
 
-    return render_template(u'settings/settings.html',
+    return settings, academic_year_list, topics
+
+    return render_template(u'settings/topics.html',
                            settings=settings,
                            academic_year_list=academic_year_list,
                            topics=topics,
                            title='settings')
 
 
-@settings.route('/settings', methods=['GET', 'POST'])
+@settings.route('/settings/topics', methods=['GET', 'POST'])
 @supervisor_required
 @login_required
-def show():
-    return get_settings_and_show()
+def show_topics():
+    settings, academic_year_list, topics = get_settings_and_show()
+    return render_template(u'settings/topics.html',
+                           settings=settings,
+                           academic_year_list=academic_year_list,
+                           topics=topics,
+                           title='settings')
+
+@settings.route('/settings/replacements', methods=['GET', 'POST'])
+@supervisor_required
+@login_required
+def show_replacements():
+
+    #replacements = db_replacement.replacement_list()
+
+
+    #The following line is required only to build the filter-fields on the page.
+    _filter, _filter_form, a,b, c = multiple_items.build_filter_and_filter_data(tables_config.tables_configuration['replacement'])
+    return render_template('base_multiple_items.html',
+                           filter=_filter, filter_form=_filter_form,
+                           config = tables_config.tables_configuration['replacement'])
+
+
+@settings.route('/settings/replacements_data', methods=['GET', 'POST'])
+@login_required
+def source_replacement_data():
+    ajax_table =  multiple_items.prepare_data_for_html(tables_config.tables_configuration['replacement'])
+    return ajax_table
+
+
+
+
+
+
+
+@settings.route('/settings/database', methods=['GET', 'POST'])
+@supervisor_required
+@login_required
+def show_database():
+    settings, academic_year_list, topics = get_settings_and_show()
+    return render_template(u'settings/database.html',
+                           settings=settings,
+                           academic_year_list=academic_year_list,
+                           topics=topics,
+                           title='settings')
+
+@settings.route('/settings/tests', methods=['GET', 'POST'])
+@supervisor_required
+@login_required
+def show_tests():
+    settings, academic_year_list, topics = get_settings_and_show()
+    return render_template(u'settings/tests.html',
+                           settings=settings,
+                           academic_year_list=academic_year_list,
+                           topics=topics,
+                           title='settings')
 
 
 @settings.route('/settings/save', methods=['GET', 'POST'])
@@ -66,16 +123,16 @@ def save():
         elif 'upload_photos' in request.files:
             upload_photos(request.files['upload_photos'])
     elif request.form['save_subject'] == 'add_test_students':
-        add_test_remarks()
+        return add_test_remarks()
     elif request.form['save_subject'] == 'delete_test_students':
-        delete_test_remarks()
+        return delete_test_remarks()
     elif request.form['save_subject'] == 'delete_schedule':
-        delete_schedule()
+        return delete_schedule()
     elif request.form['save_subject'] == 'truncate-database':
-        truncate_database()
+        return truncate_database()
     elif 'txt-sim-day' in request.form:
-        save_sim_dayhour()
-    return redirect(url_for('settings.show'))
+        return save_sim_dayhour()
+    return redirect(url_for('settings.show_database'))
 
 
 def save_sim_dayhour():
@@ -85,7 +142,7 @@ def save_sim_dayhour():
     except Exception as e:
         log.error(u'Cannot save simulate dayhour: {}'.format(e))
         utils.flash_plus(u'Kan simulatie dag en uur niet bewaren', e)
-    return
+    return redirect(url_for('settings.show_tests'))
 
 
 # NO PHOTOS ARE REMOVED, PHOTOS ARE ADDED ONLY
@@ -245,12 +302,13 @@ def upload_schedule(rfile):
         nbr_grades = 0
         grades = {g.code: g for g in db_grade.db_grade_list(schedule=False)}
         lessons = {l.code: l for l in db_lesson.db_lesson_list(schedule=False)}
+        teachers = {t.code: t for t in db_teacher.db_teacher_list(schedule=False)}
 
         for t in timetable_file:
             # skip empy records
             if t['KLAS'] != '' and t['LEERKRACHT'] != '' and t['VAK'] != '' and t['DAG'] != '' and t['UUR'] != '':
-                find_teacher = Teacher.query.filter(Teacher.code == t['LEERKRACHT'], Teacher.school == db_utils.school()).first()
-                if find_teacher:
+                if t['LEERKRACHT'] in teachers:
+                    find_teacher = teachers[t['LEERKRACHT']]
                     grade_code = t['KLAS'][:2]  # leave out the grade
                     lesson_code = t['VAK']
                     # check for grade.  If it not exists, add it first
@@ -306,7 +364,7 @@ def delete_schedule():
     except Exception as e:
         log.error(u'Could not not delete classmoments from {}, error {}'.format(academic_year, e))
         utils.flash_plus(u'Kan lesrooster van jaar {} niet wissen'.format(academic_year), e)
-    return redirect(url_for('settings.show'))
+    return redirect(url_for('settings.show_database'))
 
 
 remark_dates = [
@@ -360,7 +418,7 @@ def add_test_remarks():
     except Exception as e:
         log.error(u'Could not add test remarks error {}'.format(e))
         utils.flash_plus(u'Kan test opmerkingen voor jaar {} niet toevoegen'.format(academic_year), e)
-    return redirect(url_for('settings.show'))
+    return redirect(url_for('settings.show_tests'))
 
 
 def delete_test_remarks():
@@ -377,7 +435,7 @@ def delete_test_remarks():
     except Exception as e:
         log.error(u'Could not delete test remarks error {}'.format(e))
         utils.flash_plus(u'Kan test opmerkingen voor jaar {} niet verwijderen'.format(academic_year), e)
-    return redirect(url_for('settings.show'))
+    return redirect(url_for('settings.show_tests'))
 
 
 @settings.route('/settings/add_topic/<string:subject>/<string:topic>', methods=['GET', 'POST'])
@@ -394,7 +452,7 @@ def add_topic(subject, topic):
     except Exception as e:
         log.error(u'Could not add {}, topic {}: {}'.format(subject, topic, e))
         utils.flash_plus(u'Kan onderwerp niet toevoegen', e)
-    return redirect(url_for('settings.show'))
+    return redirect(url_for('settings.show_topics'))
 
 
 @settings.route('/settings/set_topic_status/<string:data>', methods=['GET', 'POST'])
@@ -439,4 +497,4 @@ def truncate_database():
     except Exception as e:
         log.error('Could not truncate database: error {}'.format(e))
         utils.flash_plus('Kan database niet wissen', e)
-    return redirect(url_for('settings.show'))
+    return redirect(url_for('settings.show_tests'))

@@ -1,0 +1,96 @@
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "bootstrap/utils.html" as utils %}
+{% extends "base.html" %}
+
+{% block content2 %}
+<div class="content-section center">
+
+    <form method="post" id="settings_form" action="{{ url_for('settings.save') }}" enctype=multipart/form-data>
+        <input id="save_subject" name="save_subject" value="none" hidden>
+        {% if current_user.is_at_least_admin %}
+        <h2>Database : </h2>
+        <input id="save_settings_submit" type="submit" value="Import" style="display:none" onclick="busy_indication_on();">
+        <div class="container">
+            <div class="row">
+                <a class="btn btn-default" onclick="select_academic_year('upload_teachers');">1) Importeer leerkrachten</a>
+                <input id='upload_teachers' type='file' name='upload_teachers' style="display:none" accept=".csv"
+                       onchange="$('#save_settings_submit').click();">
+                <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="tooltip"
+                      title="Exporteer uit Smartschool via SMT.  In SMT, selecteer volgende velden : gebruikersnaam, voornaam, naam, groep.
+                      Exporteer naar Excel.  In Excel, bewaar als CSV">
+<!--                      title="Exporteer uit Wisa : Query = badgeLKR, Formaat = Text File, ANSI = aan, Schrijven in bestand = aan, Eerste lijn met veldnamen = aan,-->
+                    <!--                          Scheidingsteken = ; (puntkomma), Bestand = .../leerkrachten.csv" .>-->
+                    </span>
+            </div>
+            <div class="row">
+                <a class="btn btn-default" onclick="select_academic_year_and_valid_from('upload_schedule');">2) Importeer lesrooster</a>
+                <input id='upload_schedule' type='file' name='upload_schedule' style="display:none" accept=".csv"
+                       onchange="$('#save_settings_submit').click();">
+                <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="tooltip"
+                      title="Exporteer uit UNTIS : lesrooster.csv" .>
+                    </span>
+            </div>
+            <div class="row">
+                <a class="btn btn-default" onclick="select_academic_year('upload_students')">3) Importeer studenten</a>
+                <input id='upload_students' type='file' name='upload_students' style="display:none" accept=".csv"
+                       onchange="$('#save_settings_submit').click();">
+                <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="tooltip"
+                      title="Exporteer uit Wisa : Query = badgeprnt, Formaat = Text File, ANSI = aan, Schrijven in bestand = aan, Eerste lijn met veldnamen = aan,
+                          Scheidingsteken = ; (puntkomma), Bestand = .../leerlingen.csv" .>
+                    </span>
+            </div>
+            <div class="row">
+                <input class="btn btn-default" type="button" id="upload4" value="4) Importeer fotos" onclick="$('#upload_photos').click();">
+                <input id='upload_photos' type='file' name='upload_photos' style="display:none" accept=".zip"
+                       onchange="$('#save_settings_submit').click();">
+                <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="tooltip"
+                      title="Op de suc-server, pasfoto-leerlingen.  Zip de correcte folder" .>
+                    </span>
+            </div>
+        </div>
+        <!-- modal to select academic_year -->
+        <div class="modal fade" id="modal_import" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" id="dismiss_modal" data-dismiss="modal">&times;
+                        </button>
+                        <h4 class="modal-title" id="modal_title">Importeer</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="single-line">
+                            <label for="selected_academic_year">Schooljaar</label>
+                            <select class="form-control" name="selected_academic_year" id="selected_academic_year">
+                                {% for i in academic_year_list %}
+                                {% if i == academic_year|int %}
+                                <option val="{{i}}" selected="selected">{{i}}</option>
+                                {% else %}
+                                <option val="{{i}}">{{i}}</option>
+                                {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <br>
+                        <div class="default-hidden single-line" id="div-select-date-from">
+                            <label for="select-date-from">Geldig vanaf</label>
+                            <input name="select-date-from" id="select-date-from">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="close_modal" type="button" class="btn btn-default" data-dismiss="modal">Ga
+                            verder
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script type="text/javascript"> {% include "settings/settings.js" %}</script>
+{% endblock %}

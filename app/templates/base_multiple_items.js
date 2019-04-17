@@ -144,7 +144,8 @@ $(document).ready(function() {
        stateSave: true,
        dom : 'fiptlBp',
        ajax: {
-           url: '/{{config.subject}}/data',
+           //url: '/{{config.subject}}/data',
+           url: Flask.url_for("{{config.subject + '.' + config.data_endpoint}}"),
            type: 'POST',
            data : function (d) {
                return $.extend({}, d, filter_settings);

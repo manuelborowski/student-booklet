@@ -260,6 +260,38 @@ class Lesson(db.Model):
     def ret_dict(self):
         return {'id':self.id, 'code': self.code}
 
+class ReplacementTeacher(db.Model):
+    __tablename__ = 'replacement_teachers'
+
+    id = db.Column(db.Integer, primary_key=True)
+    replacing_id = db.Column(db.Integer, db.ForeignKey('teachers.id', ondelete='CASCADE'))
+    replaced_by_id = db.Column(db.Integer, db.ForeignKey('teachers.id', ondelete='CASCADE'))
+    school = db.Column(db.String(256), default='Lyceum')
+    academic_year = db.Column(db.Integer, default=None)
+    first_replacement_teacher = db.Column(db.Boolean, default=False)
+
+    @staticmethod
+    def format_data(db_list):
+        _filtered_list = db.session.query(ReplacementTeacher, Teacher).join(Teacher, ReplacementTeacher.replaced_by_id == Teacher.id).\
+            filter(ReplacementTeacher.first_replacement_teacher == True)
+
+        out = []
+        replacements = {}
+        for i in db_list:
+            if i.ReplacementTeacher.replaced_by_teacher in replacements:
+                replacements[i.ReplacementTeacher.replaced_by_teacher] += ', ' + i.ReplacementTeacher.replacing_teacher.code
+            else:
+                replacements[i.ReplacementTeacher.replaced_by_teacher] = i.ReplacementTeacher.replacing_teacher.code
+        for k, v in replacements.items():
+            em = {}
+            em['replaced_by'] = k.code
+            em['replacing'] = v
+            em['cb'] = "<input type='checkbox' class='cb_all' name='cb' value='{}'>".format(k.id)
+            out.append(em)
+        return out
+
+
+
 class Teacher(db.Model):
     __tablename__ = 'teachers'
 
@@ -275,6 +307,10 @@ class Teacher(db.Model):
     hidden = db.Column(db.Boolean, default=False)
     remarks = db.relationship('Remark', cascade='all, delete', backref='teacher', lazy='dynamic')
     schedules = db.relationship('Schedule', cascade='all, delete', backref='teacher', lazy='dynamic')
+    replacing_teacher = db.relationship('ReplacementTeacher', cascade='all', backref='replacing_teacher',
+                                        foreign_keys='ReplacementTeacher.replacing_id', lazy='dynamic')
+    replaced_by_teacher = db.relationship('ReplacementTeacher', cascade='all', backref='replaced_by_teacher',
+                                        foreign_keys='ReplacementTeacher.replaced_by_id', lazy='dynamic')
 
     def __repr__(self):
         return 'Teacher: {}/{}'.format(self.id, self.code)
@@ -283,14 +319,6 @@ class Teacher(db.Model):
         return {'id':self.id, 'code':self.code}
 
 
-class ReplacementTeacher(db.Model):
-    __tablename__ = 'replacement_teachers'
-
-    id = db.Column(db.Integer, primary_key=True)
-    replacing_id = db.Column(db.Integer, db.ForeignKey('teachers.id', ondelete='CASCADE'))
-    replaced_by_id = db.Column(db.Integer, db.ForeignKey('teachers.id', ondelete='CASCADE'))
-    school = db.Column(db.String(256), default='Lyceum')
-    academic_year = db.Column(db.Integer, default=None)
 
 
 class Forward(db.Model):

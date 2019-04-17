@@ -14,7 +14,7 @@ def db_lesson_list(teacher=None, select=False, schedule=True):
         if schedule:
             q = db_schedule.query_filter(q.join(Schedule))
         else:
-            q = q.join(Schedule).filter(Schedule.school == db_utils.school())
+            q = q.filter(Lesson.school == db_utils.school())
     return q.distinct(Lesson.code).order_by(Lesson.code).all()
 
 def db_lesson(id):

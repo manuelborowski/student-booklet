@@ -141,5 +141,5 @@ def db_grade_list(teacher=None, select=False, schedule=True):
         if schedule:
             q = db_schedule.query_filter(q.join(Schedule))
         else:
-            q = q.join(Schedule).filter(Schedule.school == db_utils.school())
+            q = q.filter(Grade.school == db_utils.school())
     return q.distinct(Grade.code).order_by(Grade.code).all()

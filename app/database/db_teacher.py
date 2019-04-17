@@ -6,12 +6,16 @@ from app.database.models import Teacher, Schedule
 from app.utils import utils
 
 
-def db_teacher_list(select=False, school=None):
+def db_teacher_list(select=False, schedule=True):
     if select:
         q = db.session.query(Teacher.id, Teacher.code)
     else:
         q = Teacher.query
-    return db_schedule.query_filter(q.join(Schedule)).distinct().order_by(Teacher.code).all()
+    if schedule:
+        q = db_schedule.query_filter(q.join(Schedule))
+    else:
+        q = q.filter(Teacher.school == db_utils.school())
+    return q.distinct().order_by(Teacher.code).all()
 
 def db_teacher(id=None, code=None):
     if id:
