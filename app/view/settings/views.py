@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for, request, json, jsonify
 from flask_login import login_required
 
-from . import settings
+from . import settings, forms
 from app import db, log, admin_required, supervisor_required
 
 from app.utils import utils, documents
@@ -63,11 +63,6 @@ def show_topics():
 @supervisor_required
 @login_required
 def show_replacements():
-
-    #replacements = db_replacement.replacement_list()
-
-
-    #The following line is required only to build the filter-fields on the page.
     _filter, _filter_form, a,b, c = multiple_items.build_filter_and_filter_data(tables_config.tables_configuration['replacement'])
     return render_template('base_multiple_items.html',
                            filter=_filter, filter_form=_filter_form,
@@ -76,12 +71,25 @@ def show_replacements():
 
 @settings.route('/settings/replacements_data', methods=['GET', 'POST'])
 @login_required
-def source_replacement_data():
+def replacement_data():
     ajax_table =  multiple_items.prepare_data_for_html(tables_config.tables_configuration['replacement'])
     return ajax_table
 
 
+@settings.route('/settings/replacement_add', methods=['GET', 'POST'])
+@login_required
+def replacement_add():
+    try:
+        if utils.button_save_pushed(): #second pass
+            pass
+        else:  # first pass
+            form = forms.AddReplacementForm()
+            return render_template('settings/replacement.html', form=form, title='Voeg een vervanger toe', role='add', subject='settings')
 
+    except Exception as e:
+        log.error(u'Could not add replacment {}'.format(e))
+        utils.flash_plus(u'Kan vervanger niet toevoegen', e)
+    return redirect(url_for('settings.show_replacements'))
 
 
 

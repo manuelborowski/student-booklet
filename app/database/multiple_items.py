@@ -76,8 +76,7 @@ def build_filter_and_filter_data(table, paginate=True):
         _filtered_list = db.session.query(ExtraMeasure, Remark, Student, Grade).join(Remark, Student, Grade)\
             .filter(Remark.reviewed == True, Remark.first_remark == True, Remark.school == app.database.db_utils.school())
     elif _model is ReplacementTeacher:
-        _filtered_list = db.session.query(ReplacementTeacher, Teacher).join(Teacher, ReplacementTeacher.replaced_by_id == Teacher.id).\
-            filter(ReplacementTeacher.first_replacement_teacher == True)
+        _filtered_list = db.session.query(ReplacementTeacher, Teacher).join(Teacher, ReplacementTeacher.replaced_by_id == Teacher.id)
     else:
         _filtered_list = db.session.query(User)
 

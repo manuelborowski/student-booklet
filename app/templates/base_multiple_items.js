@@ -45,6 +45,7 @@ function is_checkbox_selected() {
     }
 }
 
+{% if 'delete' in config.buttons %}
 //Before removing multiple entries, a confirm-box is shown.
 function confirm_before_delete() {
     if (is_checkbox_selected()) {
@@ -53,31 +54,38 @@ function confirm_before_delete() {
         bootbox.confirm(message, function(result) {
             if (result) {
                 busy_indication_on();
-                document.getElementById('button_form').action = Flask.url_for('{{config.subject}}' + ".delete");
+                document.getElementById('button_form').action = Flask.url_for("{{config.subject}}.{{config.delete_endpoint}}");
                 document.getElementById('button_form').submit();
             }
         });
     }
 }
+{% endif %}
 
+{% if 'add' in config.buttons %}
 function add_item() {
-    document.getElementById('button_form').action = Flask.url_for('{{config.subject}}.add');
+    document.getElementById('button_form').action = Flask.url_for("{{config.subject}}.{{config.add_endpoint}}");
     document.getElementById('button_form').submit();
 }
+{% endif %}
 
+{% if 'edit' in config.buttons %}
 function edit_item() {
     if (is_checkbox_selected()) {
-        document.getElementById('button_form').action = Flask.url_for('{{config.subject}}' + ".edit");
+        document.getElementById('button_form').action = Flask.url_for("{{config.subject}}.{{config.edit_endpoint}}");
         document.getElementById('button_form').submit();
     }
 }
+{% endif %}
 
+{% if 'start_check' in config.buttons %}
 //Review starts
 function start_review() {
     //window.location.href = Flask.url_for("remarks.start_review");
-    document.getElementById('filter_form').action = Flask.url_for("remarks.start_review");
+    document.getElementById('filter_form').action = Flask.url_for("{{config.subject}}.{{config.start_check_endpoint}}");
     document.getElementById('filter_form').submit();
 }
+{% endif %}
 
 
 
@@ -144,8 +152,7 @@ $(document).ready(function() {
        stateSave: true,
        dom : 'fiptlBp',
        ajax: {
-           //url: '/{{config.subject}}/data',
-           url: Flask.url_for("{{config.subject + '.' + config.data_endpoint}}"),
+           url: Flask.url_for("{{config.subject}}.{{config.data_endpoint}}"),
            type: 'POST',
            data : function (d) {
                return $.extend({}, d, filter_settings);

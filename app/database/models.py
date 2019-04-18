@@ -272,9 +272,6 @@ class ReplacementTeacher(db.Model):
 
     @staticmethod
     def format_data(db_list):
-        _filtered_list = db.session.query(ReplacementTeacher, Teacher).join(Teacher, ReplacementTeacher.replaced_by_id == Teacher.id).\
-            filter(ReplacementTeacher.first_replacement_teacher == True)
-
         out = []
         replacements = {}
         for i in db_list:
