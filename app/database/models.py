@@ -112,13 +112,14 @@ class User(UserMixin, db.Model):
 
     def ret_dict(self):
         return {'id':self.id, 'DT_RowId':self.id, 'email':self.email, 'username':self.username, 'first_name':self.first_name, 'last_name':self.last_name,
-                'level': User.LEVEL.i2s(self.level), 'user_type': self.user_type, 'last_login': self.last_login, 'cb': ''}
+                'level': User.LEVEL.i2s(self.level), 'user_type': self.user_type, 'last_login': self.last_login, 'chbx': ''}
 
     @staticmethod
     def format_data(db_list):
         out = []
         for i in db_list:
             em = i.ret_dict()
+            em['chbx'] = "<input type='checkbox' class='chbx_all' name='chbx' value='{}'>".format(i.id)
             out.append(em)
         return out
 
@@ -283,7 +284,7 @@ class ReplacementTeacher(db.Model):
             em = {}
             em['replaced_by'] = k.code
             em['replacing'] = v
-            em['cb'] = "<input type='checkbox' class='cb_all' name='cb' value='{}'>".format(k.id)
+            em['chbx'] = "<input type='checkbox' class='chbx_all' name='chbx' value='{}'>".format(k.id)
             out.append(em)
         return out
 
@@ -435,7 +436,7 @@ class Remark(db.Model):
             em['grade'] = {'code': i.Grade.code}
             em['teacher'] = {'code': i.Teacher.code}
             em['lesson'] = {'code': i.Lesson.code}
-            em['cb'] = "<input type='checkbox' class='cb_all' name='cb' value='{}'>".format(i.Remark.id, i.Remark.id) if i.Remark.checkbox_required() else ''
+            em['chbx'] = "<input type='checkbox' class='chbx_all' name='chbx' value='{}'>".format(i.Remark.id, i.Remark.id) if i.Remark.checkbox_required() else ''
 
             out.append(em)
         return out

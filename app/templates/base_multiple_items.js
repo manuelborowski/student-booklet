@@ -2,41 +2,22 @@
 var False = false;
 var True = true;
 
-//row_id is filled in with the database id of the item at the moment the user rightclicks on a row
-var row_id
-//The metadata of the floating menu.  See tables_config.py
-var floating_menu = JSON.parse('{{config.floating_menu|tojson}}');
-//menu_id indicates what entry is clicked in the floating menu (edit, add, ...)
-function handle_floating_menu(menu_id) {
-    console.log(menu_id + ' : ' + row_id);
-    for(var i=0; i < floating_menu.length; i++) {
-        if (floating_menu[i].menu_id == menu_id) {
-            if (floating_menu[i].flags.includes('confirm_before_delete_single_id')) {
-                confirm_before_delete_single_id(row_id);
-            } else if (floating_menu[i].flags.includes('id_required')) {
-                window.location.href=Flask.url_for('{{config.subject}}.' + floating_menu[i].route, {'id':row_id});
-            } else {
-                window.location.href=Flask.url_for('{{config.subject}}.' + floating_menu[i].route);
-            }
-        }
+//If not exactly one checkbox is selected, display warning and return false, else return true
+function is_exactly_one_checkbox_selected() {
+    var nbr_checked = 0;
+    $(".chbx_all").each(function(i){if(this.checked) {nbr_checked++;}});
+    if (nbr_checked == 1) {
+        return true;
+    } else {
+        bootbox.alert("U moet exact één item selecteren");
+        return false;
     }
 }
 
-//Before removing an entry, a confirm-box is shown.
-function confirm_before_delete_single_id(id) {
-    var message = "Are you sure want to delete this?";
-    if ('{{ config.delete_message }}') {message='{{ config.delete_message }}';}
-    bootbox.confirm(message, function(result) {
-        if (result) {
-            window.location.href = Flask.url_for('{{config.subject}}' + ".delete", {'id' : id})
-        }
-    });
-}
-
 //If one or more checkboxes are checked, return true.  Else display warning and return false
-function is_checkbox_selected() {
+function is_at_least_one_checkbox_selected() {
     var nbr_checked = 0;
-    $(".cb_all").each(function(i){if (this.checked) {nbr_checked++;}});
+    $(".chbx_all").each(function(i){if(this.checked) {nbr_checked++;}});
     if (nbr_checked==0) {
         bootbox.alert("U hebt niets geselecteerd, probeer nogmaals");
         return false;
@@ -45,17 +26,16 @@ function is_checkbox_selected() {
     }
 }
 
+
 {% if 'delete' in config.buttons %}
 //Before removing multiple entries, a confirm-box is shown.
-function confirm_before_delete() {
-    if (is_checkbox_selected()) {
-        var message = "Bent u zeker dat u dit wilt verwijderen?";
-        if ('{{ config.delete_message }}') {message='{{ config.delete_message }}';}
+function delete_item() {
+    if (is_at_least_one_checkbox_selected()) {
+        message="{{ config.delete_message }}";
         bootbox.confirm(message, function(result) {
             if (result) {
-                busy_indication_on();
-                document.getElementById('button_form').action = Flask.url_for("{{config.subject}}.{{config.delete_endpoint}}");
-                document.getElementById('button_form').submit();
+                $("#button-pressed").val("delete");
+                $("#action_form").submit();
             }
         });
     }
@@ -64,29 +44,26 @@ function confirm_before_delete() {
 
 {% if 'add' in config.buttons %}
 function add_item() {
-    document.getElementById('button_form').action = Flask.url_for("{{config.subject}}.{{config.add_endpoint}}");
-    document.getElementById('button_form').submit();
+    $("#button-pressed").val("add");
+    $("#action_form").submit();
 }
 {% endif %}
 
 {% if 'edit' in config.buttons %}
 function edit_item() {
-    if (is_checkbox_selected()) {
-        document.getElementById('button_form').action = Flask.url_for("{{config.subject}}.{{config.edit_endpoint}}");
-        document.getElementById('button_form').submit();
+    if (is_exactly_one_checkbox_selected()) {
+        $("#button-pressed").val("edit");
+        $("#action_form").submit();
     }
 }
 {% endif %}
 
 {% if 'start_check' in config.buttons %}
-//Review starts
 function start_review() {
-    //window.location.href = Flask.url_for("remarks.start_review");
-    document.getElementById('filter_form').action = Flask.url_for("{{config.subject}}.{{config.start_check_endpoint}}");
-    document.getElementById('filter_form').submit();
+    $("#button-pressed").val("start-review");
+    $("#action_form").submit();
 }
 {% endif %}
-
 
 
 $(document).ready(function() {
@@ -311,7 +288,7 @@ $(document).ready(function() {
 
     //checkbox in header is clicked
     $("#select_all").change(function() {
-        $(".cb_all").prop('checked', this.checked);
+        $(".chbx_all").prop('checked', this.checked);
     });
     //busy_indication_on();
 });

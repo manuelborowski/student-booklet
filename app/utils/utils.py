@@ -24,3 +24,8 @@ def flash_plus(message, e=None):
 def button_save_pushed():
     return 'button' in request.form and request.form['button'] == 'save'
 
+def button_pressed(button=None):
+    if button:
+        return 'button-pressed' in request.values and request.values['button-pressed'] == button
+    else:
+        return request.values['button-pressed'] if 'button-pressed' in request.values else ''

@@ -43,19 +43,23 @@
        {% if filter %}
         <hr class="nice-green-line">
         {% endif %}
-        <form method="post" id="button_form" enctype=multipart/form-data>
+        {% if config.buttons %}
+        <form method="post" id="action_form" enctype=multipart/form-data action="{{url_for(config.subject+ '.action')}}">
+            <input type="hidden" id="button-pressed" name="button-pressed">
             {% if 'delete' in config.buttons %}
-            <a class="btn btn-default" onclick="confirm_before_delete()">Verwijder</a>
+            <button class="btn btn-default" type="button" onclick="delete_item()">Verwijder</button>
             {% endif %}
             {% if 'add' in config.buttons %}
-            <a class="btn btn-default" onclick="add_item()">Nieuw</a>
+            <button class="btn btn-default" type="button" onclick="add_item()">Nieuw</button>
             {% endif %}
             {% if 'edit' in config.buttons %}
-            <a class="btn btn-default" onclick="edit_item()">Wijzig</a>
+            <button class="btn btn-default" type="button" onclick="edit_item()">Wijzig</button>
             {% endif %}
             {% if 'start_check' in config.buttons and current_user.is_at_least_supervisor %}
-            <a class="btn btn-default" onclick="start_review()">Start controle</a>
+            <button class="btn btn-default" type="button" onclick="start_review()">Start controle</button>
             {% endif %}
+        {% endif %}
+
             <br>
             <br>
             <span class="badge legend-badge" style="background-color: lightsalmon">Extra aandacht</span>
@@ -67,7 +71,7 @@
                     <th></th>
                     {% endif %}
                     {% for h in config.template %}
-                    {% if h.name=='cb' %}
+                    {% if h.name=='chbx' %}
                     <th><input type='checkbox' id="select_all"></th>
                     {% elif h.name=='reviewed' %}
                     <th><img src="static/img/reviewed.png" style="width:20px;height:20px;" title="Reeds gecontroleerd?"></th>
@@ -78,7 +82,9 @@
                 </tr>
                 </thead>
             </table>
+        {% if config.buttons %}
         </form>
+        {% endif %}
     </div>
 </div>
 

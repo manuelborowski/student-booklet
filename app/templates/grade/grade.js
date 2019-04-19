@@ -43,7 +43,7 @@ function add_remark() {
         }
     });
     if (student_selected) {
-        $("#form_filter").attr("action", "{{ url_for('grade.add_remark')}}");
+        $("#form_filter").attr("action", "{{ url_for('grade.action')}}");
         $("#form_filter").submit();
     } else {
         bootbox.alert("U moet minstens 1 leerling selecteren");

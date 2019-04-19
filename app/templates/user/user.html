@@ -3,22 +3,23 @@
 
 {% block content3 %}
 {% if role == 'change_password' %}
-    {{ wtf.form_field(form.old_password) }}
-    {{ wtf.form_field(form.new_password) }}
-    {{ wtf.form_field(form.confirm_new_password) }}
+    <div class="row">{{ wtf.form_field(form.old_password, form_type="horizontal", horizontal_columns=('sm', 2, 7)) }}</div>
+    <div class="row">{{ wtf.form_field(form.new_password, form_type="horizontal", horizontal_columns=('sm', 2, 7)) }}</div>
+    <div class="row">{{ wtf.form_field(form.confirm_new_password, form_type="horizontal", horizontal_columns=('sm', 2, 7)) }}</div>
 {% else %}
-    {{ wtf.form_field(form.username) }}
-    {{ wtf.form_field(form.first_name) }}
-    {{ wtf.form_field(form.last_name) }}
-    {{ wtf.form_field(form.email) }}
-    {{ wtf.form_field(form.level) }}
-    {{ wtf.form_field(form.user_type) }}
-    {% if role == 'add' %}
-    <div id="passwords">
-        {{ wtf.form_field(form.password) }}
-        {{ wtf.form_field(form.confirm_password) }}
+    <div class="row">{{ wtf.form_field(form.username, form_type="horizontal", horizontal_columns=('sm', 2, 7)) }}</div>
+    <div class="row">{{ wtf.form_field(form.first_name, form_type="horizontal", horizontal_columns=('sm', 2, 7)) }}</div>
+    <div class="row">{{ wtf.form_field(form.last_name, form_type="horizontal", horizontal_columns=('sm', 2, 7)) }}</div>
+    <div class="row">{{ wtf.form_field(form.email, form_type="horizontal", horizontal_columns=('sm', 2, 7)) }}</div>
+    <div class="row">{{ wtf.form_field(form.level, form_type="horizontal", horizontal_columns=('sm', 2, 7)) }}</div>
+    <div class="row">{{ wtf.form_field(form.user_type, form_type="horizontal", horizontal_columns=('sm', 2, 7)) }}</div>
+    <div id="change_password_div">
+        <div class="row">{{ wtf.form_field(form.change_password, form_type="horizontal", horizontal_columns=('sm', 2, 7)) }}</div>
     </div>
-    {% endif %}
+    <div id="passwords_div">
+        <div class="row">{{ wtf.form_field(form.password, form_type="horizontal", horizontal_columns=('sm', 2, 7)) }}</div>
+        <div class="row">{{ wtf.form_field(form.confirm_password, form_type="horizontal", horizontal_columns=('sm', 2, 7)) }}</div>
+    </div>
 {% endif %}
 {% endblock %}
 
