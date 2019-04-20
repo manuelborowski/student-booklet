@@ -506,3 +506,24 @@ def truncate_database():
         log.error('Could not truncate database: error {}'.format(e))
         utils.flash_plus('Kan database niet wissen', e)
     return redirect(url_for('settings.show_tests'))
+
+
+@settings.route('/settings/action', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def action():
+    if utils.button_pressed('add'):
+        return add_replacement()
+    return redirect(url_for('settings.show_replacements'))
+
+
+@settings.route('/settings/action_done/<string:action>/<int:id>', methods=['GET', 'POST'])
+@settings.route('/settings/action_done/<string:action>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def action_done(action=None, id=-1):
+    return redirect(url_for('settings.show_replacements'))
+
+
+def add_replacement():
+    pass

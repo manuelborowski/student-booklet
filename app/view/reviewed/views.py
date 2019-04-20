@@ -9,7 +9,7 @@ from app.database.models import Remark, Student, Teacher, Grade, Lesson
 
 @reviewed.route('/reviewed/data', methods=['GET', 'POST'])
 @login_required
-def source_data():
+def data():
     ajax_table =  prepare_data_for_html(tables_configuration['extra_measure'])
     return ajax_table
 
@@ -33,6 +33,5 @@ def get_row_detail(data):
         return jsonify({"status": True, "details" : details})
     except Exception as e:
         log.error('could not change the status')
-        return jsonify({"status" : False})
 
     return jsonify({"status" : False})

@@ -37,7 +37,7 @@
                             class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li><a href="{{ url_for('settings.show_topics') }}">Opmerkingen en maatregelen</a></li>
-                        <li><a href="{{ url_for('settings.show_replacements') }}">Vervangingen</a></li>
+                        <li><a href="{{ url_for('settings.replacements.show') }}">Vervangingen</a></li>
                         <li><a href="{{ url_for('settings.show_database') }}">Database</a></li>
                         <li><a href="{{ url_for('settings.show_tests') }}">Testen</a></li>
                     </ul>
@@ -71,6 +71,9 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/clockpicker/0.0.7/jquery-clockpicker.min.css"/>
 <link href="{{ url_for('static', filename='css/private_bootstrap_style.css') }}" rel="stylesheet">
 <link href="{{ url_for('static', filename='css/modal_right_click.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/multi-select.css') }}" rel="stylesheet">
+
+
 {% endblock %}
 
 {% block content %}
@@ -117,6 +120,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clockpicker/0.0.7/jquery-clockpicker.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/locale/nl-be.js"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/jquery.multi-select.js') }}"></script>
 <script type="text/javascript"> {% include "base.js" %}</script>
 {% with messages = get_flashed_messages() %}
 {% if messages %}

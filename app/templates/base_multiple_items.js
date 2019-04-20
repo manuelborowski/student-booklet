@@ -257,38 +257,8 @@ $(document).ready(function() {
     {% endif %}
     });
 
-
-    //right click on an item in the table.  A menu pops up to execute an action on the selected row/item
-    var i = document.getElementById("menu").style;
-    document.getElementById("datatable").addEventListener('contextmenu', function(e) {
-        var posX = e.clientX;
-        var posY = e.clientY;
-        menu(posX, posY);
-        e.preventDefault();
-        row_id = $(e.target).closest('tr').prop('id');
-    }, false);
-    document.addEventListener('click', function(e) {
-        i.opacity = "0";
-        setTimeout(function() {i.visibility = "hidden";}, 1);
-    }, false);
-
-    // Get column index when right clicking on a cell
-    //$('#datatable tbody').on('contextmenu', 'td', function () {
-    //    column_id = table.cell(this).index().column;
-    //    console.log('Clicked on cell in visible column: '+column_id);
-    //});
-
-
-    function menu(x, y) {
-      i.top = y + "px";
-      i.left = x + "px";
-      i.visibility = "visible";
-      i.opacity = "1";
-    }
-
     //checkbox in header is clicked
     $("#select_all").change(function() {
         $(".chbx_all").prop('checked', this.checked);
     });
-    //busy_indication_on();
 });

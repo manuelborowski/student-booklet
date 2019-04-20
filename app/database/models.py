@@ -284,7 +284,7 @@ class ReplacementTeacher(db.Model):
             em = {}
             em['replaced_by'] = k.code
             em['replacing'] = v
-            em['chbx'] = "<input type='checkbox' class='chbx_all' name='chbx' value='{}'>".format(k.id)
+            em['chbx'] = "<input type='checkbox' class='chbx_all' name='chbx' value='{}'>".format(k.id) #replaced-by-teacher-id
             out.append(em)
         return out
 
@@ -316,7 +316,9 @@ class Teacher(db.Model):
     def ret_dict(self):
         return {'id':self.id, 'code':self.code}
 
-
+    @property
+    def full(self):
+        return '{} ({} {})'.format(self.code, self.first_name, self.last_name)
 
 
 class Forward(db.Model):

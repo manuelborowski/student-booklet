@@ -46,10 +46,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V2.18 : huge refactor
 #V2.19 : implemented logic to handle valid_from in schedule.
 #V2.20 : teacher table has a school-column now
+#V2.21 : add/edit/remove substitute teachers, reworked settings
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.20')
+    return dict(version = 'V2.21')
 
 #enable logging
 LOG_HANDLE = 'SB'
@@ -155,6 +156,9 @@ app.register_blueprint(auth_blueprint)
 
 from app.view.settings import settings as settings_blueprint
 app.register_blueprint(settings_blueprint)
+
+from app.view.settings.replacements import replacements as replacements_blueprint
+app.register_blueprint(replacements_blueprint)
 
 from app.view.user import user as user_blueprint
 app.register_blueprint(user_blueprint)

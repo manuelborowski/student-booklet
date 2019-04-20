@@ -2,12 +2,11 @@ from app import log, db
 from app.database.models import ReplacementTeacher, Teacher
 from sqlalchemy import or_
 
-def replacement_list():
-    try:
-        replacements = db.session.query(ReplacementTeacher, Teacher).join(Teacher, or_(ReplacementTeacher.replacing_id == Teacher.id,
-                                                                                       ReplacementTeacher.replaced_by_id == Teacher.id)).all()
-        return replacements
-    except Exception as e:
-        log.error('Could not get the replacement teachers error {}'.format(e))
-        return []
+def replacement_list(id=None, absent_teachers=False):
+    if id:
+        if absent_teachers:
+            q = db.session.query(ReplacementTeacher.replacing_id)
+        else:
+            q = db.session.query(ReplacementTeacher)
+        return q.filter(ReplacementTeacher.replaced_by_id == id).all()
     return []

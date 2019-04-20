@@ -16,7 +16,7 @@ import json
 
 @remarks.route('/remarks/data', methods=['GET', 'POST'])
 @login_required
-def source_data():
+def data():
     ajax_table = prepare_data_for_html(tables_configuration['remark'])
     return ajax_table
 

@@ -12,13 +12,12 @@ from app.database.models import User
 from app.database.multiple_items import build_filter_and_filter_data, prepare_data_for_html
 from app.utils import utils
 from app.layout.tables_config import tables_configuration
-from app.layout.floating_menu import user_menu_config, admin_menu_config
 
 
 # This route is called by an ajax call on the assets-page to populate the table.
 @user.route('/user/data', methods=['GET', 'POST'])
 @login_required
-def source_data():
+def data():
     return prepare_data_for_html(tables_configuration['user'])
 
 
@@ -30,20 +29,12 @@ def show():
     try:
         # The following line is required only to build the filter-fields on the page.
         _filter, _filter_form, a, b, c = build_filter_and_filter_data(tables_configuration['user'])
-        config = tables_configuration['user']
-        # floating menu depends if current user is admin or not
-        if current_user.is_at_least_admin:
-            config['floating_menu'] = admin_menu_config
-        else:
-            config['floating_menu'] = user_menu_config
     except Exception as e:
         log.error(u'Could not show users {}'.format(e))
         utils.flash_plus(u'Kan gebruikers niet tonen', e)
 
-    return render_template('base_multiple_items.html',
-                           title='users',
-                           filter=_filter, filter_form=_filter_form,
-                           config=config)
+    return render_template('base_multiple_items.html', title='users', filter=_filter, filter_form=_filter_form,
+                           config=tables_configuration['user'])
 
 
 @user.route('/user/action', methods=['GET', 'POST'])

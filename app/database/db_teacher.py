@@ -6,19 +6,31 @@ from app.database.models import Teacher, Schedule
 from app.utils import utils
 
 
-def db_teacher_list(select=False, schedule=True):
+def db_teacher_list(select=False, schedule=True, full_name=False, id_list=None):
     if select:
-        q = db.session.query(Teacher.id, Teacher.code)
+        if full_name:
+            q = db.session.query(Teacher.id, Teacher.code, Teacher.first_name, Teacher.last_name)
+        else:
+            q = db.session.query(Teacher.id, Teacher.code)
     else:
         q = Teacher.query
     if schedule:
         q = db_schedule.query_filter(q.join(Schedule))
     else:
         q = q.filter(Teacher.school == db_utils.school())
-    return q.distinct().order_by(Teacher.code).all()
+    if id_list:
+        q = q.filter(Teacher.id.in_(id_list))
+    q = q.distinct().order_by(Teacher.code).all()
+    if not full_name:
+        return q
+    return [(i, '{} ({} {})'.format(c, f, l)) for i, c, f, l in q]
 
-def db_teacher(id=None, code=None):
+def db_teacher(id=None, code=None, full_name=False):
     if id:
-        return Teacher.query.get(id)
+        teacher =  Teacher.query.get(id)
     elif code:
-        return Teacher.query.filter(Teacher.code == func.binary(code), Teacher.school == db_utils.school()).first()
+        teacher = Teacher.query.filter(Teacher.code == func.binary(code), Teacher.school == db_utils.school()).first()
+    if not full_name:
+        return teacher
+    else:
+        return '{} ({} {})'.format(teacher.code, teacher.first_name, teacher.last_name)

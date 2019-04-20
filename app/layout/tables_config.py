@@ -2,7 +2,6 @@
 
 from app.database.models import User, Remark, Teacher, Student, Grade, Lesson, ExtraMeasure, ReplacementTeacher
 from app.database.db_user import filter
-from app.layout.floating_menu import default_menu_config
 
 tables_configuration = {
     'remark' : {
@@ -22,13 +21,9 @@ tables_configuration = {
                       {'name': 'Opmerking', 'data':'subjects', 'order_by': lambda k: k['subjects'], 'width': '30%', 'orderable' : True},
                       {'name': 'Maatregel', 'data':'measures', 'order_by': lambda k: k['measures'], 'width': '30%', 'orderable' : True},
                       ],
-        'data_endpoint': 'source_data',
-        'edit_endpoint': 'edit',
-        'delete_endpoint': 'delete',
-        'start_check_endpoint': 'start_review',
+        'data_endpoint': 'data',
         'filter' :  ['academic_year', 'teacher', 'grade', 'lesson', 'reviewed'],
         'href': [],
-        'floating_menu' : [],
         'format_data': Remark.format_data,
     },
     'extra_measure' : {
@@ -42,10 +37,9 @@ tables_configuration = {
                       {'name': 'KL', 'data':'remark.grade.code', 'order_by': Grade.code, 'width': '1%', 'orderable' : True},
                       {'name': 'Maatregel', 'data':'note', 'order_by': lambda k: k['note'], 'width': '30%', 'orderable' : True},
                       ],
-        'data_endpoint' : 'source_data',
+        'data_endpoint' : 'data',
         'filter' :  ['academic_year', 'grade', 'lesson'],
         'href': [],
-        'floating_menu' : [],
         'row_detail' : 'reviewed',
         'format_data' : ExtraMeasure.format_data,
     },
@@ -64,20 +58,16 @@ tables_configuration = {
             {'name': 'Type', 'data': 'user_type', 'order_by': User.user_type, 'orderable' : True},
             {'name': 'Login', 'data': 'last_login', 'order_by': User.last_login, 'orderable' : True},
             {'name': 'Niveau', 'data': 'level', 'order_by': User.level, 'orderable' : True},],
-        'data_endpoint' : 'source_data',
-        'edit_endpoint': 'edit',
-        'delete_endpoint': 'delete',
-        'add_endpoint': 'add',
+        'data_endpoint' : 'data',
         'filter': [],
         'href': [],
-        'floating_menu' : default_menu_config,
         'query_filter' : filter,
         'format_data': User.format_data,
     },
     'replacement': {
         'model': ReplacementTeacher,
         'title' : 'Vervangleerkrachten',
-        'subject' :'settings',
+        'subject' :'settings.replacements',
         'buttons' : ['delete', 'add', 'edit'],
         'delete_message' : u'Wilt u deze vervanging(en) verwijderen?',
         'template': [
@@ -85,13 +75,9 @@ tables_configuration = {
             {'name': 'Vervanger', 'data': 'replaced_by', 'order_by': Teacher.code, 'width': '8%', 'orderable' : True},
             {'name': 'Vervangt', 'data': 'replacing', 'order_by': Teacher.code, 'orderable' : True},
         ],
-        'data_endpoint' : 'replacement_data',
-        'edit_endpoint': 'replacement_edit',
-        'delete_endpoint': 'replacement_delete',
-        'add_endpoint': 'replacement_add',
+        'data_endpoint' : 'data',
         'filter': [],
         'href': [],
-        'floating_menu' : [],
         'format_data': ReplacementTeacher.format_data,
     }
 }
