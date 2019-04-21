@@ -52,6 +52,8 @@ def filter_grade():
             choices = db_teacher.db_teacher_list(select=True, full_name=True)
         elif current_user.teacher_list:
             choices = current_user.teacher_list
+        else:
+            choices = None
         form_filter.teacher.choices = choices
 
         form_filter.dayhour.data = schedule.get_data_day_hour()
@@ -106,7 +108,10 @@ def action_done(action=None, id=-1):
             if action == 'add':
                 subjects = request.form.getlist('subject')
                 measures = request.form.getlist('measure')
-                teacher = Teacher.query.filter(Teacher.id == request.form['teacher'], Teacher.school == db_utils.school()).first()
+                if current_user.teacher and current_user.is_strict_user:
+                    teacher = current_user.teacher
+                else:
+                    teacher = Teacher.query.filter(Teacher.id == request.form['teacher'], Teacher.school == db_utils.school()).first()
                 d, h = Schedule.decode_dayhour(request.form['dayhour'])
                 lesson = db_lesson.db_lesson(request.form['lesson'])
                 # iterate over all students involved.  Create an remark per student.

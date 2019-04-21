@@ -29,7 +29,7 @@ class GradeFilter(FlaskForm):
 class TeacherFilter(FlaskForm):
     def __init__(self, *args, **kwargs):
         super(TeacherFilter, self).__init__(*args, **kwargs)
-        self.teacher.choices = [('', '')] + db_teacher.db_teacher_list(full_name=True, select=True)
+        self.teacher.choices = [('', '')] + db_teacher.db_teacher_list(full_name=True, schedule=False, select=True)
 
     teacher = SelectField(default='', label='leerkracht')
 

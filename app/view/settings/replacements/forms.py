@@ -1,17 +1,18 @@
 # -*- coding: utf-8 -*-
 
 from flask_wtf import FlaskForm
-from wtforms import PasswordField, StringField, ValidationError, IntegerField, SelectField
-from wtforms.validators import DataRequired
+from wtforms import IntegerField, SelectField
 from wtforms.widgets import HiddenInput
-from sqlalchemy import func
 from app.database import db_teacher
 
-from app.database.models import User
 
 
 class EditForm(FlaskForm):
-    replaced_by = SelectField('Vervangende leerkracht', choices=db_teacher.db_teacher_list(select=True, schedule=False, full_name=True))
+    def __init__(self, *args, **kwargs):
+        super(EditForm, self).__init__(*args, **kwargs)
+        self.replaced_by.choices=db_teacher.db_teacher_list(select=True, schedule=False, full_name=True)
+
+    replaced_by = SelectField('Vervangende leerkracht')
     id = IntegerField(widget=HiddenInput())
 
 class AddForm(EditForm):

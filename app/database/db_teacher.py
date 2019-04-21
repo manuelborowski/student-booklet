@@ -32,5 +32,6 @@ def db_teacher(id=None, code=None, full_name=False):
         teacher = Teacher.query.filter(Teacher.code == func.binary(code), Teacher.school == db_utils.school()).first()
     if not full_name:
         return teacher
-    else:
+    elif teacher:
         return '{} ({} {})'.format(teacher.code, teacher.first_name, teacher.last_name)
+    return None
