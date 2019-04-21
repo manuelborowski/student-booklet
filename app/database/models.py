@@ -4,7 +4,6 @@
 from app import log, db
 from flask_login import UserMixin, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from app import login_manager
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.sql import func
 import cgi
@@ -65,6 +64,7 @@ class User(UserMixin, db.Model):
     last_login = db.Column(db.DateTime())
     settings = db.relationship('Settings', cascade='all, delete', backref='user', lazy='dynamic')
 
+
     @property
     def is_local(self):
         return self.user_type == User.USER_TYPE.LOCAL
@@ -122,11 +122,6 @@ class User(UserMixin, db.Model):
             em['chbx'] = "<input type='checkbox' class='chbx_all' name='chbx' value='{}'>".format(i.id)
             out.append(em)
         return out
-
-# Set up user_loader
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
 
 
 class Settings(db.Model):

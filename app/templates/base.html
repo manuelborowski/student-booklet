@@ -38,8 +38,10 @@
                     <ul class="dropdown-menu">
                         <li><a href="{{ url_for('settings.show_topics') }}">Opmerkingen en maatregelen</a></li>
                         <li><a href="{{ url_for('settings.replacements.show') }}">Vervangingen</a></li>
+                        {% if current_user.is_at_least_admin %}
                         <li><a href="{{ url_for('settings.show_database') }}">Database</a></li>
                         <li><a href="{{ url_for('settings.show_tests') }}">Testen</a></li>
+                        {% endif %}
                     </ul>
                 </li>
 

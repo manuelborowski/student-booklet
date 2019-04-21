@@ -47,10 +47,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V2.19 : implemented logic to handle valid_from in schedule.
 #V2.20 : teacher table has a school-column now
 #V2.21 : add/edit/remove substitute teachers, reworked settings
+#V2.22 : substitute teachers are implemented
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.21')
+    return dict(version = 'V2.22')
 
 #enable logging
 LOG_HANDLE = 'SB'

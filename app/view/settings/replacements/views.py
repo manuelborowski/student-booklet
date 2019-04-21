@@ -1,20 +1,14 @@
-from flask import render_template, redirect, url_for, request, json, jsonify
+from flask import render_template, redirect, url_for, request
 from flask_login import login_required
 
 from . import replacements, forms
-from app import db, log, admin_required, supervisor_required
+from app import db, log, supervisor_required
 
 
-from app.utils import utils, documents
+from app.utils import utils
 from app.database.models import ReplacementTeacher
-from app.database import db_measure_topic, db_subject_topic, db_setting, db_grade, db_remark, db_schedule, db_lesson, db_utils, db_teacher, db_replacement, \
-    multiple_items
+from app.database import db_utils, db_teacher, db_replacement, multiple_items
 from app.layout import tables_config
-from app.database.models import Grade, Student, Teacher, Lesson, Schedule, Remark, RemarkSubject, RemarkMeasure, ExtraMeasure, SubjectTopic, MeasureTopic, SCHOOL
-
-import os, datetime, random
-import unicodecsv  as  csv
-import zipfile
 
 
 @replacements.route('/settings/replacements/show', methods=['GET', 'POST'])
@@ -28,6 +22,7 @@ def show():
 
 
 @replacements.route('/settings/replacements/data', methods=['GET', 'POST'])
+@supervisor_required
 @login_required
 def data():
     ajax_table =  multiple_items.prepare_data_for_html(tables_config.tables_configuration['replacement'])
@@ -37,7 +32,7 @@ def data():
 
 @replacements.route('/settings/replacements/action', methods=['GET', 'POST'])
 @login_required
-@admin_required
+@supervisor_required
 def action():
     if utils.button_pressed('add'):
         return add()
@@ -51,7 +46,7 @@ def action():
 @replacements.route('/settings/replacements/action_done/<string:action>/<int:id>', methods=['GET', 'POST'])
 @replacements.route('/settings/replacements/action_done/<string:action>', methods=['GET', 'POST'])
 @login_required
-@admin_required
+@supervisor_required
 def action_done(action=None, id=-1):
     if utils.button_pressed('save'):
         if action == 'add':
@@ -104,7 +99,7 @@ def edit(action_done=False, id=-1):
             chbx_id_list = request.form.getlist('chbx')
             if chbx_id_list:
                 id = int(chbx_id_list[0])  # only the first one can be edited
-                absent_teacher_ids = [k for k,  in db_replacement.replacement_list(id=id, absent_teachers=True)]
+                absent_teacher_ids = db_replacement.replacement_list(id=id, ids_only=True)
                 # absent_teachers = db_teacher.db_teacher_list(select=True, full=True, id_list=replacements)
                 all_teachers = db_teacher.db_teacher_list(select=True, full_name=True)
                 filtered_teachers = []

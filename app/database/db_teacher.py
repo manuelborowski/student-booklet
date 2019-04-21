@@ -19,7 +19,7 @@ def db_teacher_list(select=False, schedule=True, full_name=False, id_list=None):
     else:
         q = q.filter(Teacher.school == db_utils.school())
     if id_list:
-        q = q.filter(Teacher.id.in_(id_list))
+        q = q.filter(Teacher.id.in_((id_list)))
     q = q.distinct().order_by(Teacher.code).all()
     if not full_name:
         return q

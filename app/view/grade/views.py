@@ -7,7 +7,7 @@ import datetime
 from . import grade
 from .forms import FilterForm
 from app import db, log
-from app.database import db_lesson, db_schedule, db_teacher, db_grade, db_student, db_utils
+from app.database import db_lesson, db_schedule, db_teacher, db_grade, db_student, db_utils, db_replacement
 from app.utils import utils
 from app.database.models import Student, Remark, RemarkSubject, RemarkMeasure, Teacher, Schedule, Lesson, SubjectTopic, MeasureTopic
 from app.layout.forms import RemarkForm
@@ -16,8 +16,9 @@ from app.layout.forms import RemarkForm
 def filter_grade():
     try:
         teacher = db_teacher.db_teacher(code=current_user.username)
-        teacher_found_in_schedule = not not db_schedule.db_schedule_list(teacher=teacher) if teacher else False
-        if not teacher_found_in_schedule and current_user.is_strict_user:
+        if not current_user.in_schedule and not current_user.in_replacement and current_user.is_strict_user:
+            #check for replacements
+            absent_teacher = db_replacement.replacement_list(id=teacher.id, )
             log.error(u'Level 1 user not in schedule')
             utils.flash_plus(u'Sorry, u kan op deze pagina niets zien')
             return FilterForm(), []
@@ -30,7 +31,7 @@ def filter_grade():
                 schedule = db_grade.db_filter_grade(int(request.form['teacher']), request.form['dayhour'], int(request.form['grade']),
                                                     int(request.form['lesson']), request.form['change_id'])
         else:  # first time the grade-page is visited
-            if teacher_found_in_schedule:
+            if current_user.in_schedule:
                 schedule = db_grade.db_filter_grade(teacher.id, '', 0, 0, 'teacher')
             else:
                 schedule = db_grade.db_filter_grade(0, 0, 0, 0)  # default settings
@@ -47,10 +48,11 @@ def filter_grade():
         # update default option
         form_filter = FilterForm()
         form_filter.teacher.data = str(schedule.teacher.id)
-        if teacher_found_in_schedule and current_user.is_strict_user:
-            form_filter.teacher.choices = [(teacher.id, teacher.code)]
-        else:
-            form_filter.teacher.choices = db_teacher.db_teacher_list(select=True)
+        if current_user.is_at_least_supervisor:
+            choices = db_teacher.db_teacher_list(select=True, full_name=True)
+        elif current_user.teacher_list:
+            choices = current_user.teacher_list
+        form_filter.teacher.choices = choices
 
         form_filter.dayhour.data = schedule.get_data_day_hour()
         form_filter.dayhour.choices = utils.filter_duplicates_out(teacher_schedules, Schedule.get_choices_day_hour())
