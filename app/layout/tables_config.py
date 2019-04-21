@@ -25,7 +25,9 @@ tables_configuration = {
         'filter' :  ['academic_year', 'teacher', 'grade', 'lesson', 'reviewed'],
         'href': [],
         'format_data': Remark.format_data,
-    },
+        'legend': '<span class="badge legend-badge" style="background-color: lightsalmon">Extra aandacht</span>',
+
+},
     'extra_measure' : {
         'model' : ExtraMeasure,
         'title' : 'Afgewerkt',
@@ -42,6 +44,7 @@ tables_configuration = {
         'href': [],
         'row_detail' : 'reviewed',
         'format_data' : ExtraMeasure.format_data,
+        'legend': '<span class="badge legend-badge" style="background-color: lightsalmon">Extra aandacht</span>',
     },
     'user': {
         'model': User,

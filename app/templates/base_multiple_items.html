@@ -59,10 +59,11 @@
             <button class="btn btn-default" type="button" onclick="start_review()">Start controle</button>
             {% endif %}
         {% endif %}
-
+        {% if config.legend %}
             <br>
             <br>
-            <span class="badge legend-badge" style="background-color: lightsalmon">Extra aandacht</span>
+            Legende : {{config.legend|safe}}
+        {% endif %}
 
             <table cellspacing="0" class="table table-striped table-bordered wrap" id="datatable" width="100%">
                 <thead>

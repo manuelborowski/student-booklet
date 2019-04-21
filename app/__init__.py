@@ -48,10 +48,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V2.20 : teacher table has a school-column now
 #V2.21 : add/edit/remove substitute teachers, reworked settings
 #V2.22 : substitute teachers are implemented
+#V2.23 : reworked legend
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.22')
+    return dict(version = 'V2.23')
 
 #enable logging
 LOG_HANDLE = 'SB'
