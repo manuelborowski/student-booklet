@@ -230,9 +230,9 @@ class Schedule(db.Model):
     grade_id = db.Column(db.Integer, db.ForeignKey('grades.id', ondelete='CASCADE'))
     teacher_id = db.Column(db.Integer, db.ForeignKey('teachers.id', ondelete='CASCADE'))
     lesson_id = db.Column(db.Integer, db.ForeignKey('lessons.id', ondelete='CASCADE'))
-    school = db.Column(db.String(1024), default='Lyceum')
-    valid_from = db.Column(db.Date, default=None)
-    academic_year = db.Column(db.Integer, default=None)
+    school = db.Column(db.String(1024), default='Lyceum', index=True)
+    valid_from = db.Column(db.Date, default=None, index=True)
+    academic_year = db.Column(db.Integer, default=None, index=True)
     test = db.Column(db.Boolean, default = False)
 
     def __repr__(self):

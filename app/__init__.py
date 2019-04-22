@@ -52,10 +52,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V2.24 : if substitute teacher adds a remark, the remark is associated with the substitute teacherµ
 #V2.25 : small bugfixes
 #V2.26 : issue with creating/upgrading the database
+#V2.27 : create index on schedule table
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.26')
+    return dict(version = 'V2.27')
 
 #enable logging
 LOG_HANDLE = 'SB'
