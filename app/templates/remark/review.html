@@ -65,8 +65,9 @@
         <br>
         <form method="post" class="form" id="form_review_done" action="{{url_for('remarks.action_done', action='review-done')}}" enctype=multipart/form-data>
             <input type="text" hidden name="academic_year" value="{{selected_academic_year}}">
+            <input type="hidden" name="button-pressed" value="save">
             <hr style="border-top: 10px solid #d1dc9c; margin-top: -5px; margin-bottom: 10px;"/>
-            <button class="btn btn-default" id="btn_review_done" name="button-pressed" value="save" onclick="review_done()">Controle afronden</button>
+            <button class="btn btn-default" type="button" onclick="review_done()">Controle afronden</button>
         </form>
         {% else %}
         <h1>Er zijn geen leerlingen die gecontroleerd moeten worden</h1>

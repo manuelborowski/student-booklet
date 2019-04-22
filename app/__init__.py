@@ -49,11 +49,12 @@ app = Flask(__name__, instance_relative_config=True)
 #V2.21 : add/edit/remove substitute teachers, reworked settings
 #V2.22 : substitute teachers are implemented
 #V2.23 : reworked legend
-#V2.24 : if substitute teacher adds a remark, the remark is associated with the substitute teacher
+#V2.24 : if substitute teacher adds a remark, the remark is associated with the substitute teacherµ
+#V2.25 : small bugfixes
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.24')
+    return dict(version = 'V2.25')
 
 #enable logging
 LOG_HANDLE = 'SB'

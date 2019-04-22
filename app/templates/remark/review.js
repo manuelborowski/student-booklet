@@ -73,8 +73,9 @@ function review_done() {
     });
     if(all_reviewed) {
         bootbox.confirm("Bent u zeker dat u de controle wil beëindigen?", function (result) {
-            //window.location.href = Flask.url_for('remarks.review_done');
-            $("#form_review_done").submit();
+            if(result) {
+                $("#form_review_done").submit();
+            }
         });
     } else {
         bootbox.alert("Opgepast, nog niet alle leerlingen zijn gecontroleerd!");

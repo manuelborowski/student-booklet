@@ -28,7 +28,8 @@ def query_filter(query_in):
             now = datetime.datetime.strptime(db_setting.get_global_setting_sim_dayhour(), '%d-%m-%Y %H:%M')
         except Exception as e:
             log.error('bad sim dayhour string : {}'.format(e))
-    schedule = Schedule.query.filter(Schedule.valid_from <= now).order_by(Schedule.valid_from).all()[-1]
-
-    return query_in.filter(Schedule.school == db_utils.school(), Schedule.academic_year == db_utils.academic_year(), Schedule.valid_from == schedule.valid_from)
+    schedule = Schedule.query.filter(Schedule.valid_from <= now).order_by(Schedule.valid_from).all()
+    if not schedule:
+        return query_in
+    return query_in.filter(Schedule.school == db_utils.school(), Schedule.academic_year == db_utils.academic_year(), Schedule.valid_from == schedule[-1].valid_from)
 
