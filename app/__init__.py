@@ -51,10 +51,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V2.23 : reworked legend
 #V2.24 : if substitute teacher adds a remark, the remark is associated with the substitute teacherµ
 #V2.25 : small bugfixes
+#V2.26 : issue with creating/upgrading the database
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.25')
+    return dict(version = 'V2.26')
 
 #enable logging
 LOG_HANDLE = 'SB'
@@ -71,12 +72,6 @@ class IntegerConverter(OrigIntegerConvertor):
     regex = r'-?\d+'
     num_convert = int
 
-
-def create_admin(db):
-    from app.database.models import User
-    admin = User(username='admin', password='admin', level=User.LEVEL.ADMIN, user_type=User.USER_TYPE.LOCAL)
-    db.session.add(admin)
-    db.session.commit()
 
 #support custom filtering while logging
 class MyLogFilter(logging.Filter):
@@ -111,6 +106,12 @@ jsglue = JSGlue(app)
 db.app=app  # hack :-(
 db.init_app(app)
 
+def create_admin():
+    from app.database.models import User
+    admin = User(username='admin', password='admin', level=User.LEVEL.ADMIN, user_type=User.USER_TYPE.LOCAL)
+    db.session.add(admin)
+    db.session.commit()
+
 app.url_map.converters['int'] = IntegerConverter
 
 login_manager.init_app(app)
@@ -119,77 +120,78 @@ login_manager.login_view = 'auth.login'
 
 migrate = Migrate(app, db)
 
-#from app.database import models
+if 'db' in sys.argv:
+    from app.database import models
+else:
+    #create_admin() # Only once
 
-#create_admin(database) # Only once
+    #flask database migrate
+    #flask database upgrade
+    #uncheck when migrating database
+    #return app
 
-#flask database migrate
-#flask database upgrade
-#uncheck when migrating database
-#return app
+    #app.config['PROFILE'] = True
+    #app.wsgi_app = ProfilerMiddleware(app.wsgi_app, restrictions=['sql', 0.4])
 
-#app.config['PROFILE'] = True
-#app.wsgi_app = ProfilerMiddleware(app.wsgi_app, restrictions=['sql', 0.4])
-
-#decorator to grant access to admins only
-def admin_required(func):
-    @wraps(func)
-    def decorated_view(*args, **kwargs):
-        if not current_user.is_at_least_admin:
-            abort(403)
-        return func(*args, **kwargs)
-    return decorated_view
-
-
-#decorator to grant access to at least supervisors
-def supervisor_required(func):
-    @wraps(func)
-    def decorated_view(*args, **kwargs):
-        if not current_user.is_at_least_supervisor:
-            abort(403)
-        return func(*args, **kwargs)
-    return decorated_view
+    #decorator to grant access to admins only
+    def admin_required(func):
+        @wraps(func)
+        def decorated_view(*args, **kwargs):
+            if not current_user.is_at_least_admin:
+                abort(403)
+            return func(*args, **kwargs)
+        return decorated_view
 
 
+    #decorator to grant access to at least supervisors
+    def supervisor_required(func):
+        @wraps(func)
+        def decorated_view(*args, **kwargs):
+            if not current_user.is_at_least_supervisor:
+                abort(403)
+            return func(*args, **kwargs)
+        return decorated_view
 
-from app.view.grade import grade as grade_blueprint
-app.register_blueprint(grade_blueprint)
 
-from app.view.auth import auth as auth_blueprint
-app.register_blueprint(auth_blueprint)
 
-from app.view.settings import settings as settings_blueprint
-app.register_blueprint(settings_blueprint)
+    from app.view.grade import grade as grade_blueprint
+    app.register_blueprint(grade_blueprint)
 
-from app.view.settings.replacements import replacements as replacements_blueprint
-app.register_blueprint(replacements_blueprint)
+    from app.view.auth import auth as auth_blueprint
+    app.register_blueprint(auth_blueprint)
 
-from app.view.user import user as user_blueprint
-app.register_blueprint(user_blueprint)
+    from app.view.settings import settings as settings_blueprint
+    app.register_blueprint(settings_blueprint)
 
-from app.view.remarks import remarks as remarks_blueprint
-app.register_blueprint(remarks_blueprint)
+    from app.view.settings.replacements import replacements as replacements_blueprint
+    app.register_blueprint(replacements_blueprint)
 
-from app.view.reviewed import reviewed as reviewed_blueprint
-app.register_blueprint(reviewed_blueprint)
+    from app.view.user import user as user_blueprint
+    app.register_blueprint(user_blueprint)
 
-from app.utils.documents import init_documents
-init_documents(app, 'photo')
+    from app.view.remarks import remarks as remarks_blueprint
+    app.register_blueprint(remarks_blueprint)
 
-@app.errorhandler(403)
-def forbidden(error):
-    return render_template('errors/403.html', title='Forbidden'), 403
+    from app.view.reviewed import reviewed as reviewed_blueprint
+    app.register_blueprint(reviewed_blueprint)
 
-@app.errorhandler(404)
-def page_not_found(error):
-    return render_template('errors/404.html', title='Page Not Found'), 404
+    from app.utils.documents import init_documents
+    init_documents(app, 'photo')
 
-@app.errorhandler(500)
-def internal_server_error(error):
-    return render_template('errors/500.html', title='Server Error'), 500
+    @app.errorhandler(403)
+    def forbidden(error):
+        return render_template('errors/403.html', title='Forbidden'), 403
 
-@app.route('/500')
-def error_500():
-    abort(500)
+    @app.errorhandler(404)
+    def page_not_found(error):
+        return render_template('errors/404.html', title='Page Not Found'), 404
+
+    @app.errorhandler(500)
+    def internal_server_error(error):
+        return render_template('errors/500.html', title='Server Error'), 500
+
+    @app.route('/500')
+    def error_500():
+        abort(500)
 
 
