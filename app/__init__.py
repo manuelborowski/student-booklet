@@ -54,10 +54,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V2.26 : issue with creating/upgrading the database
 #V2.27 : create index on schedule table
 #V2.28 : replacement teacher list : added full name
+#V2.29 : update of packages : sqlalchemy and urllib3
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.28')
+    return dict(version = 'V2.29')
 
 #enable logging
 LOG_HANDLE = 'SB'

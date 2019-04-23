@@ -70,10 +70,12 @@ def build_filter_and_filter_data(table, paginate=True):
     _template = table['template']
 
     if _model is Remark:
-        _filtered_list = db.session.query(Remark, Student, Grade, Teacher, Lesson).join(Student, Grade, Teacher, Lesson)\
+        _filtered_list = db.session.query(Remark, Student, Grade, Teacher, Lesson).join(Student, Student.id == Remark.student_id) \
+            .join(Grade, Grade.id == Remark.grade_id).join(Teacher, Teacher.id == Remark.teacher_id).join(Lesson, Lesson.id == Remark.lesson_id)\
             .filter(Remark.school == app.database.db_utils.school())
     elif _model is ExtraMeasure:
-        _filtered_list = db.session.query(ExtraMeasure, Remark, Student, Grade).join(Remark, Student, Grade)\
+        _filtered_list = db.session.query(ExtraMeasure, Remark, Student, Grade).join(Remark, Remark.extra_measure_id == ExtraMeasure.id)\
+            .join(Student, Student.id == Remark.student_id).join(Grade, Grade.id == Remark.grade_id)\
             .filter(Remark.reviewed == True, Remark.first_remark == True, Remark.school == app.database.db_utils.school())
     elif _model is ReplacementTeacher:
         _filtered_list = db.session.query(ReplacementTeacher, Teacher).join(Teacher, ReplacementTeacher.replaced_by_id == Teacher.id)
