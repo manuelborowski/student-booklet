@@ -10,6 +10,7 @@ from flask_migrate import Migrate
 from flask_bootstrap import Bootstrap
 from flask_jsglue import JSGlue
 from werkzeug.routing import IntegerConverter as OrigIntegerConvertor
+from werkzeug.contrib.profiler import ProfilerMiddleware
 import logging.handlers, os, sys
 from functools import wraps
 
@@ -55,10 +56,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V2.27 : create index on schedule table
 #V2.28 : replacement teacher list : added full name
 #V2.29 : update of packages : sqlalchemy and urllib3
+#V2.30 : bugfixed a query to improve speed
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.29')
+    return dict(version = 'V2.30')
 
 #enable logging
 LOG_HANDLE = 'SB'
@@ -134,7 +136,7 @@ else:
     #return app
 
     #app.config['PROFILE'] = True
-    #app.wsgi_app = ProfilerMiddleware(app.wsgi_app, restrictions=['sql', 0.4])
+    #app.wsgi_app = ProfilerMiddleware(app.wsgi_app, restrictions=['app', 0.8])
 
     #decorator to grant access to admins only
     def admin_required(func):

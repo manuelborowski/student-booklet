@@ -1,3 +1,5 @@
+from flask_login import current_user
+from sqlalchemy import desc
 from app import db, log
 from app.database import db_utils, db_setting
 from app.database.models import Schedule, Teacher
@@ -27,9 +29,10 @@ def query_filter(query_in):
         try:
             now = datetime.datetime.strptime(db_setting.get_global_setting_sim_dayhour(), '%d-%m-%Y %H:%M')
         except Exception as e:
-            log.error('bad sim dayhour string : {}'.format(e))
-    schedule = Schedule.query.filter(Schedule.valid_from <= now).order_by(Schedule.valid_from).all()
+            pass
+    schedule = Schedule.query.filter(Schedule.valid_from <= now).distinct().order_by(desc(Schedule.valid_from)).first()
     if not schedule:
         return query_in
-    return query_in.filter(Schedule.school == db_utils.school(), Schedule.academic_year == db_utils.academic_year(), Schedule.valid_from == schedule[-1].valid_from)
+
+    return query_in.filter(Schedule.school == db_utils.school(), Schedule.academic_year == db_utils.academic_year(), Schedule.valid_from == schedule.valid_from)
 

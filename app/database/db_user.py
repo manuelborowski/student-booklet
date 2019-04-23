@@ -1,9 +1,7 @@
 from flask_login import current_user
 from app import login_manager
-
 from app.database.models import User
 from app.database import db_teacher, db_schedule, db_replacement
-
 
 def filter(query_in):
     #If the logged in user is NOT administrator, display the data of the current user only
