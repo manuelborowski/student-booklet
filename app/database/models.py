@@ -272,13 +272,16 @@ class ReplacementTeacher(db.Model):
         replacements = {}
         for i in db_list:
             if i.ReplacementTeacher.replaced_by_teacher in replacements:
-                replacements[i.ReplacementTeacher.replaced_by_teacher] += ', ' + i.ReplacementTeacher.replacing_teacher.code
+                replacements[i.ReplacementTeacher.replaced_by_teacher].append(i.ReplacementTeacher.replacing_teacher)
             else:
-                replacements[i.ReplacementTeacher.replaced_by_teacher] = i.ReplacementTeacher.replacing_teacher.code
+                replacements[i.ReplacementTeacher.replaced_by_teacher] = [i.ReplacementTeacher.replacing_teacher]
         for k, v in replacements.items():
             em = {}
-            em['replaced_by'] = k.code
-            em['replacing'] = v
+            em['replaced_by'] = '{} ({} {})'.format(k.code, k.first_name, k.last_name)
+            l = ''
+            for t in v:
+                l += '{} ({} {})'.format(t.code, t.first_name, t.last_name) + ', '
+            em['replacing'] = l
             em['chbx'] = "<input type='checkbox' class='chbx_all' name='chbx' value='{}'>".format(k.id) #replaced-by-teacher-id
             out.append(em)
         return out

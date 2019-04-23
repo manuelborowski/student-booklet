@@ -75,7 +75,7 @@ tables_configuration = {
         'delete_message' : u'Wilt u deze vervanging(en) verwijderen?',
         'template': [
             {'name': 'chbx', 'data':'chbx', 'order_by': Teacher.code, 'width': '2%', 'orderable' : False},
-            {'name': 'Vervanger', 'data': 'replaced_by', 'order_by': Teacher.code, 'width': '8%', 'orderable' : True},
+            {'name': 'Vervanger', 'data': 'replaced_by', 'order_by': Teacher.code, 'width': '20%', 'orderable' : True},
             {'name': 'Vervangt', 'data': 'replacing', 'order_by': Teacher.code, 'orderable' : True},
         ],
         'data_endpoint' : 'data',
