@@ -57,10 +57,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V2.28 : replacement teacher list : added full name
 #V2.29 : update of packages : sqlalchemy and urllib3
 #V2.30 : bugfixed a query to improve speed
+#V2.31 : added indication for test-server.  Bugfixed grade-button : button-pressed was not present in request
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.30')
+    return dict(version = 'V2.31')
 
 #enable logging
 LOG_HANDLE = 'SB'

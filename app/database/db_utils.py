@@ -6,7 +6,7 @@ from app.database.models import SCHOOL
 
 @app.context_processor
 def inject_academic_year():
-    return dict(academic_year=academic_year())
+    return dict(academic_year=academic_year(), test_server=db_setting.get_global_setting_test_server())
 
 
 def school():

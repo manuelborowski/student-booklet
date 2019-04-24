@@ -28,7 +28,8 @@
             {% endfor %}
         </div>
         <br>
-    <button class="btn btn-default" name="button-pressed" value="add" onclick="add_remark();">Volgende</button>
+    <input type="hidden" name="button-pressed" value="add">
+    <button class="btn btn-default" type="button" onclick="add_remark();">Volgende</button>
     <a class="btn btn-default" type=button" id="select_all" onclick="select_all_students()">Selecteer iedereen</a>
     </form>
 

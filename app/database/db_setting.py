@@ -81,3 +81,10 @@ def get_global_setting_current_academic_year():
 
 def set_global_setting_current_academic_year(value):
     return set_setting('current_academic_year', str(value), 1)
+
+def get_global_setting_test_server():
+    found, value = get_setting('test_server', 1)
+    if found: return value
+    add_setting('test_server', False, Settings.SETTING_TYPE.E_BOOL, 1)
+    return False
+

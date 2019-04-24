@@ -20,7 +20,10 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand">Leerlingenmapje, schooljaar {{academic_year}}</a>
+            <a class="navbar-brand">Leerlingenmapje, schooljaar {{academic_year|safe}}</a>
+            {% if test_server %}
+            <a class="navbar-brand" style="background-color: red;color: black;"> TESTSERVER </a>
+            {% endif %}
         </div>
         <div class="collapse navbar-collapse" id="student-booklet-navbar">
             <ul id="sb_navbar" class="nav navbar-nav navbar-right">
