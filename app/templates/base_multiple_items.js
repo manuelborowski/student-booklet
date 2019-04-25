@@ -157,6 +157,9 @@ $(document).ready(function() {
             {data: "{{h.data}}", width: "{{h.width}}", orderable: {{h.orderable}} },
        {% endfor %}
        ],
+       {% if 'default_order' in config %}
+       "order" : [[ {{config.default_order[0]}}, "{{config.default_order[1]}}"]],
+       {% endif %}
        "language" : {
         /*"url" : "static/DataTables/nl_nl.lang"*/
         "url" : "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Dutch.json"

@@ -26,7 +26,7 @@ tables_configuration = {
         'href': [],
         'format_data': Remark.format_data,
         'legend': '<span class="badge legend-badge" style="background-color: lightsalmon">Extra aandacht</span>',
-
+        'default_order' : (2, 'desc')
 },
     'extra_measure' : {
         'model' : ExtraMeasure,
