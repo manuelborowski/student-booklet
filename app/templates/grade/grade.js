@@ -16,6 +16,22 @@ $(document).ready(function(){
     });
     $("#select_all").html("Selecteer iedereen");
 
+    $("#dayhour > option").each(function(){
+        if (this.value.includes("disabled")) {
+            this.setAttribute('disabled', true);
+        }
+    });
+    $("#grade > option").each(function(){
+        if (this.value.includes("disabled")) {
+            this.setAttribute('disabled', true);
+        }
+    });
+    $("#lesson > option").each(function(){
+        if (this.value.includes("disabled")) {
+            this.setAttribute('disabled', true);
+        }
+    });
+
 });
 
 function select_all_students() {

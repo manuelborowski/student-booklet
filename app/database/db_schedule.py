@@ -5,15 +5,15 @@ from app.database import db_utils, db_setting
 from app.database.models import Schedule, Teacher
 import datetime
 
-def db_schedule_list(teacher=None, select=False):
-    if select:
+def db_schedule_list(teacher=None, html_select=False):
+    if html_select:
         q = db.session.query(Schedule.day, Schedule.hour)
     else:
         q = Schedule.query
     if teacher:
         q = q.join(Teacher).filter(Schedule.teacher == teacher)
     q_all = query_filter(q).distinct().order_by(Schedule.day, Schedule.hour).all()
-    if select:
+    if html_select:
         l = [('{}/{}'.format(d, h), '{} : {}'.format(Schedule.WEEK_DAYS[d - 1], h)) for (d, h) in q_all]
         return l
     return q_all
