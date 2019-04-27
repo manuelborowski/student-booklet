@@ -15,7 +15,7 @@ def filter(query_in):
 def load_user(user_id):
     user = User.query.get(int(user_id))
     if user:
-        user.teacher = db_teacher.db_teacher(code=user.username)
+        user.teacher = db_teacher.db_teacher(code=user.username.upper())
         user.in_schedule = not not db_schedule.db_schedule_list(teacher=user.teacher) if user.teacher else False
         user.in_replacement = not not db_replacement.replacement_list(id=user.teacher.id) if user.teacher else False
 

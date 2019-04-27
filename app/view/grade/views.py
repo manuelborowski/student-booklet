@@ -15,10 +15,7 @@ from app.layout.forms import RemarkForm
 
 def filter_grade():
     try:
-        teacher = db_teacher.db_teacher(code=current_user.username)
         if not current_user.in_schedule and not current_user.in_replacement and current_user.is_strict_user:
-            #check for replacements
-            absent_teacher = db_replacement.replacement_list(id=teacher.id, )
             log.error(u'Level 1 user not in schedule')
             utils.flash_plus(u'Sorry, u kan op deze pagina niets zien')
             return FilterForm(), []
@@ -32,7 +29,7 @@ def filter_grade():
                                                     int(request.form['lesson']), request.form['change_id'])
         else:  # first time the grade-page is visited
             if current_user.in_schedule:
-                schedule = db_grade.db_filter_grade(teacher.id, '', 0, 0, 'teacher')
+                schedule = db_grade.db_filter_grade(current_user.teacher.id, '', 0, 0, 'teacher')
             else:
                 schedule = db_grade.db_filter_grade(0, 0, 0, 0)  # default settings
     except Exception as e:

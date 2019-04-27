@@ -412,7 +412,7 @@ class Remark(db.Model):
             return ''
 
     def checkbox_required(self):
-        user_check = self.teacher.code == current_user.username if current_user.is_strict_user else True
+        user_check = self.teacher == current_user.teacher if current_user.is_strict_user else True
         return user_check and not self.reviewed
 
 

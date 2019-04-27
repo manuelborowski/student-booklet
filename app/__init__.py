@@ -58,10 +58,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V2.29 : update of packages : sqlalchemy and urllib3
 #V2.30 : bugfixed a query to improve speed
 #V2.31 : added indication for test-server.  Bugfixed grade-button : button-pressed was not present in request
+#V2.32 : allow oath users with small letters.  Remarks list : default sort on date descending
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.31')
+    return dict(version = 'V2.32')
 
 #enable logging
 LOG_HANDLE = 'SB'
