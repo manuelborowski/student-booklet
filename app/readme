@@ -1,0 +1,4 @@
+Upgrade to V2.32 : insert ClassGroup table between Grade and Student/Schedule
+1) db upgrade (add ClassGroup table)
+2) Schedule/Student : remove foreign key to Grade and db upgrade
+3) Schedule/Student : add foreign key to ClassGroup and db upgrade

@@ -3,8 +3,8 @@ from  app.database import db_utils, db_schedule
 from app.database.models import Lesson, Schedule, Teacher
 
 
-def db_lesson_list(teacher=None, select=False, schedule=True):
-    if select:
+def db_lesson_list(teacher=None, html_select=False, schedule=True):
+    if html_select:
         q = db.session.query(Lesson.id, Lesson.code)
     else:
         q = Lesson.query

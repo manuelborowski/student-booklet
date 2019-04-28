@@ -21,7 +21,7 @@ class SchoolyearFilter(FlaskForm):
 class GradeFilter(FlaskForm):
     def __init__(self, *args, **kwargs):
         super(GradeFilter, self).__init__(*args, **kwargs)
-        self.grade.choices = [('', '')] + db_grade.db_grade_list(select=True)
+        self.grade.choices = [('', '')] + db_grade.db_grade_list(html_select=True)
 
     grade = SelectField(default='', label='Klas')
 

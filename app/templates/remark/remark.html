@@ -12,13 +12,6 @@ Show a single remark page
     <h3>Opmerking toevoegen/wijzigen</h3>
     <form action="{{url_for(subject + '.action_done', action=action, id=form.id.data)}}" method="post" class="form" role="form" id="item_form" enctype=multipart/form-data>
         <div class="hidden">
-            {% if save_filters %}
-            {{ wtf.form_field(save_filters.teacher) }}
-            {{ wtf.form_field(save_filters.grade) }}
-            {{ wtf.form_field(save_filters.dayhour) }}
-            {{ wtf.form_field(save_filters.lesson) }}
-            <input type="hidden" id="change_id" name="change_id" value="teacher">
-            {% endif %}
             {% if save_remarks %}
             {% for r in save_remarks %}
             <input type="hidden" name="remark_id" value="{{ r.id|string }}">

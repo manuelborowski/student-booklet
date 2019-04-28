@@ -155,7 +155,7 @@ class Student(db.Model):
     photo = db.Column(db.String(256))
     hidden = db.Column(db.Boolean, default=False)
     remarks = db.relationship('Remark', cascade='all, delete', backref='student', lazy='dynamic')
-    grade_id = db.Column(db.Integer, db.ForeignKey('grades.id', ondelete='CASCADE'))
+    classgroup_id = db.Column(db.Integer, db.ForeignKey('classgroups.id', ondelete='CASCADE'))
     academic_year = db.Column(db.Integer, default=None)
 
     def nbr_of_remarks(self):
@@ -169,14 +169,26 @@ class Student(db.Model):
                 'full_name': u'{} {}'.format(self.first_name, self.last_name),
                 'number' : self.nbr_of_remarks}
 
+class Classgroup(db.Model):
+    __tablename__= 'classgroups'
+
+    id = db.Column(db.Integer, primary_key=True)
+    code = db.Column(db.String(256))
+    grade_id = db.Column(db.Integer, db.ForeignKey('grades.id', ondelete='CASCADE'))
+    students = db.relationship('Student', cascade='all, delete', backref='classgroup', lazy='dynamic')
+    schedules = db.relationship('Schedule', cascade='all, delete', backref='classgroup', lazy='dynamic')
+
+    def __repr__(self):
+        return '<Classgroup: {}/{}>'.format(self.id, self.code)
+
+
 class Grade(db.Model):
     __tablename__= 'grades'
 
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String(256))
-    students = db.relationship('Student', cascade='all, delete', backref='grade', lazy='dynamic')
     remarks = db.relationship('Remark', cascade='all, delete', backref='grade', lazy='dynamic')
-    schedules = db.relationship('Schedule', cascade='all, delete', backref='grade', lazy='dynamic')
+    classgroups = db.relationship('Classgroup', cascade='all, delete', backref='grade', lazy='dynamic')
     school = db.Column(db.String(256))
 
     @staticmethod
@@ -227,7 +239,7 @@ class Schedule(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     day = db.Column(db.Integer)
     hour = db.Column(db.Integer)
-    grade_id = db.Column(db.Integer, db.ForeignKey('grades.id', ondelete='CASCADE'))
+    classgroup_id = db.Column(db.Integer, db.ForeignKey('classgroups.id', ondelete='CASCADE'))
     teacher_id = db.Column(db.Integer, db.ForeignKey('teachers.id', ondelete='CASCADE'))
     lesson_id = db.Column(db.Integer, db.ForeignKey('lessons.id', ondelete='CASCADE'))
     school = db.Column(db.String(1024), default='Lyceum', index=True)
@@ -236,7 +248,7 @@ class Schedule(db.Model):
     test = db.Column(db.Boolean, default = False)
 
     def __repr__(self):
-        return 'Schedule: {}/{}/{}/{}/{}/{}'.format(self.id, self.day, self.hour, self.grade.code, self.teacher.code, self.lesson.code)
+        return 'Schedule: {}/{}/{}/{}/{}/{}'.format(self.id, self.day, self.hour, self.classgroup.code, self.teacher.code, self.lesson.code)
 
 class Lesson(db.Model):
     __tablename__ = 'lessons'

@@ -5,10 +5,11 @@ from . import settings, forms
 from app import db, log, admin_required, supervisor_required
 
 from app.utils import utils, documents
-from app.database import db_measure_topic, db_subject_topic, db_setting, db_grade, db_remark, db_schedule, db_lesson, db_utils, db_teacher, db_replacement, \
-    multiple_items
+from app.database import db_measure_topic, db_subject_topic, db_setting, db_grade, db_remark, db_schedule, db_lesson, db_utils, db_teacher\
+    , multiple_items, db_classgroup
 from app.layout import tables_config
-from app.database.models import Grade, Student, Teacher, Lesson, Schedule, Remark, RemarkSubject, RemarkMeasure, ExtraMeasure, SubjectTopic, MeasureTopic, SCHOOL
+from app.database.models import Grade, Student, Teacher, Lesson, Schedule, Remark, RemarkSubject, RemarkMeasure, ExtraMeasure, SubjectTopic, MeasureTopic\
+    , SCHOOL, Classgroup
 
 import os, datetime, random
 import unicodecsv  as  csv
@@ -178,12 +179,12 @@ def upload_photos(rfile):
 # VOORNAAM       first_name
 # LEERLINGNUMMER number
 # FOTO           photo
-# KLAS           grade_id
+# KLASGROEP      classgroup
 
 # NO STUDENTS ARE REMOVED, STUDENTS ARE ADDED ONLY
 # students are identified by an unique studentnumber
 # if a list is uploaded again then it is checked if a student with the same studentnumber is already present
-# if so,  update grade, photo and academic year
+# if so,  update classgroup, photo and academic year
 
 # Students whom go to another internal school (from lyceuem to instituut), are automatically put in the correct school.
 
@@ -199,23 +200,23 @@ def upload_students(rfile):
 
         nbr_students = 0
         academic_year = request.form['selected_academic_year']
-        grades = {g.code: g for g in db_grade.db_grade_list()}
+        classgroups = {c.code: c for c in db_classgroup.db_classgroup_list()}
 
-        if grades:
+        if classgroups:
             for s in students_file:
                 # skip empy records
                 if s['VOORNAAM'] != '' and s['NAAM'] != '' and s['LEERLINGNUMMER'] != '' and s['FOTO'] != '':
                     # check for grade.  If it not exists, skip
-                    if s['KLAS'] in grades:
+                    if s['KLASGROEP'] in classgroups:
                         # add student, if not already present
                         find_student = Student.query.filter(Student.number == int(s['LEERLINGNUMMER'])).first()
                         if find_student:
                             find_student.photo = s['FOTO']
-                            find_student.grade = grades[s['KLAS']]
+                            find_student.classgroup = classgroups[s['KLASGROEP']]
                             find_student.academic_year = academic_year
                         else:
                             student = Student(first_name=s['VOORNAAM'], last_name=s['NAAM'], number=int(s['LEERLINGNUMMER']),
-                                              photo=s['FOTO'], grade=grades[s['KLAS']], academic_year=academic_year)
+                                              photo=s['FOTO'], classgroup=classgroups[s['KLASGROEP']], academic_year=academic_year)
                             db.session.add(student)
                             nbr_students += 1
             db.session.commit()
@@ -290,6 +291,7 @@ def upload_teachers(rfile):
 # REMOVE OLD SCHEDULE AND UPLOAD NEW SCHEDULE
 # if a grade does not exist yet, add it
 # if a lesson does not exist yet, add it
+# if a classgroup does not exist yeat, add it
 # Store the selected academic year and valid-from-date
 # A schedule is selected by the current academic year and the current date is equal to or later than the valid-from-date
 def upload_schedule(rfile):
@@ -308,7 +310,9 @@ def upload_schedule(rfile):
         nbr_lessons = 0
         error_message = ''
         nbr_grades = 0
-        grades = {g.code: g for g in db_grade.db_grade_list(schedule=False)}
+        nbr_classgroups = 0
+        grades = {g.code: g for g in db_grade.db_grade_list(in_schedule=False)}
+        classgroups = {c.code: c for c in db_classgroup.db_classgroup_list()}
         lessons = {l.code: l for l in db_lesson.db_lesson_list(schedule=False)}
         teachers = {t.code: t for t in db_teacher.db_teacher_list(schedule=False)}
 
@@ -317,7 +321,11 @@ def upload_schedule(rfile):
             if t['KLAS'] != '' and t['LEERKRACHT'] != '' and t['VAK'] != '' and t['DAG'] != '' and t['UUR'] != '':
                 if t['LEERKRACHT'] in teachers:
                     find_teacher = teachers[t['LEERKRACHT']]
-                    grade_code = t['KLAS'][:2]  # leave out the grade
+                    classgroup_code = t['KLAS']
+                    if len(classgroup_code.split(' ')) == 1:
+                        grade_code = classgroup_code
+                    else:
+                        grade_code = classgroup_code.split(' ')[0]
                     lesson_code = t['VAK']
                     # check for grade.  If it not exists, add it first
                     if grade_code in grades:
@@ -327,6 +335,14 @@ def upload_schedule(rfile):
                         db.session.add(find_grade)
                         grades[grade_code] = find_grade
                         nbr_grades += 1
+                    #check for classgroup, if not present, add
+                    if classgroup_code in classgroups:
+                        find_classgroup = classgroups[classgroup_code]
+                    else:
+                        find_classgroup = Classgroup(code=classgroup_code, grade=find_grade)
+                        db.session.add(find_classgroup)
+                        classgroups[classgroup_code] = find_classgroup
+                        nbr_classgroups += 1
                     # add lesson, if not already present
                     if lesson_code in lessons:
                         find_lesson = lessons[lesson_code]
@@ -336,8 +352,8 @@ def upload_schedule(rfile):
                         lessons[lesson_code] = find_lesson
                         nbr_lessons += 1
                     classmoment = Schedule(day=int(t['DAG']), hour=int(t['UUR']),
-                                           grade=find_grade, teacher=find_teacher, lesson=find_lesson, school=db_utils.school(), academic_year=academic_year,
-                                           valid_from=valid_from)
+                                           classgroup=find_classgroup, teacher=find_teacher, lesson=find_lesson, school=db_utils.school()
+                                           , academic_year=academic_year, valid_from=valid_from)
                     db.session.add(classmoment)
                     nbr_classmoments += 1
                 else:
@@ -345,9 +361,10 @@ def upload_schedule(rfile):
                     error_message += u'{} : niet gevonden<br>'.format(t['LEERKRACHT'])
 
         db.session.commit()
-        log.info(u'import: added {} classmoments, {} grades and {} lessons'.format(nbr_classmoments, nbr_grades, nbr_lessons))
+        log.info(u'import: added {} classmoments, {} grades, {} classgroups and {} lessons'.format(nbr_classmoments, nbr_grades, nbr_classgroups, nbr_lessons))
         if error_message == '':
-            utils.flash_plus(u'Lesrooster is geïmporteerd, {} lestijden, {} klassen en {} lessen toegevoegd'.format(nbr_classmoments, nbr_grades, nbr_lessons))
+            utils.flash_plus(u'Lesrooster is geïmporteerd, {} lestijden, {} klassen, {} klasgroepen en {} lessen toegevoegd'.format(nbr_classmoments,
+                                                                                                                nbr_grades, nbr_classgroups, nbr_lessons))
         else:
             utils.flash_plus(u'Lesrooster kan niet worden geïmporteerd', format(error_message))
 

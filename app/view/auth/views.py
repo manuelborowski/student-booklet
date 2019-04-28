@@ -5,7 +5,7 @@ from flask import redirect, render_template, url_for, request
 from flask_login import login_required, login_user, logout_user
 from sqlalchemy import func
 
-from app.database import db_teacher, db_replacement, db_schedule, db_user
+from app.database import db_user
 from app import log, db, app
 from . import auth
 from .forms import LoginForm
@@ -44,6 +44,7 @@ def login():
             login_user(user)
             log.info(u'LOCAL user {} logged in'.format(user.username))
             user.last_login = datetime.datetime.now()
+            db_user.default_grade_filter()
             try:
                 db.session.commit()
             except Exception as e:
@@ -84,6 +85,7 @@ def smartschool_profile(token):
         user.last_login = datetime.datetime.now()
         login_user(user)
         log.info(u'OAUTH user {} logged in'.format(user.username))
+        db_user.default_grade_filter()
         try:
             db.session.commit()
         except Exception as e:
