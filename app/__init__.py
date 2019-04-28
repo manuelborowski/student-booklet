@@ -60,10 +60,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V2.31 : added indication for test-server.  Bugfixed grade-button : button-pressed was not present in request
 #V2.32 : allow oath users with small letters.  Remarks list : default sort on date descending
 #V2.33 : added classgroup table
+#V2.34 : bugfix due to added classgroup table
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.33')
+    return dict(version = 'V2.34')
 
 #enable logging
 LOG_HANDLE = 'SB'

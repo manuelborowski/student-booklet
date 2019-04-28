@@ -409,8 +409,8 @@ def add_test_remarks():
     add_extra_measure = 'chkb-extra-measure' in request.form
     random.seed()
     try:
-        classmoments = db_schedule.query_filter(Schedule.query.join(Grade, Lesson, Teacher)).all()
-        students = db_schedule.query_filter(Student.query.join(Grade, Schedule)).all()
+        classmoments = db_schedule.query_filter(Schedule.query.join(Classgroup, Grade, Lesson, Teacher)).all()
+        students = db_schedule.query_filter(Student.query.join(Classgroup, Grade, Schedule)).all()
 
         for i in range(nbr_test_students):
             student = random.choice(students)
@@ -420,7 +420,7 @@ def add_test_remarks():
                 h = random.randint(10, 16)
                 m = random.randint(1, 50)
                 timestamp = datetime.datetime.strptime('{}/20{} {}:{}'.format(d, academic_year[2:4], h, m), '%d/%m/%Y %H:%M')
-                remark = Remark(student=student, grade=student.grade, timestamp=timestamp, lesson=classmoment.lesson, teacher=classmoment.teacher,
+                remark = Remark(student=student, grade=student.classgroup.grade, timestamp=timestamp, lesson=classmoment.lesson, teacher=classmoment.teacher,
                                 measure_note='', subject_note='TESTOPMERKING', school=db_utils.school(), academic_year=db_utils.academic_year(), test=True,
                                 extra_attention=random.choice([True, False, False, False]))
                 s = random.choice(db_subject_topic.db_subject_topic_list())
