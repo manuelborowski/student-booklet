@@ -95,7 +95,12 @@ def db_single_grade(schedules):
             classgroup_count = db.session.query(Classgroup).filter(Classgroup.grade == schedules[0].classgroup.grade).count()
             if len(schedules) != classgroup_count:
                 single_grade = False
-    return (True, '') if single_grade else (False, temp_cg_codes[:-1])
+    if single_grade:
+        return (True, '')
+    else:
+        if len(temp_cg_codes) > 40:
+            temp_cg_codes = temp_cg_codes[:40] + '...'
+        return (False, temp_cg_codes[:-1])
 
 
 def db_grade_list(teacher=None, html_select=False, in_schedule=True):
