@@ -148,3 +148,6 @@ table.dataTable thead th, table.dataTable thead td {
     display: none;
 }
 
+.datepicker {
+  z-index:1050 !important; /* above navbar */
+}

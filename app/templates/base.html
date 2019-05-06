@@ -24,6 +24,9 @@
             {% if test_server %}
             <a class="navbar-brand" style="background-color: red;color: black;"> TESTSERVER </a>
             {% endif %}
+            {% if sim_dayhour %}
+            <a class="navbar-brand" style="background-color: red;color: black;">{{sim_dayhour}}</a>
+            {% endif %}
         </div>
         <div class="collapse navbar-collapse" id="student-booklet-navbar"  {% if test_server %}style="background-color: red;"{% endif %}>
             <ul id="sb_navbar" class="nav navbar-nav navbar-right">

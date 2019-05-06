@@ -28,6 +28,13 @@ Show a single remark page
             {% endfor %}
         </div>
         <br>
+            <div class="form-group row">
+                <div class="col-sm-3 single-line">
+                    <label class="less-padding">Tijdstip</label>
+                    <select  class="datepicker" id="slct-hour" name="hour"></select>
+                    <input class="datepicker" type="text" id="txt-date" name="txt-date" value="{{date}}">
+                </div>
+            </div>
         <div class="container-fluid">
             <div class="form-group row">
                 {{ mywtf.select_multiple(form.subject, grid_class = 'col-sm-5') }}
@@ -57,7 +64,5 @@ Show a single remark page
 
 {% block scripts %}
 {{ super() }}
-<script>
-</script>
-
+<script type="text/javascript"> {% include "remark/remark.js" %}</script>
 {% endblock %}

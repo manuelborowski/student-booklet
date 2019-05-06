@@ -1,4 +1,12 @@
-Upgrade to V2.32 : insert ClassGroup table between Grade and Student/Schedule
-1) db upgrade (add ClassGroup table)
-2) Schedule/Student : remove foreign key to Grade and db upgrade
-3) Schedule/Student : add foreign key to ClassGroup and db upgrade
+Upgrade to V2.34 : insert ClassGroup table between Grade and Student/Schedule
+- pull git
+- stop student-booklet
+- in models.py : remark out classgroup_id (in Schedule and Student)
+- flask db migrate
+- flask db upgrade (in msql, columns are removed and a new table, classgroups, is added)
+- remove remarks classgroup_id
+- flask db migrate
+- flask db upgrade (in msql, columns are added to schedules and students)
+- start student-booklet
+- import new schedule and students
+- restart student-booklet

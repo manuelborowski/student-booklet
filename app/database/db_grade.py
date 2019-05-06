@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-import datetime
 
-from app.database import db_teacher, db_utils, db_schedule
+from app.database import db_utils, db_schedule
+from app.database.db_utils import db_get_timeslot_from_current_time
 from app.database.models import Teacher, Schedule, Grade, Lesson, Classgroup
-from app import db, log
-from app.database.db_setting import get_global_setting_sim_dayhour_state, get_global_setting_sim_dayhour
+from app import db
 
 
 def db_filter_grade(teacher_id, dayhour_str, grade_id, lesson_id, changed_item=None):
@@ -75,60 +74,6 @@ def db_filter_grade(teacher_id, dayhour_str, grade_id, lesson_id, changed_item=N
                           , lesson=lesson, classgroup=c))
     return schedules
 
-
-def db_get_timeslot_from_current_time():
-    TT = [
-        (0,        8*60+30,        10), #timeslot 9, of the previous day
-        (8*60+30,  8*60+30+50,     1), #first hour : 8:30 till 9:20
-        (9*60+20,  9*60+20+50+15,  2), #the break counts as timeslot 2
-        (10*60+25, 10*60+25+50,    3),
-        (11*60+15, 11*60+15+50,    4),
-        (12*60+5,  12*60+5+55,     5),
-        (13*60+0,  13*60+0+50,     6),
-        (13*60+50, 13*60+50+50+15, 7), #the break counts as timeslot 7
-        (14*60+55, 14*60+55+50,    8),
-        (15*60+45, 24*60,          9), #the whole evening as timeslot 9
-    ]
-
-    TT_W = [
-        (0,        8*60+30,        10), #timeslot 9 of the previous day
-        (8*60+30,  8*60+30+50,     1), #first hour : 8:30 till 9:20
-        (9*60+20,  9*60+20+50+10,  2), #the break counts as timeslot 2
-        (10*60+20, 10*60+20+50,    3),
-        (11*60+10, 24*60,          4), #the whole evening count as timeslot 4
-    ]
-
-    now = datetime.datetime.now()
-    if get_global_setting_sim_dayhour_state():
-        try:
-            now = datetime.datetime.strptime(get_global_setting_sim_dayhour(), '%d-%m-%Y %H:%M')
-        except Exception as e:
-            log.error('bad sim dayhour string : {}'.format(e))
-    day = now.weekday()+1
-    m = now.hour * 60 + now.minute
-
-    tt = TT_W if day == 3 else TT
-    d = h = 1
-    if day > 5: #no school, return friday last hour
-        d = 5
-        h = 9
-    else:
-        i = 0
-        for t in tt:
-            if t[0] <= m < t[1]:
-                i = t[2]
-                break
-        if i == 0: #not found
-            d = h = 1
-        elif i == 10: #now is before 8:30 in the morning
-            d = day - 1
-            h = 9
-            if d < 1:
-                d = h = 1
-        else: #now is after 8:30 in the morning
-            h = i
-            d = day
-    return d, h
 
 #input schedules : a list of schedules of a single teacher on a single classmoment
 #a teacher can teach different classgroups overlapping different grades, e.g;

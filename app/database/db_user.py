@@ -1,6 +1,6 @@
 from flask import session
 from flask_login import current_user
-from app import login_manager
+from app import login_manager, log
 from app.database.models import User
 from app.database import db_teacher, db_schedule, db_replacement
 
@@ -34,13 +34,17 @@ def load_user(user_id):
 
 #Simulate a filter where the teacher has changed.
 def default_grade_filter():
-    teacher_found = db_teacher.db_teacher(code=current_user.username)
-    teacher_in_schedule = not not db_schedule.db_schedule_list(teacher=teacher_found) if teacher_found else False
-    if teacher_in_schedule:
-        teacher_id = db_teacher.db_teacher(code=current_user.username.upper()).id
-    else:
-        teacher_id = db_teacher.db_teacher_list()[0].id
-    session_set_grade_filter(teacher_id=teacher_id, day_hour='None', grade_id=-1, lesson_id=-1, changed_item='teacher')
+    try:
+        teacher_found = db_teacher.db_teacher(code=current_user.username)
+        teacher_in_schedule = not not db_schedule.db_schedule_list(teacher=teacher_found) if teacher_found else False
+        if teacher_in_schedule:
+            teacher_id = db_teacher.db_teacher(code=current_user.username.upper()).id
+        else:
+            teacher_id = db_teacher.db_teacher_list()[0].id
+        session_set_grade_filter(teacher_id=teacher_id, day_hour='None', grade_id=-1, lesson_id=-1, changed_item='teacher')
+    except Exception as e:
+        log.error('default_grade_filter error : {}'.format(e))
+
 
 
 def session_set_grade_filter(teacher_id=None, day_hour=None, grade_id=None, lesson_id=None, changed_item=None):

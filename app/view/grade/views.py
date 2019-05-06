@@ -4,10 +4,11 @@ from flask import render_template, url_for, request, redirect
 from flask_login import login_required, current_user
 import datetime
 
+import app.database.db_utils
 from . import grade
 from .forms import FilterForm
 from app import db, log, app
-from app.database import db_lesson, db_schedule, db_teacher, db_grade, db_student, db_utils, db_user
+from app.database import db_lesson, db_schedule, db_teacher, db_grade, db_student, db_utils, db_user, db_setting
 from app.utils import utils
 from app.database.models import Student, Remark, RemarkSubject, RemarkMeasure, Teacher, Schedule, Lesson, SubjectTopic, MeasureTopic
 from app.layout.forms import RemarkForm
@@ -95,14 +96,25 @@ def show():
 def action():
     try:
         if utils.button_pressed('add'):
+            d, h = Schedule.decode_dayhour(request.form['dayhour'])
+            ts_d, ts_h = db_utils.db_get_timeslot_from_current_time(include_zero_hour=True)
+            delta_d = ts_d - d
+            if d * 10 + h > ts_d * 10 + ts_h:
+                delta_d += 7
+            now = datetime.datetime.now()
+            if db_setting.get_global_setting_sim_dayhour_state():
+                try:
+                    now = datetime.datetime.strptime(db_setting.get_global_setting_sim_dayhour(), '%d-%m-%Y %H:%M')
+                except Exception as e:
+                    log.error('bad sim dayhour string : {}'.format(e))
+            date = (now - datetime.timedelta(days=delta_d)).strftime('%d-%m-%Y')
             students = []
             for s in request.form.getlist('student_id'):
                 student = Student.query.get(s)
                 if student:
                     students.append(student)
             form = RemarkForm()
-            return render_template('remark/remark.html', subject='grade', action='add', save_remarks=None,
-                                   form=form, students=students)
+            return render_template('remark/remark.html', subject='grade', action='add', form=form, students=students, hour=h, date=date)
 
     except Exception as e:
         utils.flash_plus(u'Kan opmerking niet opslaan', e)
@@ -119,11 +131,12 @@ def action_done(action=None, id=-1):
                 teacher_id, day_hour, grade_id, lesson_id, changed_item = db_user.session_get_grade_filter()
                 subjects = request.form.getlist('subject')
                 measures = request.form.getlist('measure')
+                h, m = db_utils.timeslot_to_time(int(request.form['hour']))
+                timestamp = datetime.datetime.strptime('{} {}:{}'.format(request.form['txt-date'], h, m), '%d-%m-%Y %H:%M')
                 if current_user.teacher and current_user.is_strict_user:
                     teacher = current_user.teacher
                 else:
                     teacher = Teacher.query.filter(Teacher.id == teacher_id, Teacher.school == db_utils.school()).first()
-                #d, h = Schedule.decode_dayhour(day_hour)
                 lesson = db_lesson.db_lesson(lesson_id)
                 # iterate over all students involved.  Create an remark per student.
                 # link the measures and remark-subjects to the remark
@@ -131,7 +144,7 @@ def action_done(action=None, id=-1):
                     student = Student.query.get(int(s))
                     if student:
                         # save new remark
-                        remark = Remark(student=student, lesson=lesson, teacher=teacher, timestamp=datetime.datetime.now(),
+                        remark = Remark(student=student, lesson=lesson, teacher=teacher, timestamp=timestamp,
                                         measure_note=request.form['measure_note'], subject_note=request.form['subject_note'],
                                         grade=student.classgroup.grade, extra_attention='chkb_extra_attention' in request.form,
                                         school=db_utils.school(), academic_year=db_utils.academic_year())

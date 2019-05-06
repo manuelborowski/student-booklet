@@ -61,10 +61,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V2.32 : allow oath users with small letters.  Remarks list : default sort on date descending
 #V2.33 : added classgroup table
 #V2.34 : bugfix due to added classgroup table
+#V2.35 : when adding a remark, the program tries to guess the correct date.  The date can be altered, if required
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.34')
+    return dict(version = 'V2.35')
 
 #enable logging
 LOG_HANDLE = 'SB'

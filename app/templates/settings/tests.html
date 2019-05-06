@@ -27,7 +27,7 @@
                         Activeer <input type="checkbox" name="chkb-sim-dayhour" {% if settings.sim_dayhour_state== True %}checked{% endif %}>
                     </div>
                     <div class="col-sm-5">
-                        dag <input id='input-sim-day' name="txt-sim-day" value="{{settings.sim_day}}">
+                        dag <input id='input-sim-day' class="datepicker" name="txt-sim-day" value="{{settings.sim_day}}">
                     </div>
                     <div class="col-sm-5">
                         uur <input id='input-sim-hour' name="txt-sim-hour" value="{{settings.sim_hour}}">
