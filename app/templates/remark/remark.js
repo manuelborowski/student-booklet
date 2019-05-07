@@ -10,8 +10,13 @@ $(document).ready(function(){
         option.value = i;
         select.add(option);
     }
-    select.value ="{{hour}}";
+    select.value ="{{prime_data.hour}}";
 
     $('input[name="txt-date"]').datepicker(datepicker_options);
+
+    {% if prime_data.remark %}
+    $('#measure').val({{ prime_data.remark.measure_topics }});
+    $('#subject').val({{ prime_data.remark.subject_topics }});
+    {%  endif %}
 
 });

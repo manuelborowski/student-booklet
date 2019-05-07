@@ -57,14 +57,16 @@ TT_W = [
     (11 * 60 + 10, 24 * 60, 4),  # the whole evening count as timeslot 4
 ]
 
-def db_get_timeslot_from_current_time(include_zero_hour=False):
-
-    now = datetime.datetime.now()
-    if get_global_setting_sim_dayhour_state():
-        try:
-            now = datetime.datetime.strptime(get_global_setting_sim_dayhour(), '%d-%m-%Y %H:%M')
-        except Exception as e:
-            log.error('bad sim dayhour string : {}'.format(e))
+def time_to_timeslot(time=None, include_zero_hour=False):
+    if time:
+        now = time
+    else:
+        now = datetime.datetime.now()
+        if get_global_setting_sim_dayhour_state():
+            try:
+                now = datetime.datetime.strptime(get_global_setting_sim_dayhour(), '%d-%m-%Y %H:%M')
+            except Exception as e:
+                log.error('bad sim dayhour string : {}'.format(e))
     day = now.weekday()+1
     m = now.hour * 60 + now.minute
 

@@ -97,7 +97,7 @@ def action():
     try:
         if utils.button_pressed('add'):
             d, h = Schedule.decode_dayhour(request.form['dayhour'])
-            ts_d, ts_h = db_utils.db_get_timeslot_from_current_time(include_zero_hour=True)
+            ts_d, ts_h = db_utils.time_to_timeslot(include_zero_hour=True)
             delta_d = ts_d - d
             if d * 10 + h > ts_d * 10 + ts_h:
                 delta_d += 7
@@ -114,8 +114,11 @@ def action():
                 if student:
                     students.append(student)
             form = RemarkForm()
-            return render_template('remark/remark.html', subject='grade', action='add', form=form, students=students, hour=h, date=date)
+            prime_data = {}
+            prime_data['hour'] = h
+            prime_data['date'] = date
 
+            return render_template('remark/remark.html', subject='grade', action='add', form=form, students=students, prime_data=prime_data)
     except Exception as e:
         utils.flash_plus(u'Kan opmerking niet opslaan', e)
         log.error(u'Cannot save remarks {}'.format(e))

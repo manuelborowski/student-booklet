@@ -63,10 +63,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V2.34 : bugfix due to added classgroup table
 #V2.35 : when adding a remark, the program tries to guess the correct date.  The date can be altered, if required
 #V2.36 : truncate classgrouplist if it's longer than 40 characters
+#V2.37 : show current values when editing a remark
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.36')
+    return dict(version = 'V2.37')
 
 #enable logging
 LOG_HANDLE = 'SB'

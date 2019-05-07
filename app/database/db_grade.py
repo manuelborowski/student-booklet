@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from app.database import db_utils, db_schedule
-from app.database.db_utils import db_get_timeslot_from_current_time
+from app.database.db_utils import time_to_timeslot
 from app.database.models import Teacher, Schedule, Grade, Lesson, Classgroup
 from app import db
 
@@ -24,7 +24,7 @@ def db_filter_grade(teacher_id, dayhour_str, grade_id, lesson_id, changed_item=N
     teacher = Teacher.query.get(teacher_id)
 
     if changed_item == 'teacher':
-        d, h = db_get_timeslot_from_current_time()
+        d, h = time_to_timeslot()
         #try to find the classmoment, equal to or earlier than the given day and hour
         schedules_found = db_schedule.query_filter(Schedule.query.join(Teacher)).filter(Schedule.teacher == teacher)\
             .order_by(Schedule.day.desc(), Schedule.hour.desc()).all()

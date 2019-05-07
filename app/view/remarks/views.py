@@ -4,14 +4,14 @@ from flask_login import login_required
 import app.database.db_utils
 from . import remarks
 from app import db, log
-from app.database.models import Remark, RemarkSubject, RemarkMeasure, SubjectTopic, MeasureTopic
+from app.database.models import Remark, RemarkSubject, RemarkMeasure, SubjectTopic, MeasureTopic, Student
 from app.layout.forms import RemarkForm
 from app.database.multiple_items import build_filter_and_filter_data, prepare_data_for_html
 from app.utils import utils
 from app.layout.tables_config import tables_configuration
 from app.database.db_remark import db_filter_remarks_to_be_reviewed, db_add_extra_measure, db_tag_remarks_as_reviewed
 
-import json
+import json, datetime
 
 
 @remarks.route('/remarks/data', methods=['GET', 'POST'])
@@ -44,17 +44,29 @@ def action():
             db.session.commit()
             return redirect(url_for('remarks.show'))
         if utils.button_pressed('edit'):
-            students = set()
-            remarks = []
-            chbx_id_list = request.form.getlist('chbx')
-            for id in chbx_id_list:
-                remark = Remark.query.get(int(id))
-                if remark:
-                    remarks.append(remark)
-                    students.add(remark.student)
+            chbx_id = request.form.getlist('chbx')[0]
+            remark = db.session.query(Remark).join(Student, RemarkSubject, RemarkMeasure).join(SubjectTopic, SubjectTopic.id == RemarkSubject.topic_id)\
+                .join(MeasureTopic, MeasureTopic.id == RemarkMeasure.topic_id).filter(Remark.id==chbx_id).first()
             form_remark = RemarkForm()
-            return render_template('remark/remark.html', subject='remarks', action='edit', save_filters=None, save_remarks=remarks,
-                                   form=form_remark, students=students)
+
+            remark.measure_topics = []
+            for m in remark.measures:
+                remark.measure_topics.append(m.topic.id)
+
+            remark.subject_topics = []
+            for m in remark.subjects:
+                remark.subject_topics.append(m.topic.id)
+
+
+            prime_data = {}
+            d, h = app.database.db_utils.time_to_timeslot(time=remark.timestamp)
+            prime_data['hour'] = h
+            prime_data['date'] = remark.timestamp.strftime('%d-%m-%Y')
+            prime_data['remark'] = remark
+
+
+            return render_template('remark/remark.html', subject='remarks', action='edit',
+                                   form=form_remark, students=[remark.student], prime_data=prime_data)
         if utils.button_pressed('start-review'):
             return start_review()
 
@@ -71,17 +83,19 @@ def action_done(action=None, id=-1):
     if utils.button_pressed('save'):
         if action == 'edit':
             try:
-                # iterate over the remarks, delete the old subjects and measures and attach the new
-                for r in request.form.getlist('remark_id'):
-                    remark = Remark.query.get(int(r))
-                    if remark:
-                        for t in RemarkSubject.query.filter(RemarkSubject.remark_id == remark.id).all(): db.session.delete(t)
-                        for m in RemarkMeasure.query.filter(RemarkMeasure.remark_id == remark.id).all(): db.session.delete(m)
-                        for t in request.form.getlist('subject'): db.session.add(RemarkSubject(topic=SubjectTopic.query.get(int(t)), remark=remark))
-                        for m in request.form.getlist('measure'): db.session.add(RemarkMeasure(topic=MeasureTopic.query.get(int(m)), remark=remark))
-                        remark.measure_note = request.form['measure_note']
-                        remark.subject_note = request.form['subject_note']
-                        remark.extra_attention = 'chkb_extra_attention' in request.form
+                r_id = request.form['remark_id']
+                remark = Remark.query.get(int(r_id))
+                if remark:
+                    h, m = app.database.db_utils.timeslot_to_time(int(request.form['hour']))
+                    timestamp = datetime.datetime.strptime('{} {}:{}'.format(request.form['txt-date'], h, m), '%d-%m-%Y %H:%M')
+                    for t in RemarkSubject.query.filter(RemarkSubject.remark_id == remark.id).all(): db.session.delete(t)
+                    for m in RemarkMeasure.query.filter(RemarkMeasure.remark_id == remark.id).all(): db.session.delete(m)
+                    for t in request.form.getlist('subject'): db.session.add(RemarkSubject(topic=SubjectTopic.query.get(int(t)), remark=remark))
+                    for m in request.form.getlist('measure'): db.session.add(RemarkMeasure(topic=MeasureTopic.query.get(int(m)), remark=remark))
+                    remark.measure_note = request.form['measure_note']
+                    remark.subject_note = request.form['subject_note']
+                    remark.extra_attention = 'chkb_extra_attention' in request.form
+                    remark.timestamp = timestamp
                 db.session.commit()
                 return redirect(url_for('remarks.show'))
             except Exception as e:

@@ -12,10 +12,8 @@ Show a single remark page
     <h3>Opmerking toevoegen/wijzigen</h3>
     <form action="{{url_for(subject + '.action_done', action=action, id=form.id.data)}}" method="post" class="form" role="form" id="item_form" enctype=multipart/form-data>
         <div class="hidden">
-            {% if save_remarks %}
-            {% for r in save_remarks %}
-            <input type="hidden" name="remark_id" value="{{ r.id|string }}">
-            {% endfor %}
+            {% if prime_data.remark %}
+            <input type="hidden" name="remark_id" value="{{ prime_data.remark.id|string }}">
             {% endif %}
         </div>
         <div class="container-fluid">
@@ -32,7 +30,7 @@ Show a single remark page
                 <div class="col-sm-3 single-line">
                     <label class="less-padding">Tijdstip</label>
                     <select  class="datepicker" id="slct-hour" name="hour"></select>
-                    <input class="datepicker" type="text" id="txt-date" name="txt-date" value="{{date}}">
+                    <input class="datepicker" type="text" id="txt-date" name="txt-date" value="{{prime_data.date}}">
                 </div>
             </div>
         <div class="container-fluid">
@@ -43,15 +41,18 @@ Show a single remark page
             <div class="form-group row">
                 <div class="col-sm-5">
                     <label for="subject_note">Notitie bij opmerking</label>
-                    <textarea class="form-control" rows="5" id="subject_note" name="subject_note"></textarea>
+                    <textarea class="form-control" rows="5" id="subject_note"
+                              name="subject_note">{% if prime_data.remark %}{{prime_data.remark.subject_note}}{% endif %}</textarea>
                 </div>
                 <div class="col-sm-5">
                     <label for="measure_note">Notitie bij maatregel</label>
-                    <textarea class="form-control" rows="5" id="measure_note" name="measure_note"></textarea>
+                    <textarea class="form-control" rows="5" id="measure_note"
+                              name="measure_note">{% if prime_data.remark %}{{prime_data.remark.measure_note}}{% endif %}</textarea>
                 </div>
             </div>
         </div>
-        <input class="form-check-input" type="checkbox" name="chkb_extra_attention" id="extra-attention-id">
+        <input class="form-check-input" type="checkbox" name="chkb_extra_attention" id="extra-attention-id"
+               {% if prime_data.remark %}{% if prime_data.remark.extra_attention %} checked{% endif %}{% endif %}>
         <label class="form-check-label" for="extra-attention-id">Extra aandacht!</label>
         <br/>
         <button class="btn btn-default" name="button-pressed" value="save">Bewaar</button>
