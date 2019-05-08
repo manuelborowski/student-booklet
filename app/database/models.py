@@ -427,9 +427,13 @@ class Remark(db.Model):
         user_check = self.teacher == current_user.teacher if current_user.is_strict_user else True
         return user_check and not self.reviewed
 
+    def decode_timestamp(self):
+        if self.timestamp.hour == 23 and self.timestamp.minute == 59:
+            return '{} {}{} uur'.format(self.timestamp.strftime('%d-%m-%Y'), self.timestamp.second, 'ste' if self.timestamp.second == 1 else 'de')
+        return self.timestamp.strftime('%d-%m-%Y %H:%M')
 
     def ret_dict(self):
-        return {'id':self.id, 'DT_RowId':self.id, 'date':self.timestamp.strftime('%d-%m-%Y %H:%M'), 'measure_note': cgi.escape(self.measure_note),
+        return {'id':self.id, 'DT_RowId':self.id, 'date':self.decode_timestamp(), 'measure_note': cgi.escape(self.measure_note),
                 'subject_note': cgi.escape(self.subject_note), 'reviewed' : 'X' if self.reviewed else '',
                 'subjects': self.ret_subjects(), 'measures': self.ret_measures(), 'extra_attention': self.extra_attention, 'overwrite_row_color': self.row_color()}
 

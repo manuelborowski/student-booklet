@@ -154,7 +154,11 @@ $(document).ready(function() {
         },
         {% endif %}
        {% for h in config.template %}
-            {data: "{{h.data}}", width: "{{h.width}}", orderable: {{h.orderable}}, render: $.fn.dataTable.render.ellipsis(60, false) },
+            {% if h.name == "chbx" or h.name == "reviewed" %}
+                {data: "{{h.data}}", width: "{{h.width}}", orderable: {{h.orderable}} },
+            {% else %}
+                {data: "{{h.data}}", width: "{{h.width}}", orderable: {{h.orderable}}, render: $.fn.dataTable.render.ellipsis(60, false) },
+            {% endif %}
        {% endfor %}
        ],
        {% if 'default_order' in config %}

@@ -45,8 +45,7 @@ def action():
             return redirect(url_for('remarks.show'))
         if utils.button_pressed('edit'):
             chbx_id = request.form.getlist('chbx')[0]
-            remark = db.session.query(Remark).join(Student, RemarkSubject, RemarkMeasure).join(SubjectTopic, SubjectTopic.id == RemarkSubject.topic_id)\
-                .join(MeasureTopic, MeasureTopic.id == RemarkMeasure.topic_id).filter(Remark.id==chbx_id).first()
+            remark = db.session.query(Remark).join(Student).filter(Remark.id==chbx_id).first()
             form_remark = RemarkForm()
 
             remark.measure_topics = []
@@ -59,7 +58,7 @@ def action():
 
 
             prime_data = {}
-            d, h = app.database.db_utils.time_to_timeslot(time=remark.timestamp)
+            h = remark.timestamp.second if 0 < remark.timestamp.second < 10 else 1
             prime_data['hour'] = h
             prime_data['date'] = remark.timestamp.strftime('%d-%m-%Y')
             prime_data['remark'] = remark
@@ -86,8 +85,7 @@ def action_done(action=None, id=-1):
                 r_id = request.form['remark_id']
                 remark = Remark.query.get(int(r_id))
                 if remark:
-                    h, m = app.database.db_utils.timeslot_to_time(int(request.form['hour']))
-                    timestamp = datetime.datetime.strptime('{} {}:{}'.format(request.form['txt-date'], h, m), '%d-%m-%Y %H:%M')
+                    timestamp = datetime.datetime.strptime('{} {}:{}:{}'.format(request.form['txt-date'], 23, 59, int(request.form['hour'])), '%d-%m-%Y %H:%M:%S')
                     for t in RemarkSubject.query.filter(RemarkSubject.remark_id == remark.id).all(): db.session.delete(t)
                     for m in RemarkMeasure.query.filter(RemarkMeasure.remark_id == remark.id).all(): db.session.delete(m)
                     for t in request.form.getlist('subject'): db.session.add(RemarkSubject(topic=SubjectTopic.query.get(int(t)), remark=remark))
@@ -116,14 +114,9 @@ def start_review():
             for id, extra_measure, rl in rll:
                 for r in rl:
                     r.overwrite_row_color = r.row_color()
-                    r.print_date = r.timestamp.strftime('%d-%m-%Y %H:%M')
+                    r.print_date = r.decode_timestamp()
                     r.print_subjects = r.ret_subjects()
                     r.print_measures = r.ret_measures()
-
-        for r in non_matched_remarks:
-            r.print_date = r.timestamp.strftime('%d-%m-%Y %H:%M')
-            r.print_subjects = r.ret_subjects()
-            r.print_measures = r.ret_measures()
 
     except Exception as e:
         log.error(u'Could not prepare the review : {}'.format(e))
@@ -132,7 +125,6 @@ def start_review():
 
     return render_template('remark/review.html',
                            matched_remarks=matched_remarks,
-                           non_matched_remarks=non_matched_remarks,
                            selected_academic_year=academic_year)
 
 

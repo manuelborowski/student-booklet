@@ -134,8 +134,7 @@ def action_done(action=None, id=-1):
                 teacher_id, day_hour, grade_id, lesson_id, changed_item = db_user.session_get_grade_filter()
                 subjects = request.form.getlist('subject')
                 measures = request.form.getlist('measure')
-                h, m = db_utils.timeslot_to_time(int(request.form['hour']))
-                timestamp = datetime.datetime.strptime('{} {}:{}'.format(request.form['txt-date'], h, m), '%d-%m-%Y %H:%M')
+                timestamp = datetime.datetime.strptime('{} {}:{}:{}'.format(request.form['txt-date'], 23, 59, int(request.form['hour'])), '%d-%m-%Y %H:%M:%S')
                 if current_user.teacher and current_user.is_strict_user:
                     teacher = current_user.teacher
                 else:
