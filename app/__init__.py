@@ -64,10 +64,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V2.35 : when adding a remark, the program tries to guess the correct date.  The date can be altered, if required
 #V2.36 : truncate classgrouplist if it's longer than 40 characters
 #V2.37 : show current values when editing a remark
+#V2.38 : truncate text if it is longer than 60 characters.  Schow complete text in tooltip
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.37')
+    return dict(version = 'V2.38')
 
 #enable logging
 LOG_HANDLE = 'SB'

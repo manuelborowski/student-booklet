@@ -154,7 +154,7 @@ $(document).ready(function() {
         },
         {% endif %}
        {% for h in config.template %}
-            {data: "{{h.data}}", width: "{{h.width}}", orderable: {{h.orderable}} },
+            {data: "{{h.data}}", width: "{{h.width}}", orderable: {{h.orderable}}, render: $.fn.dataTable.render.ellipsis(60, false) },
        {% endfor %}
        ],
        {% if 'default_order' in config %}
@@ -182,9 +182,8 @@ $(document).ready(function() {
         "drawCallback": function(settings) {
             busy_indication_off();
         }
-
     });
-    //$('#datatable').attr('data-page-length',50);
+
 
     {% if 'row_detail' in config %}
 
