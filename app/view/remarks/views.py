@@ -9,7 +9,7 @@ from app.layout.forms import RemarkForm
 from app.database.multiple_items import build_filter_and_filter_data, prepare_data_for_html
 from app.utils import utils
 from app.layout.tables_config import tables_configuration
-from app.database.db_remark import db_filter_remarks_to_be_reviewed, db_add_extra_measure, db_tag_remarks_as_reviewed
+from app.database.db_remark import db_filter_remarks_to_be_reviewed, db_add_extra_measure, db_tag_remarks_as_reviewed, check_if_duplicate
 
 import json, datetime
 
@@ -85,16 +85,29 @@ def action_done(action=None, id=-1):
                 r_id = request.form['remark_id']
                 remark = Remark.query.get(int(r_id))
                 if remark:
-                    timestamp = datetime.datetime.strptime('{} {}:{}:{}'.format(request.form['txt-date'], 23, 59, int(request.form['hour'])), '%d-%m-%Y %H:%M:%S')
-                    for t in RemarkSubject.query.filter(RemarkSubject.remark_id == remark.id).all(): db.session.delete(t)
-                    for m in RemarkMeasure.query.filter(RemarkMeasure.remark_id == remark.id).all(): db.session.delete(m)
-                    for t in request.form.getlist('subject'): db.session.add(RemarkSubject(topic=SubjectTopic.query.get(int(t)), remark=remark))
-                    for m in request.form.getlist('measure'): db.session.add(RemarkMeasure(topic=MeasureTopic.query.get(int(m)), remark=remark))
-                    remark.measure_note = request.form['measure_note']
-                    remark.subject_note = request.form['subject_note']
-                    remark.extra_attention = 'chkb_extra_attention' in request.form
-                    remark.timestamp = timestamp
-                db.session.commit()
+                    measure_note = request.form['measure_note'] if request.form['measure_note'] != '' else None
+                    subject_note = request.form['subject_note'] if request.form['subject_note'] != '' else None
+                    extra_attention = 'chkb_extra_attention' in request.form
+                    subjects = request.form.getlist('subject')
+                    measures = request.form.getlist('measure')
+                    timestamp = datetime.datetime.strptime('{} {}:{}:{}'.format(request.form['txt-date'], 23, 59, int(request.form['hour'])),
+                                                           '%d-%m-%Y %H:%M:%S')
+                    duplicate_remarks = False
+                    if check_if_duplicate(remark.student, timestamp, measure_note, subject_note, extra_attention, measures, subjects):
+                        duplicate_remarks = True
+                        db.session.delete(remark)
+                    else:
+                        for t in RemarkSubject.query.filter(RemarkSubject.remark_id == remark.id).all(): db.session.delete(t)
+                        for m in RemarkMeasure.query.filter(RemarkMeasure.remark_id == remark.id).all(): db.session.delete(m)
+                        for t in subjects: db.session.add(RemarkSubject(topic=SubjectTopic.query.get(int(t)), remark=remark))
+                        for m in measures: db.session.add(RemarkMeasure(topic=MeasureTopic.query.get(int(m)), remark=remark))
+                        remark.measure_note = measure_note
+                        remark.subject_note = subject_note
+                        remark.extra_attention = extra_attention
+                        remark.timestamp = timestamp
+                    db.session.commit()
+                    if duplicate_remarks:
+                        utils.flash_plus('Er bestaat al een opmerking voor deze leerling(en) op dit tijdstip.<br>De opmerkingen worden samengevoegd')
                 return redirect(url_for('remarks.show'))
             except Exception as e:
                 log.error(u'Could not edit remarks {}'.format(e))

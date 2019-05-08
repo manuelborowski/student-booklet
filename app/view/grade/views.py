@@ -8,7 +8,7 @@ import app.database.db_utils
 from . import grade
 from .forms import FilterForm
 from app import db, log, app
-from app.database import db_lesson, db_schedule, db_teacher, db_grade, db_student, db_utils, db_user, db_setting
+from app.database import db_lesson, db_schedule, db_teacher, db_grade, db_student, db_utils, db_user, db_setting, db_remark
 from app.utils import utils
 from app.database.models import Student, Remark, RemarkSubject, RemarkMeasure, Teacher, Schedule, Lesson, SubjectTopic, MeasureTopic
 from app.layout.forms import RemarkForm
@@ -132,32 +132,41 @@ def action_done(action=None, id=-1):
         if utils.button_pressed('save'):
             if action == 'add':
                 teacher_id, day_hour, grade_id, lesson_id, changed_item = db_user.session_get_grade_filter()
-                subjects = request.form.getlist('subject')
-                measures = request.form.getlist('measure')
-                timestamp = datetime.datetime.strptime('{} {}:{}:{}'.format(request.form['txt-date'], 23, 59, int(request.form['hour'])), '%d-%m-%Y %H:%M:%S')
                 if current_user.teacher and current_user.is_strict_user:
                     teacher = current_user.teacher
                 else:
                     teacher = Teacher.query.filter(Teacher.id == teacher_id, Teacher.school == db_utils.school()).first()
                 lesson = db_lesson.db_lesson(lesson_id)
+                measure_note = request.form['measure_note'] if request.form['measure_note'] != '' else None
+                subject_note = request.form['subject_note'] if request.form['subject_note'] != '' else None
+                extra_attention = 'chkb_extra_attention' in request.form
+                subjects = request.form.getlist('subject')
+                measures = request.form.getlist('measure')
+                timestamp = datetime.datetime.strptime('{} {}:{}:{}'.format(request.form['txt-date'], 23, 59, int(request.form['hour'])), '%d-%m-%Y %H:%M:%S')
+                duplicate_remarks = False
                 # iterate over all students involved.  Create an remark per student.
                 # link the measures and remark-subjects to the remark
                 for s in request.form.getlist('student_id'):
                     student = Student.query.get(int(s))
                     if student:
-                        # save new remark
-                        remark = Remark(student=student, lesson=lesson, teacher=teacher, timestamp=timestamp,
-                                        measure_note=request.form['measure_note'], subject_note=request.form['subject_note'],
-                                        grade=student.classgroup.grade, extra_attention='chkb_extra_attention' in request.form,
-                                        school=db_utils.school(), academic_year=db_utils.academic_year())
-                        for s in subjects:
-                            subject = RemarkSubject(topic=SubjectTopic.query.get(int(s)), remark=remark)
-                            db.session.add(subject)
-                        for m in measures:
-                            measure = RemarkMeasure(topic=MeasureTopic.query.get(int(m)), remark=remark)
-                            db.session.add(measure)
-                        db.session.add(remark)
+                        if db_remark.check_if_duplicate(student, timestamp, measure_note, subject_note, extra_attention, measures, subjects):
+                            duplicate_remarks = True
+                        else:
+                            # save new remark
+                            remark = Remark(student=student, lesson=lesson, teacher=teacher, timestamp=timestamp,
+                                            measure_note=measure_note, subject_note=subject_note,
+                                            grade=student.classgroup.grade, extra_attention=extra_attention,
+                                            school=db_utils.school(), academic_year=db_utils.academic_year())
+                            for s in subjects:
+                                subject = RemarkSubject(topic=SubjectTopic.query.get(int(s)), remark=remark)
+                                db.session.add(subject)
+                            for m in measures:
+                                measure = RemarkMeasure(topic=MeasureTopic.query.get(int(m)), remark=remark)
+                                db.session.add(measure)
+                            db.session.add(remark)
                 db.session.commit()
+            if duplicate_remarks:
+                utils.flash_plus('Er bestaat al een opmerking voor deze leerling(en) op dit tijdstip.<br>De opmerkingen worden samengevoegd')
             return redirect(url_for('grade.show'))
     except Exception as e:
         utils.flash_plus(u'Kan opmerking niet opslaan', e)

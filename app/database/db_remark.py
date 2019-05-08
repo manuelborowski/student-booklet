@@ -3,7 +3,7 @@ import datetime
 import app.database.db_utils
 from app import db
 from app.utils import utils
-from app.database.models import Remark, Student, ExtraMeasure
+from app.database.models import Remark, Student, ExtraMeasure, RemarkMeasure, MeasureTopic, RemarkSubject, SubjectTopic
 
 # Per student, get all remarks which are not reviewed yet (review==False) and order by date (oldest first)
 # Take the first remark off the list, add to r_match, and calculate last_date, i.e. timestamp + 30 (or +7)=> sliding window
@@ -108,3 +108,25 @@ def db_tag_remarks_as_reviewed(commit=True):
         r.reviewed = True
     if commit:
         db.session.commit()
+
+
+def check_if_duplicate(student, timestamp, measure_note, subject_note, extra_attention, measures, subjects):
+    find_remark = Remark.query.filter(Remark.student == student, Remark.timestamp == timestamp).first()
+    if find_remark:
+        if measure_note:
+            find_remark.measure_note += ' ' + measure_note + ','
+        if subject_note:
+            find_remark.subject_note += ' ' + subject_note + ','
+        find_remark.extra_attention = extra_attention
+        subject_ids = [s.topic.id for s in find_remark.subjects]
+        for s in subjects:
+            if int(s) not in subject_ids:
+                subject = RemarkSubject(topic=SubjectTopic.query.get(int(s)), remark=find_remark)
+                db.session.add(subject)
+        measure_ids = [m.topic.id for m in find_remark.measures]
+        for m in measures:
+            if int(m) not in measure_ids:
+                measure = RemarkMeasure(topic=MeasureTopic.query.get(int(m)), remark=find_remark)
+                db.session.add(measure)
+        return True
+    return False

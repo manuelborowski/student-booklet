@@ -65,11 +65,12 @@ app = Flask(__name__, instance_relative_config=True)
 #V2.36 : truncate classgrouplist if it's longer than 40 characters
 #V2.37 : show current values when editing a remark
 #V2.38 : truncate text if it is longer than 60 characters.  Schow complete text in tooltip
-#V2.39 : timestamp is saved as date and leshour (stored in seconds).  Backwards compatible with current timestamp
+#V2.39 : timestamp is saved as date and hour (stored in seconds).  Backwards compatible with current timestamp
+#V2.40 : duplicate remarks (same student, same hour) are merged
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.39')
+    return dict(version = 'V2.40')
 
 #enable logging
 LOG_HANDLE = 'SB'
