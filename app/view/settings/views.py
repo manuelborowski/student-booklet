@@ -417,9 +417,8 @@ def add_test_remarks():
             dates = remark_dates[i % len(remark_dates)]
             for d in dates:
                 classmoment = random.choice(classmoments)
-                h = random.randint(10, 16)
-                m = random.randint(1, 50)
-                timestamp = datetime.datetime.strptime('{}/20{} {}:{}'.format(d, academic_year[2:4], h, m), '%d/%m/%Y %H:%M')
+                h = random.randint(1, 9)
+                timestamp = datetime.datetime.strptime('{}/20{} {}:{}:{}'.format(d, academic_year[2:4], 23, 59, h), '%d/%m/%Y %H:%M:%S')
                 remark = Remark(student=student, grade=student.classgroup.grade, timestamp=timestamp, lesson=classmoment.lesson, teacher=classmoment.teacher,
                                 measure_note='', subject_note='TESTOPMERKING', school=db_utils.school(), academic_year=db_utils.academic_year(), test=True,
                                 extra_attention=random.choice([True, False, False, False]))

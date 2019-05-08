@@ -47,9 +47,11 @@
                 </tr>
                 {% endfor %}
             </table>
+            <span class="label label-warning" style="font-size: 100%" id="postpone-label-{{mid}}" hidden>Controle uitstellen</span>
             <div class="flex-container">
                 {% if extra_measure.note == "" %}
                 <div class="btn btn-default" id="btn_extra_measure_{{mid}}" onclick="extra_measure('{{mid}}')">Extra sanctie</div>
+                <div class="btn btn-default" id="postpone-review-{{mid}}" onclick="postpone_review('{{mid}}')">Uitstellen</div>
                 <div class="btn btn-default default-hidden" id="btn_delete_extra_measure_{{mid}}"onclick="delete_extra_measure('{{mid}}')">Verwijder sanctie</div>
                 <div class="extra_measure default-hidden" id="txt_extra_measure_{{mid}}"></div>
                 {% else %}

@@ -151,3 +151,7 @@ table.dataTable thead th, table.dataTable thead td {
 .datepicker {
   z-index:1050 !important; /* above navbar */
 }
+
+[hidden], template {
+    display: none;
+}
