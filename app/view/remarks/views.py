@@ -85,15 +85,15 @@ def action_done(action=None, id=-1):
                 r_id = request.form['remark_id']
                 remark = Remark.query.get(int(r_id))
                 if remark:
-                    measure_note = request.form['measure_note'] if request.form['measure_note'] != '' else None
-                    subject_note = request.form['subject_note'] if request.form['subject_note'] != '' else None
+                    measure_note = request.form['measure_note']
+                    subject_note = request.form['subject_note']
                     extra_attention = 'chkb_extra_attention' in request.form
                     subjects = request.form.getlist('subject')
                     measures = request.form.getlist('measure')
                     timestamp = datetime.datetime.strptime('{} {}:{}:{}'.format(request.form['txt-date'], 23, 59, int(request.form['hour'])),
                                                            '%d-%m-%Y %H:%M:%S')
                     duplicate_remarks = False
-                    if check_if_duplicate(remark.student, timestamp, measure_note, subject_note, extra_attention, measures, subjects):
+                    if check_if_duplicate(remark.student, timestamp, measure_note, subject_note, extra_attention, measures, subjects, current_remark=remark):
                         duplicate_remarks = True
                         db.session.delete(remark)
                     else:

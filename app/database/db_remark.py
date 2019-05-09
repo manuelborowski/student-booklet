@@ -110,12 +110,13 @@ def db_tag_remarks_as_reviewed(commit=True):
         db.session.commit()
 
 
-def check_if_duplicate(student, timestamp, measure_note, subject_note, extra_attention, measures, subjects):
+def check_if_duplicate(student, timestamp, measure_note, subject_note, extra_attention, measures, subjects, current_remark=None):
     find_remark = Remark.query.filter(Remark.student == student, Remark.timestamp == timestamp).first()
+    if current_remark and find_remark == current_remark: return
     if find_remark:
-        if measure_note:
+        if measure_note != '':
             find_remark.measure_note += ' ' + measure_note + ','
-        if subject_note:
+        if subject_note != '':
             find_remark.subject_note += ' ' + subject_note + ','
         find_remark.extra_attention = extra_attention
         subject_ids = [s.topic.id for s in find_remark.subjects]

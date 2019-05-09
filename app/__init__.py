@@ -68,10 +68,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V2.39 : timestamp is saved as date and hour (stored in seconds).  Backwards compatible with current timestamp
 #V2.40 : duplicate remarks (same student, same hour) are merged
 #V2.41 : during review, it is possible to postpone review of a set of remarks
+#V2.42 : bugifx : measure_note and remark_note must not be None.  When a remark was being edit, it always gave a warning
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.41')
+    return dict(version = 'V2.42')
 
 #enable logging
 LOG_HANDLE = 'SB'

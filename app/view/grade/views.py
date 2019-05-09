@@ -137,8 +137,8 @@ def action_done(action=None, id=-1):
                 else:
                     teacher = Teacher.query.filter(Teacher.id == teacher_id, Teacher.school == db_utils.school()).first()
                 lesson = db_lesson.db_lesson(lesson_id)
-                measure_note = request.form['measure_note'] if request.form['measure_note'] != '' else None
-                subject_note = request.form['subject_note'] if request.form['subject_note'] != '' else None
+                measure_note = request.form['measure_note']
+                subject_note = request.form['subject_note']
                 extra_attention = 'chkb_extra_attention' in request.form
                 subjects = request.form.getlist('subject')
                 measures = request.form.getlist('measure')
