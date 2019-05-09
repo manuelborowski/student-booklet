@@ -17,10 +17,14 @@
         {% if matched_remarks %}
         {% for s, remark_lists in matched_remarks %}
         {% for mid, extra_measure, rl in remark_lists %}
-        <input type="text" id="match_id" value="{{mid}}" hidden="true">
+        <input type="text" id="match_id" value="{{mid}}" hidden>
+        <input type="text" id="review-status-{{mid}}" value="{% if extra_measure.note %}reviewed{% else %}default{% endif %}" hidden>
         <form method="post" class="form" role="form" id="form_{{mid}}" enctype=multipart/form-data>
+            <span>
             <span class="label label-info" style="font-size: 100%">Leerling : </span>&nbsp;{{s.first_name}} {{s.last_name}}
             <span class="label label-info" style="font-size: 100%">Klas : </span>&nbsp;{{s.classgroup.grade.code}}
+            <span class="label label-warning" style="font-size: 100%" id="postpone-label-{{mid}}" hidden>Controle uitgesteld</span>
+            </span>
             <table cellspacing="0" class="table table-striped table-bordered " width="100%" ,
                    style="margin-bottom:2px;">
                 <thead>
@@ -47,18 +51,15 @@
                 </tr>
                 {% endfor %}
             </table>
-            <span class="label label-warning" style="font-size: 100%" id="postpone-label-{{mid}}" hidden>Controle uitstellen</span>
             <div class="flex-container">
-                {% if extra_measure.note == "" %}
-                <div class="btn btn-default" id="btn_extra_measure_{{mid}}" onclick="extra_measure('{{mid}}')">Extra sanctie</div>
-                <div class="btn btn-default" id="postpone-review-{{mid}}" onclick="postpone_review('{{mid}}')">Uitstellen</div>
-                <div class="btn btn-default default-hidden" id="btn_delete_extra_measure_{{mid}}"onclick="delete_extra_measure('{{mid}}')">Verwijder sanctie</div>
-                <div class="extra_measure default-hidden" id="txt_extra_measure_{{mid}}"></div>
-                {% else %}
-                <div class="btn btn-default default-hidden" id="btn_extra_measure_{{mid}}" onclick="extra_measure('{{mid}}')">Extra sanctie</div>
-                <div class="btn btn-default" id="btn_delete_extra_measure_{{mid}}"onclick="delete_extra_measure('{{mid}}')">Verwijder sanctie</div>
-                <div class="extra_measure" id="txt_extra_measure_{{mid}}">{{extra_measure.note}}</div>
-                {% endif %}
+                <div class="btn btn-default" id="btn_extra_measure_{{mid}}" onclick="extra_measure('{{mid}}')"
+                    {% if extra_measure.note %}hidden{% endif %}>Extra sanctie</div>
+                <div class="btn btn-default" id="postpone-review-{{mid}}" onclick="postpone_review('{{mid}}')"
+                    {% if extra_measure.note %}hidden{% endif %}>Uitstellen</div>
+                <div class="btn btn-default" id="btn_delete_extra_measure_{{mid}}" onclick="delete_extra_measure('{{mid}}')"
+                    {% if not extra_measure.note %}hidden{% endif %}>Verwijder sanctie</div>
+                <div class="extra_measure" id="txt_extra_measure_{{mid}}"
+                    {% if not extra_measure.note %}hidden{% endif %}>{{extra_measure.note}}</div>
             </div>
         </form>
         <br>

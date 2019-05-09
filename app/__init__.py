@@ -67,10 +67,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V2.38 : truncate text if it is longer than 60 characters.  Schow complete text in tooltip
 #V2.39 : timestamp is saved as date and hour (stored in seconds).  Backwards compatible with current timestamp
 #V2.40 : duplicate remarks (same student, same hour) are merged
+#V2.41 : during review, it is possible to postpone review of a set of remarks
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.40')
+    return dict(version = 'V2.41')
 
 #enable logging
 LOG_HANDLE = 'SB'
