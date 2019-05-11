@@ -69,10 +69,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V2.40 : duplicate remarks (same student, same hour) are merged
 #V2.41 : during review, it is possible to postpone review of a set of remarks
 #V2.42 : bugifx : measure_note and remark_note must not be None.  When a remark was being edit, it always gave a warning
+#V2.43 : introduced a website maintenance page
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.42')
+    return dict(version = 'V2.43')
 
 #enable logging
 LOG_HANDLE = 'SB'

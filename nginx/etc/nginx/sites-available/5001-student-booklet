@@ -6,7 +6,18 @@ server {
     server_name sb.exelbo.dynu.net;
 
     location / {
+
+        if (-f /home/aboro/projects/student-booklet/app/maintenance-on.html) {
+            return 503;
+        }
+
         include uwsgi_params;
         uwsgi_pass unix:/home/aboro/projects/student-booklet/student-booklet.sock;
+    }
+
+    # Error pages.
+    error_page 503 /maintenance-on.html;
+    location = /maintenance-on.html {
+        root /home/aboro/projects/student-booklet/app/;
     }
 }
