@@ -128,7 +128,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clockpicker/0.0.7/jquery-clockpicker.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/locale/nl-be.js"></script>
-<script src="https://cdn.datatables.net/plug-ins/1.10.19/dataRender/ellipsis.js"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/datatable-plugin.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.multi-select.js') }}"></script>
 <script type="text/javascript"> {% include "base.js" %}</script>
 {% with messages = get_flashed_messages() %}

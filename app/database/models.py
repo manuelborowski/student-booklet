@@ -1,12 +1,12 @@
-# -*- coding: utf-8 -*-
-# app/models.py
-
-from app import log, db
+from app import db
 from flask_login import UserMixin, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy import UniqueConstraint
+from sqlalchemy import UniqueConstraint, select, event
 from sqlalchemy.sql import func
+from sqlalchemy.orm import column_property
+from sqlalchemy.schema import DDL
 import cgi
+
 
 #cascade delete : if a table is truncated, what tables are truncated as wel?
 #Remark -> RemarkSubject, RemarkMeasure
@@ -157,9 +157,8 @@ class Student(db.Model):
     remarks = db.relationship('Remark', cascade='all, delete', backref='student', lazy='dynamic')
     classgroup_id = db.Column(db.Integer, db.ForeignKey('classgroups.id', ondelete='CASCADE'))
     academic_year = db.Column(db.Integer, default=None)
-
-    def nbr_of_remarks(self):
-        return Remark.query.join(Student).filter(Student.id == self.id).count()
+    #nbr_of_remarks is a function in the database
+    nbr_of_remarks = column_property(func.nbr_of_remarks(id))
 
     def __repr__(self):
         return '<Student: {}/{}/{}>'.format(self.id, self.first_name, self.last_name)
@@ -356,7 +355,7 @@ class ExtraMeasure(db.Model):
         return ol
 
     def ret_dict(self):
-        return {'id':self.id, 'DT_RowId':self.id, 'note':cgi.escape(self.note), 'date':self.timestamp.strftime('%d-%m-%Y %H:%M')}
+        return {'id':self.id, 'DT_RowId':self.id, 'note': self.note, 'date':self.timestamp.strftime('%d-%m-%Y %H:%M')}
 
     @staticmethod
     def format_data(db_list):
@@ -397,6 +396,9 @@ class Remark(db.Model):
     #of a list of remarks, leading to an extra measure, only one remark will have first_remark set to true
     first_remark = db.Column(db.Boolean, default=False)
 
+    concat_subjects = column_property(func.concat_remark_subjects(id))
+    concat_measures = column_property(func.concat_remark_measures(id))
+
     def ret_subjects(self):
         l = ''
         for s in self.subjects:
@@ -433,9 +435,9 @@ class Remark(db.Model):
         return self.timestamp.strftime('%d-%m-%Y %H:%M')
 
     def ret_dict(self):
-        return {'id':self.id, 'DT_RowId':self.id, 'date':self.decode_timestamp(), 'measure_note': cgi.escape(self.measure_note),
-                'subject_note': cgi.escape(self.subject_note), 'reviewed' : 'X' if self.reviewed else '',
-                'subjects': self.ret_subjects(), 'measures': self.ret_measures(), 'extra_attention': self.extra_attention, 'overwrite_row_color': self.row_color()}
+        return {'id':self.id, 'DT_RowId':self.id, 'date':self.decode_timestamp(),
+                'reviewed' : 'X' if self.reviewed else '',
+                'subjects': self.concat_subjects, 'measures': self.concat_measures, 'extra_attention': self.extra_attention, 'overwrite_row_color': self.row_color()}
 
     def __repr__(self):
         return u'ID({}) TS({}) SDNT({})'.format(self.id, self.timestamp.strftime('%d-%m-%Y %H:%M'), self.student.first_name + ' ' + self.student.last_name)
@@ -448,7 +450,7 @@ class Remark(db.Model):
         out = []
         for i in db_list:
             em = i.Remark.ret_dict()
-            em['student'] = {'full_name': i.Student.first_name + ' ' + i.Student.last_name, 'number': i.Student.nbr_of_remarks()}
+            em['student'] = {'full_name': i.Student.first_name + ' ' + i.Student.last_name, 'number': i.Student.nbr_of_remarks}
             em['grade'] = {'code': i.Grade.code}
             em['teacher'] = {'code': i.Teacher.code}
             em['lesson'] = {'code': i.Lesson.code}

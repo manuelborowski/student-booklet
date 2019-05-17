@@ -155,9 +155,9 @@ $(document).ready(function() {
         {% endif %}
        {% for h in config.template %}
             {% if h.name == "chbx" or h.name == "reviewed" %}
-                {data: "{{h.data}}", width: "{{h.width}}", orderable: {{h.orderable}} },
+                {data: "{{h.data}}", width: "{{h.width}}", orderable: {{h.orderable}}},
             {% else %}
-                {data: "{{h.data}}", width: "{{h.width}}", orderable: {{h.orderable}}, render: $.fn.dataTable.render.ellipsis(60, false) },
+                {data: "{{h.data}}", width: "{{h.width}}", orderable: {{h.orderable}}, render: $.fn.dataTable.render.ellipsis(60, false, true)},
             {% endif %}
        {% endfor %}
        ],
@@ -187,7 +187,6 @@ $(document).ready(function() {
             busy_indication_off();
         }
     });
-
 
     {% if 'row_detail' in config %}
 
