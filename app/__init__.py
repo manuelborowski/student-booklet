@@ -72,10 +72,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V2.43 : introduced a website maintenance page
 #V2.44 : bugfix : forgot maintanance page
 #V2.45 : simplified datatables : first stage is faster, added functions in database, escape html codes.  Webserver : single process/thread
+#V2.46 : refactor
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.45')
+    return dict(version = 'V2.46')
 
 #enable logging
 LOG_HANDLE = 'SB'

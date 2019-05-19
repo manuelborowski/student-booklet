@@ -346,12 +346,6 @@ class ExtraMeasure(db.Model):
     forward_to = db.Column(db.Integer, db.ForeignKey('users.id'), default=None)
     remarks = db.relationship('Remark', backref='extra_measure', lazy='dynamic')
 
-    def get_remarks(self):
-        ol = []
-        for o in self.remarks:
-            ol.append(o.ret_dict())
-        return ol
-
     def ret_dict(self):
         return {'id':self.id, 'DT_RowId':self.id, 'note': self.note, 'date':self.timestamp.strftime('%d-%m-%Y %H:%M')}
 

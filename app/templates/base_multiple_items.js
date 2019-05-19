@@ -141,16 +141,15 @@ $(document).ready(function() {
        {% else %}
        lengthMenu: [50, 100, 200],
        {% endif %}
-       "buttons": [{extend: 'pdfHtml5', text: 'Exporteer naar PDF'}],
-       "order" : [[1, 'desc']],
-       "columns": [
+       buttons: [{extend: 'pdfHtml5', text: 'Exporteer naar PDF'}],
+       columns: [
        {% if 'row_detail' in config %}
         {
-            "class":          "details-control",
-            "orderable":      false,
-            "data":           null,
-            "defaultContent": "",
-            "width": "1%"
+            class:          "details-control",
+            orderable:      false,
+            data:           null,
+            defaultContent: "",
+            width: "1%"
         },
         {% endif %}
        {% for h in config.template %}
@@ -162,28 +161,27 @@ $(document).ready(function() {
        {% endfor %}
        ],
        {% if 'default_order' in config %}
-       "order" : [[ {{config.default_order[0]}}, "{{config.default_order[1]}}"]],
+       order : [[ {{config.default_order[0]}}, "{{config.default_order[1]}}"]],
        {% endif %}
-       "language" : {
-        /*"url" : "static/DataTables/nl_nl.lang"*/
-        "url" : "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Dutch.json"
+       language : {
+            "url" : "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Dutch.json"
         },
-        "initComplete": function(settings, json) { //intercept flash messages when the table is loaded
+        initComplete: function(settings, json) { //intercept flash messages when the table is loaded
             if ('flash' in json) {
                 bootbox.alert(json['flash'].toString());
             }
         },
 
-        "createdRow": function(row, data, dataIndex) {
+        createdRow: function(row, data, dataIndex) {
             if (data.overwrite_row_color != "") {
                 $(row).attr("style", "background-color: " + data.overwrite_row_color + ";");
             }
         },
 
-        "preDrawCallback": function(settings) {
+        preDrawCallback: function(settings) {
             busy_indication_on();
         },
-        "drawCallback": function(settings) {
+        drawCallback: function(settings) {
             busy_indication_off();
         }
     });
