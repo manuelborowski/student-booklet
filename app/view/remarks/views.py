@@ -6,7 +6,7 @@ from . import remarks
 from app import db, log
 from app.database.models import Remark, RemarkSubject, RemarkMeasure, SubjectTopic, MeasureTopic, Student
 from app.layout.forms import RemarkForm
-from app.database.multiple_items import build_filter_and_filter_data, prepare_data_for_html
+from app.database.multiple_items import process_data, prepare_data_for_html, create_filter_form
 from app.utils import utils
 from app.layout.tables_config import tables_configuration
 from app.database.db_remark import db_filter_remarks_to_be_reviewed, db_add_extra_measure, db_tag_remarks_as_reviewed, check_if_duplicate
@@ -25,9 +25,10 @@ def data():
 @login_required
 def show():
     # The following line is required only to build the filter-fields on the page.
-    _filter, _filter_form, a, b, c = build_filter_and_filter_data(tables_configuration['remark'])
+    filter_form = create_filter_form()
+    filter = tables_configuration['remark']['filter']
     return render_template('base_multiple_items.html',
-                           filter=_filter, filter_form=_filter_form,
+                           filter=filter, filter_form=filter_form,
                            config=tables_configuration['remark'])
 
 
@@ -128,8 +129,8 @@ def start_review():
                 for r in rl:
                     r.overwrite_row_color = r.row_color()
                     r.print_date = r.decode_timestamp()
-                    r.print_subjects = r.ret_subjects()
-                    r.print_measures = r.ret_measures()
+                    r.print_subjects = r.concat_subjects
+                    r.print_measures = r.concat_measures
 
     except Exception as e:
         log.error(u'Could not prepare the review : {}'.format(e))

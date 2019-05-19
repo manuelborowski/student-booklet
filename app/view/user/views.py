@@ -9,7 +9,7 @@ from app import db, log, admin_required
 from . import user
 from app.database.models import User
 
-from app.database.multiple_items import build_filter_and_filter_data, prepare_data_for_html
+from app.database.multiple_items import process_data, prepare_data_for_html
 from app.utils import utils
 from app.layout.tables_config import tables_configuration
 
@@ -28,7 +28,7 @@ def data():
 def show():
     try:
         # The following line is required only to build the filter-fields on the page.
-        _filter, _filter_form, a, b, c = build_filter_and_filter_data(tables_configuration['user'])
+        _filter, _filter_form, a, b, c = process_data(tables_configuration['user'])
     except Exception as e:
         log.error(u'Could not show users {}'.format(e))
         utils.flash_plus(u'Kan gebruikers niet tonen', e)

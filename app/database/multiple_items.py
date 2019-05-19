@@ -64,7 +64,15 @@ def check_string_in_form(value_key, form):
             utils.flash_plus('Verkeerde tekst notatie', e)
     return ''
 
-def build_filter_and_filter_data(table, paginate=True):
+def create_filter_form():
+    filter_form = {}
+    filter_form['academic_year'] = SchoolyearFilter()
+    filter_form['teacher'] = TeacherFilter()
+    filter_form['grade'] = GradeFilter()
+    return filter_form
+
+
+def process_data(table, paginate=True):
     _model = table['model']
     _filters_enabled = table['filter']
     _template = table['template']
@@ -90,14 +98,6 @@ def build_filter_and_filter_data(table, paginate=True):
     _filter_forms = {}
 
     #Create the sql-request with the apropriate filters
-    if 'date' in _filters_enabled:
-        date = check_date_in_form('date_after', request.values)
-        if date:
-            _filtered_list = _filtered_list.filter(Remark.timestamp >= Remark.reverse_date(date))
-        date = check_date_in_form('date_before', request.values)
-        if date:
-            _filtered_list = _filtered_list.filter(Remark.timestamp <= Remark.reverse_date(date))
-
     if 'academic_year' in _filters_enabled:
         _filter_forms['academic_year'] = SchoolyearFilter()
         value = check_string_in_form('academic_year', request.values)
@@ -189,7 +189,7 @@ def build_filter_and_filter_data(table, paginate=True):
 
 def prepare_data_for_html(table):
     try:
-        _filters_enabled,  _filter_forms, _filtered_list, _total_count, _filtered_count = build_filter_and_filter_data(table)
+        _filters_enabled,  _filter_forms, _filtered_list, _total_count, _filtered_count = process_data(table)
         _filtered_dict = table['format_data'](_filtered_list)
 
         #order, if required, 2nd stage

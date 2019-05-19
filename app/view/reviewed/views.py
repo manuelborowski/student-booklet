@@ -2,7 +2,7 @@ from flask import render_template, jsonify
 from flask_login import login_required
 import json
 from . import reviewed
-from app.database.multiple_items import build_filter_and_filter_data, prepare_data_for_html
+from app.database.multiple_items import process_data, prepare_data_for_html
 from app.layout.tables_config import  tables_configuration
 from app import log, db
 from app.database.models import Remark, Student, Teacher, Grade, Lesson
@@ -17,7 +17,7 @@ def data():
 @reviewed.route('/reviewed/show', methods=['GET', 'POST'])
 @login_required
 def show():
-    _filter, _filter_form, a,b, c = build_filter_and_filter_data(tables_configuration['extra_measure'])
+    _filter, _filter_form, a,b, c = process_data(tables_configuration['extra_measure'])
     return render_template('base_multiple_items.html',
                            filter=_filter, filter_form=_filter_form,
                            config = tables_configuration['extra_measure'])

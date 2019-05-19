@@ -15,7 +15,7 @@ from app.layout import tables_config
 @supervisor_required
 @login_required
 def show():
-    _filter, _filter_form, a,b, c = multiple_items.build_filter_and_filter_data(tables_config.tables_configuration['replacement'])
+    _filter, _filter_form, a,b, c = multiple_items.process_data(tables_config.tables_configuration['replacement'])
     return render_template('base_multiple_items.html',
                            filter=_filter, filter_form=_filter_form,
                            config = tables_config.tables_configuration['replacement'])

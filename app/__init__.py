@@ -71,10 +71,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V2.42 : bugifx : measure_note and remark_note must not be None.  When a remark was being edit, it always gave a warning
 #V2.43 : introduced a website maintenance page
 #V2.44 : bugfix : forgot maintanance page
+#V2.45 : simplified datatables : first stage is faster, added functions in database, escape html codes.  Webserver : single process/thread
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.44')
+    return dict(version = 'V2.45')
 
 #enable logging
 LOG_HANDLE = 'SB'

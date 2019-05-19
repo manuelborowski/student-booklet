@@ -4,8 +4,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import UniqueConstraint, select, event
 from sqlalchemy.sql import func
 from sqlalchemy.orm import column_property
-from sqlalchemy.schema import DDL
-import cgi
 
 
 #cascade delete : if a table is truncated, what tables are truncated as wel?
@@ -396,28 +394,9 @@ class Remark(db.Model):
     #of a list of remarks, leading to an extra measure, only one remark will have first_remark set to true
     first_remark = db.Column(db.Boolean, default=False)
 
+    #concat_remark_subjects and concat_remark_measures are functions in the database
     concat_subjects = column_property(func.concat_remark_subjects(id))
     concat_measures = column_property(func.concat_remark_measures(id))
-
-    def ret_subjects(self):
-        l = ''
-        for s in self.subjects:
-            l += s.topic.topic
-            l +=', '
-        l += self.subject_note
-        return l
-
-    def ret_measures(self):
-        l = ''
-        for m in self.measures:
-            l += m.topic.topic
-            l +=', '
-        if self.measure_note != '':
-            l = l + self.measure_note + ', '
-        return l
-
-    def ret_extra_measure(self):
-        return self.extra_measure.note if self.extra_measure_id else ''
 
     def row_color(self):
         if self.extra_attention:
@@ -435,8 +414,7 @@ class Remark(db.Model):
         return self.timestamp.strftime('%d-%m-%Y %H:%M')
 
     def ret_dict(self):
-        return {'id':self.id, 'DT_RowId':self.id, 'date':self.decode_timestamp(),
-                'reviewed' : 'X' if self.reviewed else '',
+        return {'id':self.id, 'DT_RowId':self.id, 'date':self.decode_timestamp(), 'reviewed' : 'X' if self.reviewed else '',
                 'subjects': self.concat_subjects, 'measures': self.concat_measures, 'extra_attention': self.extra_attention, 'overwrite_row_color': self.row_color()}
 
     def __repr__(self):
