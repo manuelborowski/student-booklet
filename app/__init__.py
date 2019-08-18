@@ -73,10 +73,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V2.44 : bugfix : forgot maintanance page
 #V2.45 : simplified datatables : first stage is faster, added functions in database, escape html codes.  Webserver : single process/thread
 #V2.46 : refactor
+#V2.27 : html : apply academic-year-filter when navigating to the remarks-page
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.46')
+    return dict(version = 'V2.47')
 
 #enable logging
 LOG_HANDLE = 'SB'

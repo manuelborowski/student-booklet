@@ -11,7 +11,7 @@ tables_configuration = {
         'buttons' : ['delete', 'edit', 'start_check'],
         'delete_message' : u'Wilt u deze opmerking(en) verwijderen?',
         'template' : [
-                    {'name': 'chbx', 'data':'chbx', 'order_by': Remark.timestamp, 'width': '1%', 'orderable' : False},
+                    {'name': 'chbx', 'data': 'chbx', 'order_by': Remark.timestamp, 'width': '1%', 'orderable' : False},
                     {'name': 'reviewed', 'data':'reviewed', 'order_by': Remark.reviewed, 'width': '1%', 'orderable' : True},
                     {'name': 'Datum', 'data':'date', 'order_by': Remark.timestamp, 'width': '10%', 'orderable' : True},
                     {'name': 'Leerling', 'data':'student.full_name', 'order_by': Student.first_name, 'width': '10%', 'orderable' : True},
@@ -23,7 +23,7 @@ tables_configuration = {
                     {'name': 'Maatregel', 'data':'measures', 'order_by': Remark.concat_measures, 'width': '30%', 'orderable' : True},
                       ],
         'data_endpoint': 'data',
-        'filter' :  ['academic_year', 'teacher', 'grade', 'lesson', 'reviewed'],
+        'filter':  ['academic_year', 'teacher', 'grade', 'lesson', 'reviewed'],
         'href': [],
         'format_data': Remark.format_data,
         'legend': '<span class="badge legend-badge" style="background-color: lightsalmon">Extra aandacht</span>',

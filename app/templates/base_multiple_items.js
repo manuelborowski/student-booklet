@@ -186,6 +186,10 @@ $(document).ready(function() {
         }
     });
 
+    //when the page is loaded, make sure the filters are applied
+    $('#filter').trigger('click');
+
+
     {% if 'row_detail' in config %}
 
     //For an extra-measure, show the associated remarks as a sub-table

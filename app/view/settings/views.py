@@ -353,7 +353,7 @@ def upload_schedule(rfile):
                         nbr_lessons += 1
                     classmoment = Schedule(day=int(t['DAG']), hour=int(t['UUR']),
                                            classgroup=find_classgroup, teacher=find_teacher, lesson=find_lesson, school=db_utils.school()
-                                           , academic_year=academic_year, valid_from=valid_from)
+                                           , academic_year=int(academic_year), valid_from=valid_from)
                     db.session.add(classmoment)
                     nbr_classmoments += 1
                 else:
