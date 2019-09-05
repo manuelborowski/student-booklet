@@ -75,10 +75,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V2.46 : refactor
 #V2.27 : html : apply academic-year-filter when navigating to the remarks-page
 #V2.48 : student export from wisa : use API stdntmapje
+#V2.49 : hidden students are not displayed anymore
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.48')
+    return dict(version = 'V2.49')
 
 #enable logging
 LOG_HANDLE = 'SB'
