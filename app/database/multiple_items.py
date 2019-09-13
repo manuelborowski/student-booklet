@@ -135,9 +135,9 @@ def process_data(table, paginate=True):
         search_constraints = []
         #if Offence.timestamp in column_list:
         #    search_constraints.append(Offence.timestamp.like(search_value))
-        if Student.last_name in column_list:
-            search_constraints.append(Student.last_name.like(search_value))
-        if Student.last_name in column_list:
+        if Student.full_name in column_list:
+            search_constraints.append(Student.full_name.like(search_value))
+        if Student.first_name in column_list:
             search_constraints.append(Student.first_name.like(search_value))
         if Teacher.code in column_list:
             search_constraints.append(Teacher.code.like (search_date))

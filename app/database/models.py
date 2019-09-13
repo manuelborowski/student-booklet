@@ -157,14 +157,15 @@ class Student(db.Model):
     academic_year = db.Column(db.Integer, default=None)
     #nbr_of_remarks is a function in the database
     nbr_of_remarks = column_property(func.nbr_of_remarks(id))
+    full_name = column_property(func.full_name(id))
 
     def __repr__(self):
         return '<Student: {}/{}/{}>'.format(self.id, self.first_name, self.last_name)
 
     def ret_dict(self):
         return {'id':self.id, 'first_name':self.first_name, 'last_name': self.last_name, 'grade': self.grade.ret_dict(),
-                'full_name': u'{} {}'.format(self.first_name, self.last_name),
-                'number' : self.nbr_of_remarks}
+                'full_name': self.full_name,
+                'number': self.nbr_of_remarks}
 
 class Classgroup(db.Model):
     __tablename__= 'classgroups'
@@ -422,7 +423,7 @@ class Remark(db.Model):
         out = []
         for i in db_list:
             em = i.Remark.ret_dict()
-            em['student'] = {'full_name': i.Student.first_name + ' ' + i.Student.last_name, 'number': i.Student.nbr_of_remarks}
+            em['student'] = {'full_name': i.Student.full_name, 'number': i.Student.nbr_of_remarks}
             em['grade'] = {'code': i.Grade.code}
             em['teacher'] = {'code': i.Teacher.code}
             em['lesson'] = {'code': i.Lesson.code}

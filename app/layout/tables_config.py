@@ -14,7 +14,7 @@ tables_configuration = {
                     {'name': 'chbx', 'data': 'chbx', 'order_by': Remark.timestamp, 'width': '1%', 'orderable' : False},
                     {'name': 'reviewed', 'data':'reviewed', 'order_by': Remark.reviewed, 'width': '1%', 'orderable' : True},
                     {'name': 'Datum', 'data':'date', 'order_by': Remark.timestamp, 'width': '10%', 'orderable' : True},
-                    {'name': 'Leerling', 'data':'student.full_name', 'order_by': Student.first_name, 'width': '10%', 'orderable' : True},
+                    {'name': 'Leerling', 'data':'student.full_name', 'order_by': Student.full_name, 'width': '10%', 'orderable' : True},
                     {'name': '#', 'data':'student.number', 'order_by': Student.nbr_of_remarks, 'width': '1%', 'orderable' : True},
                     {'name': 'LKR', 'data':'teacher.code', 'order_by': Teacher.code, 'width': '1%', 'orderable' : True},
                     {'name': 'KL', 'data':'grade.code', 'order_by': Grade.code, 'width': '1%', 'orderable' : True},

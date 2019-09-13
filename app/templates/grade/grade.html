@@ -22,7 +22,7 @@
             {% for s in students %}
             <figure class="imagecaption" style="text-align:center;">
                 <img src="../../static/photo/{{ s.photo }}" height="120" align="middle">
-                <figcaption>{{s.first_name}}<br>{{s.last_name}}</figcaption>
+                <figcaption>{{s.last_name}}<br>{{s.first_name}}</figcaption>
                 <input type="hidden" id="id" value="{{ s.id|string }}">
             </figure>
             {% endfor %}
