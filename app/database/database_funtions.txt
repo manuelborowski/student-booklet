@@ -1,0 +1,46 @@
+CREATE DEFINER=`root`@`localhost` FUNCTION `concat_remark_measures`(id INT) RETURNS varchar(1024) CHARSET utf8
+BEGIN
+	DECLARE topic VARCHAR(1024);
+	DECLARE note VARCHAR(1024);
+	SELECT GROUP_CONCAT(measure_topics.topic SEPARATOR ', ') INTO topic
+	FROM remarks
+	JOIN remark_measures ON remark_measures.remark_id = remarks.id JOIN measure_topics ON measure_topics.id = remark_measures.topic_id
+    WHERE remarks.id = id;
+	select remarks.measure_note INTO note FROM remarks WHERE remarks.id = id;
+    RETURN CONCAT(IFNULL(CONCAT(topic, ', '), ''), note);
+END
+
+
+CREATE DEFINER=`root`@`localhost` FUNCTION `concat_remark_subjects`(id INT) RETURNS varchar(1024) CHARSET utf8
+BEGIN
+	DECLARE topic VARCHAR(1024);
+    DECLARE note VARCHAR(1024);
+	SELECT GROUP_CONCAT(subject_topics.topic SEPARATOR ', ') INTO topic
+	FROM remarks
+	JOIN remark_subjects ON remark_subjects.remark_id = remarks.id JOIN subject_topics ON subject_topics.id = remark_subjects.topic_id
+    WHERE remarks.id = id;
+	#group by remarks.id;
+    SELECT remarks.subject_note INTO note FROM remarks WHERE remarks.id = id;
+    RETURN CONCAT(IFNULL(CONCAT(topic, ', '), ''), note);
+END
+
+
+CREATE DEFINER=`root`@`localhost` FUNCTION `full_name`(id INT) RETURNS varchar(1024) CHARSET utf8
+BEGIN
+	DECLARE first_name VARCHAR(1024);
+	DECLARE last_name VARCHAR(1024);
+    SELECT students.last_name INTO last_name FROM students WHERE students.id = id;
+    SELECT students.first_name INTO first_name FROM students WHERE students.id = id;
+    return concat(last_name, ' ', first_name);
+END
+
+
+CREATE DEFINER=`root`@`localhost` FUNCTION `nbr_of_remarks`(id int) RETURNS int(11)
+BEGIN
+	DECLARE nbr INT;
+	SELECT COUNT(students.id) INTO nbr
+	FROM students
+	JOIN remarks ON remarks.student_id = students.id
+	WHERE students.id = id;
+	RETURN nbr;
+END

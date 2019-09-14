@@ -77,10 +77,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V2.48 : student export from wisa : use API stdntmapje
 #V2.49 : hidden students are not displayed anymore
 #v2.50 : full student name : last name plus first name.  Debugged searching for student name
+#V2.51 : added database_functions.txt file
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.50')
+    return dict(version = 'V2.51')
 
 #enable logging
 LOG_HANDLE = 'SB'
