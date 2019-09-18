@@ -168,6 +168,12 @@ def action_done(action=None, id=-1):
             if duplicate_remarks:
                 utils.flash_plus('Er bestaat al een opmerking voor deze leerling(en) op dit tijdstip.<br>De opmerkingen worden samengevoegd')
             return redirect(url_for('grade.show'))
+        if utils.button_pressed('hide'):
+            for s in request.form.getlist('student_id'):
+                student = Student.query.get(int(s))
+                if student:
+                    student.hidden = True
+            db.session.commit()
     except Exception as e:
         utils.flash_plus(u'Kan opmerking niet opslaan', e)
         log.error(u'Cannot save remarks {}'.format(e))

@@ -78,10 +78,11 @@ app = Flask(__name__, instance_relative_config=True)
 #V2.49 : hidden students are not displayed anymore
 #v2.50 : full student name : last name plus first name.  Debugged searching for student name
 #V2.51 : added database_functions.txt file
+#V2.52 : admin only : add a button to hide students
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.51')
+    return dict(version = 'V2.52')
 
 #enable logging
 LOG_HANDLE = 'SB'

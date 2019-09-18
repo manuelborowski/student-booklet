@@ -59,6 +59,12 @@ Show a single remark page
 <!--        Following line does NOT work with iphone chrome and iphone safary-->
 <!--        <button class="btn btn-default" name="button" value="save" onclick="$('#item_form').submit();">Bewaar</button>-->
         <button class="btn btn-default" name="button-pressed" value="cancel" formnovalidate>Annuleer</button>
+        {% if current_user.is_at_least_admin %}
+        <br><br>
+        <hr class="nice-green-line">
+        <button class="btn btn-default" name="button-pressed" value="hide">Verberg leerlingen</button>
+        {% endif %}
+
     </form>
 </div>
 {% endblock %}
