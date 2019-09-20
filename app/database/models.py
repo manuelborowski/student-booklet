@@ -355,7 +355,7 @@ class ExtraMeasure(db.Model):
         out = []
         for i in db_list:
             em = i.ExtraMeasure.ret_dict()
-            em['remark'] = {'student': {'full_name': i.Student.first_name + ' ' + i.Student.last_name}, 'grade': {'code': i.Grade.code}}
+            em['remark'] = {'student': {'full_name': i.Student.full_name}, 'grade': {'code': i.Grade.code}}
             out.append(em)
         return out
 

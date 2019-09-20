@@ -5,10 +5,12 @@ from . import settings, forms
 from app import db, log, admin_required, supervisor_required
 
 from app.utils import utils, documents
-from app.database import db_measure_topic, db_subject_topic, db_setting, db_grade, db_remark, db_schedule, db_lesson, db_utils, db_teacher\
+from app.database import db_measure_topic, db_subject_topic, db_setting, db_grade, db_remark, db_schedule, db_lesson, db_utils, \
+    db_teacher \
     , multiple_items, db_classgroup
 from app.layout import tables_config
-from app.database.models import Grade, Student, Teacher, Lesson, Schedule, Remark, RemarkSubject, RemarkMeasure, ExtraMeasure, SubjectTopic, MeasureTopic\
+from app.database.models import Grade, Student, Teacher, Lesson, Schedule, Remark, RemarkSubject, RemarkMeasure, ExtraMeasure, \
+    SubjectTopic, MeasureTopic \
     , SCHOOL, Classgroup
 
 import os, datetime, random
@@ -30,7 +32,6 @@ def get_settings_and_show():
         subject_topics = db_subject_topic.db_subject_topic_list(all=True)
         st_list = [{'id': i.id, 'enabled': i.enabled, 'topic': i.topic} for i in subject_topics]
         topics.append(('subject_topic', 'Opmerkingen', st_list))
-
 
         sim_day_hour = db_setting.get_global_setting_sim_dayhour()
         settings['sim_day'] = sim_day_hour.split(' ')[0]
@@ -60,20 +61,21 @@ def show_topics():
                            topics=topics,
                            title='settings')
 
+
 @settings.route('/settings/replacements', methods=['GET', 'POST'])
 @supervisor_required
 @login_required
 def show_replacements():
-    _filter, _filter_form, a,b, c = multiple_items.process_data(tables_config.tables_configuration['replacement'])
+    _filter, _filter_form, a, b, c = multiple_items.process_data(tables_config.tables_configuration['replacement'])
     return render_template('base_multiple_items.html',
                            filter=_filter, filter_form=_filter_form,
-                           config = tables_config.tables_configuration['replacement'])
+                           config=tables_config.tables_configuration['replacement'])
 
 
 @settings.route('/settings/replacements_data', methods=['GET', 'POST'])
 @login_required
 def replacement_data():
-    ajax_table =  multiple_items.prepare_data_for_html(tables_config.tables_configuration['replacement'])
+    ajax_table = multiple_items.prepare_data_for_html(tables_config.tables_configuration['replacement'])
     return ajax_table
 
 
@@ -81,18 +83,17 @@ def replacement_data():
 @login_required
 def replacement_add():
     try:
-        if utils.button_save_pushed(): #second pass
+        if utils.button_save_pushed():  # second pass
             pass
         else:  # first pass
             form = forms.AddReplacementForm()
-            return render_template('settings/replacement.html', form=form, title='Voeg een vervanger toe', role='add', subject='settings')
+            return render_template('settings/replacement.html', form=form, title='Voeg een vervanger toe', role='add',
+                                   subject='settings')
 
     except Exception as e:
         log.error(u'Could not add replacment {}'.format(e))
         utils.flash_plus(u'Kan vervanger niet toevoegen', e)
     return redirect(url_for('settings.show_replacements'))
-
-
 
 
 @settings.route('/settings/database', methods=['GET', 'POST'])
@@ -105,6 +106,7 @@ def show_database():
                            academic_year_list=academic_year_list,
                            topics=topics,
                            title='settings')
+
 
 @settings.route('/settings/tests', methods=['GET', 'POST'])
 @supervisor_required
@@ -147,7 +149,7 @@ def save():
 def save_sim_dayhour():
     try:
         db_setting.set_global_setting_sim_dayhour_state('chkb-sim-dayhour' in request.form)
-        db_setting.set_global_setting_sim_dayhour(request.form['txt-sim-day'] +  ' ' + request.form['txt-sim-hour'])
+        db_setting.set_global_setting_sim_dayhour(request.form['txt-sim-day'] + ' ' + request.form['txt-sim-hour'])
     except Exception as e:
         log.error(u'Cannot save simulate dayhour: {}'.format(e))
         utils.flash_plus(u'Kan simulatie dag en uur niet bewaren', e)
@@ -204,7 +206,7 @@ def upload_students(rfile):
 
         if classgroups:
             for s in students_file:
-                # skip empy records
+                # skip empty records
                 if s['VOORNAAM'] != '' and s['NAAM'] != '' and s['LEERLINGNUMMER'] != '' and s['FOTO'] != '':
                     # check for grade.  If it not exists, skip
                     if s['KLASGROEP'] in classgroups:
@@ -221,7 +223,7 @@ def upload_students(rfile):
                             nbr_students += 1
             db.session.commit()
         else:
-            log.error('Error, no grades present yet')
+            log.error('Error, no classgroups present yet')
             utils.flash_plus('Fout, er zijn nog geen klassen ingeladen')
 
         log.info(u'import: added {} students'.format(nbr_students))
@@ -239,10 +241,11 @@ def upload_students(rfile):
 # GROEP          LeerkrachtenInstituut, LeerkrachtenMiddenschool, LeerkrachtenLyceum
 
 group_to_school = {
-    'LeerkrachtenInstituut' : SCHOOL.INSTITUUT,
-    'LeerkrachtenMiddenschool' : SCHOOL.MIDDENSCHOOL,
-    'LeerkrachtenLyceum' : SCHOOL.LYCEUM
+    'LeerkrachtenInstituut': SCHOOL.INSTITUUT,
+    'LeerkrachtenMiddenschool': SCHOOL.MIDDENSCHOOL,
+    'LeerkrachtenLyceum': SCHOOL.LYCEUM
 }
+
 
 # NO TEACHERS ARE REMOVED, TEACHERS ARE ADDED ONLY
 def upload_teachers(rfile):
@@ -267,7 +270,8 @@ def upload_teachers(rfile):
                     find_teacher.last_name = t['FAMILIENAAM']
                     find_teacher.academic_year = academic_year
                 if not find_teacher:
-                    teacher = Teacher(first_name=t['VOORNAAM'], last_name=t['FAMILIENAAM'], code=teacher_code, academic_year=academic_year, school=school)
+                    teacher = Teacher(first_name=t['VOORNAAM'], last_name=t['FAMILIENAAM'], code=teacher_code,
+                                      academic_year=academic_year, school=school)
                     db.session.add(teacher)
                     nbr_teachers += 1
 
@@ -335,7 +339,7 @@ def upload_schedule(rfile):
                         db.session.add(find_grade)
                         grades[grade_code] = find_grade
                         nbr_grades += 1
-                    #check for classgroup, if not present, add
+                    # check for classgroup, if not present, add
                     if classgroup_code in classgroups:
                         find_classgroup = classgroups[classgroup_code]
                     else:
@@ -352,7 +356,8 @@ def upload_schedule(rfile):
                         lessons[lesson_code] = find_lesson
                         nbr_lessons += 1
                     classmoment = Schedule(day=int(t['DAG']), hour=int(t['UUR']),
-                                           classgroup=find_classgroup, teacher=find_teacher, lesson=find_lesson, school=db_utils.school()
+                                           classgroup=find_classgroup, teacher=find_teacher, lesson=find_lesson,
+                                           school=db_utils.school()
                                            , academic_year=int(academic_year), valid_from=valid_from)
                     db.session.add(classmoment)
                     nbr_classmoments += 1
@@ -361,10 +366,12 @@ def upload_schedule(rfile):
                     error_message += u'{} : niet gevonden<br>'.format(t['LEERKRACHT'])
 
         db.session.commit()
-        log.info(u'import: added {} classmoments, {} grades, {} classgroups and {} lessons'.format(nbr_classmoments, nbr_grades, nbr_classgroups, nbr_lessons))
+        log.info(u'import: added {} classmoments, {} grades, {} classgroups and {} lessons'.format(nbr_classmoments, nbr_grades,
+                                                                                                   nbr_classgroups, nbr_lessons))
         if error_message == '':
-            utils.flash_plus(u'Lesrooster is geïmporteerd, {} lestijden, {} klassen, {} klasgroepen en {} lessen toegevoegd'.format(nbr_classmoments,
-                                                                                                                nbr_grades, nbr_classgroups, nbr_lessons))
+            utils.flash_plus(u'Lesrooster is geïmporteerd, {} lestijden, {} klassen, {} klasgroepen en {} lessen toegevoegd'.format(
+                nbr_classmoments,
+                nbr_grades, nbr_classgroups, nbr_lessons))
         else:
             utils.flash_plus(u'Lesrooster kan niet worden geïmporteerd', format(error_message))
 
@@ -374,7 +381,8 @@ def upload_schedule(rfile):
 
 
 def delete_classmoments(academic_year, valid_from):
-    classmoments = Schedule.query.filter(Schedule.academic_year == academic_year, Schedule.school == db_utils.school(), Schedule.valid_from == valid_from).all()
+    classmoments = Schedule.query.filter(Schedule.academic_year == academic_year, Schedule.school == db_utils.school(),
+                                         Schedule.valid_from == valid_from).all()
     for c in classmoments:
         db.session.delete(c)
     db.session.commit()
@@ -418,9 +426,12 @@ def add_test_remarks():
             for d in dates:
                 classmoment = random.choice(classmoments)
                 h = random.randint(1, 9)
-                timestamp = datetime.datetime.strptime('{}/20{} {}:{}:{}'.format(d, academic_year[2:4], 23, 59, h), '%d/%m/%Y %H:%M:%S')
-                remark = Remark(student=student, grade=student.classgroup.grade, timestamp=timestamp, lesson=classmoment.lesson, teacher=classmoment.teacher,
-                                measure_note='', subject_note='TESTOPMERKING', school=db_utils.school(), academic_year=db_utils.academic_year(), test=True,
+                timestamp = datetime.datetime.strptime('{}/20{} {}:{}:{}'.format(d, academic_year[2:4], 23, 59, h),
+                                                       '%d/%m/%Y %H:%M:%S')
+                remark = Remark(student=student, grade=student.classgroup.grade, timestamp=timestamp, lesson=classmoment.lesson,
+                                teacher=classmoment.teacher,
+                                measure_note='', subject_note='TESTOPMERKING', school=db_utils.school(),
+                                academic_year=db_utils.academic_year(), test=True,
                                 extra_attention=random.choice([True, False, False, False]))
                 s = random.choice(db_subject_topic.db_subject_topic_list())
                 m = random.choice(db_measure_topic.db_measure_topic_list())
@@ -431,11 +442,13 @@ def add_test_remarks():
                 db.session.add(remark)
 
         if add_extra_measure:
-            matched_remarks, non_matched_remarks = db_remark.db_filter_remarks_to_be_reviewed(academic_year, test=True, commit=False)
+            matched_remarks, non_matched_remarks = db_remark.db_filter_remarks_to_be_reviewed(academic_year, test=True,
+                                                                                              commit=False)
             for s, rll in matched_remarks:
                 for id, extra_measure, rl in rll:
                     rids = [i.id for i in rl]
-                    db_remark.db_add_extra_measure(rids, 'TEST: extra sanctie voor {} {}'.format(s.first_name, s.last_name), commit=False)
+                    db_remark.db_add_extra_measure(rids, 'TEST: extra sanctie voor {} {}'.format(s.first_name, s.last_name),
+                                                   commit=False)
         db_remark.db_tag_remarks_as_reviewed()
         log.info(u'Added test remarks')
         utils.flash_plus(u'Test opmerkingen toegevoegd voor jaar {} '.format(academic_year))
@@ -448,7 +461,8 @@ def add_test_remarks():
 def delete_test_remarks():
     academic_year = request.form['selected_academic_year']
     try:
-        remarks = Remark.query.filter(Remark.school == db_utils.school(), Remark.academic_year == db_utils.academic_year(), Remark.test == True).all()
+        remarks = Remark.query.filter(Remark.school == db_utils.school(), Remark.academic_year == db_utils.academic_year(),
+                                      Remark.test == True).all()
         for r in remarks:
             if r.extra_measure and r.first_remark:
                 db.session.delete(r.extra_measure)
@@ -499,6 +513,7 @@ def set_topic_status(data):
         return jsonify({"status": False})
 
     return jsonify({"status": True})
+
 
 def truncate_database():
     try:

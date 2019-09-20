@@ -79,10 +79,11 @@ app = Flask(__name__, instance_relative_config=True)
 #v2.50 : full student name : last name plus first name.  Debugged searching for student name
 #V2.51 : added database_functions.txt file
 #V2.52 : admin only : add a button to hide students
+#V2.53 : reviewed remarks : students name in correct order : surname + firstname
 
 @app.context_processor
 def inject_version():
-    return dict(version = 'V2.52')
+    return dict(version = 'V2.53')
 
 #enable logging
 LOG_HANDLE = 'SB'
