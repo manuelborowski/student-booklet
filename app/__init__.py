@@ -82,10 +82,11 @@ app = Flask(__name__, instance_relative_config=True)
 # V2.52 : admin only : add a button to hide students
 # V2.53 : reviewed remarks : students name in correct order : surname + firstname
 # V2.54 : added generic teacher XXXX with all grades.  Non teachers can now create remarks as well
+# V2.55 : bugfix
 
 @app.context_processor
 def inject_version():
-    return dict(version='V2.54')
+    return dict(version='V2.55')
 
 
 # enable logging

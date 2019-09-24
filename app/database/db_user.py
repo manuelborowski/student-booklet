@@ -24,7 +24,10 @@ def load_user(user_id):
         teacher_ids = []
         if not user.teacher and not user.in_replacement:
             user.in_replacement = True
-            teacher_ids = [db_teacher.db_teacher(code='XXXX').id]
+            try:
+                teacher_ids = [db_teacher.db_teacher(code='XXXX').id]
+            except:
+                None
         else:
             if user.in_schedule:
                 teacher_ids.append(user.teacher.id)
