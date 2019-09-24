@@ -20,9 +20,8 @@ def load_user(user_id):
         user.teacher = db_teacher.db_teacher(code=user.username.upper())
         user.in_schedule = not not db_schedule.db_schedule_list(teacher=user.teacher) if user.teacher else False
         user.in_replacement = not not db_replacement.replacement_list(id=user.teacher.id) if user.teacher else False
-
         teacher_ids = []
-        if not user.teacher and not user.in_replacement:
+        if not user.in_schedule and not user.in_replacement:
             user.in_replacement = True
             try:
                 teacher_ids = [db_teacher.db_teacher(code='XXXX').id]

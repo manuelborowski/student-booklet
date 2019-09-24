@@ -83,10 +83,11 @@ app = Flask(__name__, instance_relative_config=True)
 # V2.53 : reviewed remarks : students name in correct order : surname + firstname
 # V2.54 : added generic teacher XXXX with all grades.  Non teachers can now create remarks as well
 # V2.55 : bugfix
+# V2.56 : bugfix
 
 @app.context_processor
 def inject_version():
-    return dict(version='V2.55')
+    return dict(version='V2.56')
 
 
 # enable logging
