@@ -365,6 +365,20 @@ def upload_schedule(rfile):
                     log.info(u'import timetable: teacher not found: {}'.format(t['LEERKRACHT']))
                     error_message += u'{} : niet gevonden<br>'.format(t['LEERKRACHT'])
 
+        # load schedule for teacher XXXX
+        period = day = 1
+        teacher = db_teacher.db_teacher(code='XXXX')
+        lesson = db_lesson.db_lesson_list()[0]
+        for g in db_grade.db_grade_list():
+            classgroups = db_classgroup.db_classgroup_list(grade=g)
+            for cg in classgroups:
+                classmoment = Schedule(day=day, hour=period, classgroup=cg, teacher=teacher, lesson=lesson,
+                                       school=db_utils.school(), academic_year=int(academic_year), valid_from=valid_from)
+                db.session.add(classmoment)
+            period += 1
+            if period > 9:
+                period = 1
+                day += 1
         db.session.commit()
         log.info(u'import: added {} classmoments, {} grades, {} classgroups and {} lessons'.format(nbr_classmoments, nbr_grades,
                                                                                                    nbr_classgroups, nbr_lessons))

@@ -75,7 +75,8 @@ def filter_grade():
         form_filter.lesson.data = str(schedules[0].lesson.id)
         form_filter.lesson.choices = utils.filter_duplicates_out(teacher_lessons, db_lesson.db_lesson_list(html_select=True))
 
-        db_user.session_set_grade_filter(day_hour=schedules[0].get_data_day_hour(), grade_id=schedules[0].classgroup.grade.id, lesson_id=schedules[0].lesson.id)
+        db_user.session_set_grade_filter(day_hour=schedules[0].get_data_day_hour(), grade_id=schedules[0].classgroup.grade.id,
+                                         lesson_id=schedules[0].lesson.id)
 
     except Exception as e:
         log.error(u'Cannot filter the grade {}'.format(e))

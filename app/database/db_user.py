@@ -22,10 +22,14 @@ def load_user(user_id):
         user.in_replacement = not not db_replacement.replacement_list(id=user.teacher.id) if user.teacher else False
 
         teacher_ids = []
-        if user.in_schedule:
-            teacher_ids.append(user.teacher.id)
-        if user.in_replacement:
-            teacher_ids += db_replacement.replacement_list(user.teacher.id, ids_only=True)
+        if not user.teacher and not user.in_replacement:
+            user.in_replacement = True
+            teacher_ids = [db_teacher.db_teacher(code='XXXX').id]
+        else:
+            if user.in_schedule:
+                teacher_ids.append(user.teacher.id)
+            if user.in_replacement:
+                teacher_ids += db_replacement.replacement_list(user.teacher.id, ids_only=True)
         if teacher_ids:
             user.teacher_list = db_teacher.db_teacher_list(select=True, full_name=True, id_list=teacher_ids)
 
