@@ -88,3 +88,12 @@ def get_global_setting_test_server():
     add_setting('test_server', False, Settings.SETTING_TYPE.E_BOOL, 1)
     return False
 
+def set_global_setting_help_url(value):
+    return set_setting('help_url', str(value), 1)
+
+def get_global_setting_help_url():
+    found, value = get_setting('help_url', 1)
+    if found: return value
+    add_setting('help_url', '', Settings.SETTING_TYPE.E_STRING, 1)
+    return ''
+

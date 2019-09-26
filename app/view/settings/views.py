@@ -14,7 +14,7 @@ from app.database.models import Grade, Student, Teacher, Lesson, Schedule, Remar
     , SCHOOL, Classgroup
 
 import os, datetime, random
-import unicodecsv  as  csv
+import unicodecsv as csv
 import zipfile
 
 
@@ -37,6 +37,7 @@ def get_settings_and_show():
         settings['sim_day'] = sim_day_hour.split(' ')[0]
         settings['sim_hour'] = sim_day_hour.split(' ')[1]
         settings['sim_dayhour_state'] = db_setting.get_global_setting_sim_dayhour_state()
+        settings['help_url'] = db_setting.get_global_setting_help_url()
     except Exception as e:
         log.error(u'Could not check the database for students or timetables, error {}'.format(e))
         utils.flash_plus(u'Er is een fout opgetreden bij het ophalen van de instellingen', e)
@@ -119,6 +120,17 @@ def show_tests():
                            topics=topics,
                            title='settings')
 
+@settings.route('/settings/generic', methods=['GET', 'POST'])
+@supervisor_required
+@login_required
+def show_generic():
+    settings, academic_year_list, topics = get_settings_and_show()
+    return render_template(u'settings/generic.html',
+                           settings=settings,
+                           academic_year_list=academic_year_list,
+                           topics=topics,
+                           title='generic')
+
 
 @settings.route('/settings/save', methods=['GET', 'POST'])
 @admin_required
@@ -143,6 +155,8 @@ def save():
         return truncate_database()
     elif 'txt-sim-day' in request.form:
         return save_sim_dayhour()
+    elif 'txt-help-url' in request.form:
+        return save_generic()
     return redirect(url_for('settings.show_database'))
 
 
@@ -154,6 +168,14 @@ def save_sim_dayhour():
         log.error(u'Cannot save simulate dayhour: {}'.format(e))
         utils.flash_plus(u'Kan simulatie dag en uur niet bewaren', e)
     return redirect(url_for('settings.show_tests'))
+
+def save_generic():
+    try:
+        db_setting.set_global_setting_help_url(request.form['txt-help-url'])
+    except Exception as e:
+        log.error(u'Cannot save help-website-url: {}'.format(e))
+        utils.flash_plus(u'Kan de help website URL niet bewaren', e)
+    return redirect(url_for('settings.show_generic'))
 
 
 # NO PHOTOS ARE REMOVED, PHOTOS ARE ADDED ONLY

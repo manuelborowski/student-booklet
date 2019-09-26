@@ -1,0 +1,69 @@
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "bootstrap/utils.html" as utils %}
+{% extends "base.html" %}
+
+{% block content2 %}
+<div class="content-section center">
+    <form method="post" id="settings_form" action="{{ url_for('settings.save') }}" enctype=multipart/form-data>
+        <input id="save_subject" name="save_subject" value="none" hidden>
+        <input id="save_settings_submit" type="submit" value="Import" style="display:none" onclick="busy_indication_on();">
+        {% if current_user.is_at_least_admin %}
+        <h2>Algemeen : </h2>
+        <div class="container-fluid">
+                <div class="row">
+                    <div class="col-sm-12">
+                        Help website URL <input id='input-help-url' name="txt-help-url" value="{{settings.help_url}}"> (opgelet: vooraan 2 schuine strepen, achteraan 1)
+                    </div>
+                </div>
+                <div class="row">
+                    <br>
+                    <button class="btn btn-default">Bewaar</button>
+                </div>
+            </div>
+            <!-- modal to select academic_year -->
+            <div class="modal fade" id="modal_import" role="dialog">
+                <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" id="dismiss_modal" data-dismiss="modal">&times;
+                            </button>
+                            <h4 class="modal-title" id="modal_title">Importeer</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="single-line">
+                                <label for="selected_academic_year">Schooljaar</label>
+                                <select class="form-control" name="selected_academic_year" id="selected_academic_year">
+                                    {% for i in academic_year_list %}
+                                    {% if i == academic_year|int %}
+                                    <option val="{{i}}" selected="selected">{{i}}</option>
+                                    {% else %}
+                                    <option val="{{i}}">{{i}}</option>
+                                    {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <br>
+                            <div class="default-hidden single-line" id="div-select-date-from">
+                                <label for="select-date-from">Geldig vanaf</label>
+                                <input name="select-date-from" id="select-date-from">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button id="close_modal" type="button" class="btn btn-default" data-dismiss="modal">Ga
+                                verder
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script type="text/javascript"> {% include "settings/settings.js" %}</script>
+{% endblock %}

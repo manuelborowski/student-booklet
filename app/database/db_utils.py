@@ -13,7 +13,9 @@ def inject_information():
             sim_dayhour = db_setting.get_global_setting_sim_dayhour()
         except Exception as e:
             log.error('bad sim dayhour string : {}'.format(e))
-    return dict(academic_year=academic_year(), test_server=db_setting.get_global_setting_test_server(), sim_dayhour=sim_dayhour)
+    help_url = db_setting.get_global_setting_help_url()
+    return dict(academic_year=academic_year(), test_server=db_setting.get_global_setting_test_server(), sim_dayhour=sim_dayhour,
+                help_url=help_url)
 
 
 def school():
