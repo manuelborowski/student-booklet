@@ -6,17 +6,18 @@ from sqlalchemy.sql import func
 from sqlalchemy.orm import column_property
 
 
-#cascade delete : if a table is truncated, what tables are truncated as wel?
-#Remark -> RemarkSubject, RemarkMeasure
-#Lesson -> Remark, Schedule
-#Teacher -> Remark, Schedule
-#Student -> Remark
-#Grade -> Student, Schedule
+# cascade delete : if a table is truncated, what tables are truncated as wel?
+# Remark -> RemarkSubject, RemarkMeasure
+# Lesson -> Remark, Schedule
+# Teacher -> Remark, Schedule
+# Student -> Remark
+# Grade -> Student, Schedule
 
 class SCHOOL:
     LYCEUM = 'Lyceum'
     MIDDENSCHOOL = 'Middenschool'
     INSTITUUT = 'Instituut'
+
 
 class User(UserMixin, db.Model):
     # Ensures table will be named in plural and not in singular
@@ -61,7 +62,6 @@ class User(UserMixin, db.Model):
     user_type = db.Column(db.String(256))
     last_login = db.Column(db.DateTime())
     settings = db.relationship('Settings', cascade='all, delete', backref='user', lazy='dynamic')
-
 
     @property
     def is_local(self):
@@ -109,7 +109,8 @@ class User(UserMixin, db.Model):
         return '<User: {}/{}>'.format(self.id, self.username)
 
     def ret_dict(self):
-        return {'id':self.id, 'DT_RowId':self.id, 'email':self.email, 'username':self.username, 'first_name':self.first_name, 'last_name':self.last_name,
+        return {'id': self.id, 'DT_RowId': self.id, 'email': self.email, 'username': self.username, 'first_name': self.first_name,
+                'last_name': self.last_name,
                 'level': User.LEVEL.i2s(self.level), 'user_type': self.user_type, 'last_login': self.last_login, 'chbx': ''}
 
     @staticmethod
@@ -155,7 +156,7 @@ class Student(db.Model):
     remarks = db.relationship('Remark', cascade='all, delete', backref='student', lazy='dynamic')
     classgroup_id = db.Column(db.Integer, db.ForeignKey('classgroups.id', ondelete='CASCADE'))
     academic_year = db.Column(db.Integer, default=None)
-    #nbr_of_remarks is a function in the database
+    # nbr_of_remarks is a function in the database
     nbr_of_remarks = column_property(func.nbr_of_remarks(id))
     full_name = column_property(func.full_name(id))
 
@@ -163,12 +164,13 @@ class Student(db.Model):
         return '<Student: {}/{}/{}>'.format(self.id, self.first_name, self.last_name)
 
     def ret_dict(self):
-        return {'id':self.id, 'first_name':self.first_name, 'last_name': self.last_name, 'grade': self.grade.ret_dict(),
+        return {'id': self.id, 'first_name': self.first_name, 'last_name': self.last_name, 'grade': self.grade.ret_dict(),
                 'full_name': self.full_name,
                 'number': self.nbr_of_remarks}
 
+
 class Classgroup(db.Model):
-    __tablename__= 'classgroups'
+    __tablename__ = 'classgroups'
 
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String(256))
@@ -181,7 +183,7 @@ class Classgroup(db.Model):
 
 
 class Grade(db.Model):
-    __tablename__= 'grades'
+    __tablename__ = 'grades'
 
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String(256))
@@ -199,13 +201,14 @@ class Grade(db.Model):
         return [(-1, '')] + Grade.get_choices_list()
 
     def get_choice(self):
-        return(self.id, self.code)
+        return (self.id, self.code)
 
     def __repr__(self):
         return 'Grade: {}/{}'.format(self.id, self.code)
 
     def ret_dict(self):
-         return {'id':self.id, 'code': self.code}
+        return {'id': self.id, 'code': self.code}
+
 
 class Schedule(db.Model):
     __tablename__ = 'schedules'
@@ -215,10 +218,10 @@ class Schedule(db.Model):
     @staticmethod
     def get_choices_day_hour():
         l = []
-        day_count=1
+        day_count = 1
         for d in Schedule.WEEK_DAYS:
             lh = 6 if d == 'WO' else 10
-            for h in range(1,lh):
+            for h in range(1, lh):
                 l.append(('{}/{}'.format(day_count, h), '{} : {}'.format(d, h)))
             day_count += 1
         return l
@@ -230,7 +233,7 @@ class Schedule(db.Model):
     def decode_dayhour(dayhour):
         try:
             day_hour = dayhour.split('/')
-            return int(day_hour[0]), int(day_hour[1]) #day, hour
+            return int(day_hour[0]), int(day_hour[1])  # day, hour
         except Exception as e:
             return 1, 1
 
@@ -243,10 +246,12 @@ class Schedule(db.Model):
     school = db.Column(db.String(1024), default='Lyceum', index=True)
     valid_from = db.Column(db.Date, default=None, index=True)
     academic_year = db.Column(db.Integer, default=None, index=True)
-    test = db.Column(db.Boolean, default = False)
+    test = db.Column(db.Boolean, default=False)
 
     def __repr__(self):
-        return 'Schedule: {}/{}/{}/{}/{}/{}'.format(self.id, self.day, self.hour, self.classgroup.code, self.teacher.code, self.lesson.code)
+        return 'Schedule: {}/{}/{}/{}/{}/{}'.format(self.id, self.day, self.hour, self.classgroup.code, self.teacher.code,
+                                                    self.lesson.code)
+
 
 class Lesson(db.Model):
     __tablename__ = 'lessons'
@@ -264,7 +269,8 @@ class Lesson(db.Model):
         return 'Lesson: {}/{}'.format(self.id, self.code)
 
     def ret_dict(self):
-        return {'id':self.id, 'code': self.code}
+        return {'id': self.id, 'code': self.code}
+
 
 class ReplacementTeacher(db.Model):
     __tablename__ = 'replacement_teachers'
@@ -292,17 +298,16 @@ class ReplacementTeacher(db.Model):
             for t in v:
                 l += '{} ({} {})'.format(t.code, t.first_name, t.last_name) + ', '
             em['replacing'] = l
-            em['chbx'] = "<input type='checkbox' class='chbx_all' name='chbx' value='{}'>".format(k.id) #replaced-by-teacher-id
+            em['chbx'] = "<input type='checkbox' class='chbx_all' name='chbx' value='{}'>".format(k.id)  # replaced-by-teacher-id
             out.append(em)
         return out
-
 
 
 class Teacher(db.Model):
     __tablename__ = 'teachers'
 
     def get_choice(self):
-        return(self.id, self.code)
+        return (self.id, self.code)
 
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(256))
@@ -316,13 +321,13 @@ class Teacher(db.Model):
     replacing_teacher = db.relationship('ReplacementTeacher', cascade='all', backref='replacing_teacher',
                                         foreign_keys='ReplacementTeacher.replacing_id', lazy='dynamic')
     replaced_by_teacher = db.relationship('ReplacementTeacher', cascade='all', backref='replaced_by_teacher',
-                                        foreign_keys='ReplacementTeacher.replaced_by_id', lazy='dynamic')
+                                          foreign_keys='ReplacementTeacher.replaced_by_id', lazy='dynamic')
 
     def __repr__(self):
         return 'Teacher: {}/{}'.format(self.id, self.code)
 
     def ret_dict(self):
-        return {'id':self.id, 'code':self.code}
+        return {'id': self.id, 'code': self.code}
 
     @property
     def full(self):
@@ -336,8 +341,6 @@ class Forward(db.Model):
     note = db.Column(db.String(1024), default='')
 
 
-
-
 class ExtraMeasure(db.Model):
     __tablename__ = 'extra_measures'
 
@@ -348,7 +351,7 @@ class ExtraMeasure(db.Model):
     remarks = db.relationship('Remark', backref='extra_measure', lazy='dynamic')
 
     def ret_dict(self):
-        return {'id':self.id, 'DT_RowId':self.id, 'note': self.note, 'date':self.timestamp.strftime('%d-%m-%Y %H:%M')}
+        return {'id': self.id, 'DT_RowId': self.id, 'note': self.note, 'date': self.timestamp.strftime('%d-%m-%Y %H:%M')}
 
     @staticmethod
     def format_data(db_list):
@@ -372,11 +375,11 @@ class Remark(db.Model):
     measure_note = db.Column(db.String(1024), default='')
     timestamp = db.Column(db.DateTime(timezone=True), server_default=func.now())
     extra_attention = db.Column(db.Boolean, default=False)
-    student_id = db.Column(db.Integer, db.ForeignKey('students.id', ondelete='CASCADE')) #child
+    student_id = db.Column(db.Integer, db.ForeignKey('students.id', ondelete='CASCADE'))  # child
     lesson_id = db.Column(db.Integer, db.ForeignKey('lessons.id', ondelete='CASCADE'))
     teacher_id = db.Column(db.Integer, db.ForeignKey('teachers.id', ondelete='CASCADE'))
     grade_id = db.Column(db.Integer, db.ForeignKey('grades.id', ondelete='CASCADE'))
-    subjects = db.relationship('RemarkSubject', cascade='all, delete', backref='remark', lazy='dynamic') #parent
+    subjects = db.relationship('RemarkSubject', cascade='all, delete', backref='remark', lazy='dynamic')  # parent
     measures = db.relationship('RemarkMeasure', cascade='all, delete', backref='remark', lazy='dynamic')
 
     reviewed = db.Column(db.Boolean, default=False)
@@ -386,10 +389,10 @@ class Remark(db.Model):
     academic_year = db.Column(db.Integer, default=None)
     test = db.Column(db.Boolean, default=False)
 
-    #of a list of remarks, leading to an extra measure, only one remark will have first_remark set to true
+    # of a list of remarks, leading to an extra measure, only one remark will have first_remark set to true
     first_remark = db.Column(db.Boolean, default=False)
 
-    #concat_remark_subjects and concat_remark_measures are functions in the database
+    # concat_remark_subjects and concat_remark_measures are functions in the database
     concat_subjects = column_property(func.concat_remark_subjects(id))
     concat_measures = column_property(func.concat_remark_measures(id))
 
@@ -405,15 +408,18 @@ class Remark(db.Model):
 
     def decode_timestamp(self):
         if self.timestamp.hour == 23 and self.timestamp.minute == 59:
-            return '{} {}{} uur'.format(self.timestamp.strftime('%d-%m-%Y'), self.timestamp.second, 'ste' if self.timestamp.second == 1 else 'de')
+            return '{} {}{} uur'.format(self.timestamp.strftime('%d-%m-%Y'), self.timestamp.second,
+                                        'ste' if self.timestamp.second == 1 else 'de')
         return self.timestamp.strftime('%d-%m-%Y %H:%M')
 
     def ret_dict(self):
-        return {'id':self.id, 'DT_RowId':self.id, 'date':self.decode_timestamp(), 'reviewed' : 'X' if self.reviewed else '',
-                'subjects': self.concat_subjects, 'measures': self.concat_measures, 'extra_attention': self.extra_attention, 'overwrite_row_color': self.row_color()}
+        return {'id': self.id, 'DT_RowId': self.id, 'date': self.decode_timestamp(), 'reviewed': 'X' if self.reviewed else '',
+                'subjects': self.concat_subjects, 'measures': self.concat_measures, 'extra_attention': self.extra_attention,
+                'overwrite_row_color': self.row_color()}
 
     def __repr__(self):
-        return u'ID({}) TS({}) SDNT({})'.format(self.id, self.timestamp.strftime('%d-%m-%Y %H:%M'), self.student.first_name + ' ' + self.student.last_name)
+        return u'ID({}) TS({}) SDNT({})'.format(self.id, self.timestamp.strftime('%d-%m-%Y %H:%M'),
+                                                self.student.first_name + ' ' + self.student.last_name)
 
     def __str__(self):
         return self.__repr__()
@@ -427,25 +433,25 @@ class Remark(db.Model):
             em['grade'] = {'code': i.Grade.code}
             em['teacher'] = {'code': i.Teacher.code}
             em['lesson'] = {'code': i.Lesson.code}
-            em['chbx'] = "<input type='checkbox' class='chbx_all' name='chbx' value='{}'>".format(i.Remark.id, i.Remark.id) if i.Remark.checkbox_required() else ''
+            em['chbx'] = "<input type='checkbox' class='chbx_all' name='chbx' value='{}'>".format(i.Remark.id,
+                                                                                                  i.Remark.id) if i.Remark.checkbox_required() else ''
 
             out.append(em)
         return out
-
 
 
 class SubjectTopic(db.Model):
     __tablename__ = 'subject_topics'
 
     default_topics = [
-        (SCHOOL.LYCEUM , [
-        'gsm-gebruik',
-        'Materiaal vergeten',
-        'Neemt geen notities',
-        'Stoort de les',
-        'Taak of lesvoorbereiding niet gemaakt',
-        'Voert opdrachten niet uit',
-        'Volgt instructies niet op'
+        (SCHOOL.LYCEUM, [
+            'gsm-gebruik',
+            'Materiaal vergeten',
+            'Neemt geen notities',
+            'Stoort de les',
+            'Taak of lesvoorbereiding niet gemaakt',
+            'Voert opdrachten niet uit',
+            'Volgt instructies niet op'
         ])
     ]
 
@@ -470,11 +476,11 @@ class MeasureTopic(db.Model):
 
     default_topics = [
         (SCHOOL.LYCEUM, [
-        'Andere plaats gegeven',
-        'gsm afgenomen',
-        'Opmerking gegeven',
-        'Uit de les gezet',
-        'Werkstudie gegeven'
+            'Andere plaats gegeven',
+            'gsm afgenomen',
+            'Opmerking gegeven',
+            'Uit de les gezet',
+            'Werkstudie gegeven'
         ])
     ]
 
@@ -486,9 +492,9 @@ class MeasureTopic(db.Model):
 
     @staticmethod
     def get_choices_list():
-        l = db.session.query(MeasureTopic.id, MeasureTopic.topic).filter(MeasureTopic.enabled==True).order_by(MeasureTopic.topic).all()
+        l = db.session.query(MeasureTopic.id, MeasureTopic.topic).filter(MeasureTopic.enabled == True).order_by(
+            MeasureTopic.topic).all()
         return l
-
 
 
 class RemarkMeasure(db.Model):
