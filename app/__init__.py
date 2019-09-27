@@ -87,10 +87,11 @@ app = Flask(__name__, instance_relative_config=True)
 # V2.57 : added settings/generic page for generic settings.  Added configurable link to help page
 # V2.58 : make it possible to search in measures and topics
 # V2.59 : added help files
+# V2.60 : added nginx file for help website
 
 @app.context_processor
 def inject_version():
-    return dict(version='V2.59')
+    return dict(version='V2.60')
 
 
 # enable logging

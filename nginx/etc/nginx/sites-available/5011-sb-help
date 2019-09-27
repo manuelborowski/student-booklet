@@ -1,0 +1,10 @@
+server {
+  listen 5011;
+  listen 80;
+  root /var/www/sb-help;
+  index sb-help.htm;
+  server_name sb-help.exelbo.dynu.net;
+  location / {
+    try_files $uri $uri/ =404;
+  }
+}
