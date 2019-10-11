@@ -88,10 +88,11 @@ app = Flask(__name__, instance_relative_config=True)
 # V2.58 : make it possible to search in measures and topics
 # V2.59 : added help files
 # V2.60 : added nginx file for help website
+# V2.61 : bugfix extra measures : search on student name and extra measure
 
 @app.context_processor
 def inject_version():
-    return dict(version='V2.60')
+    return dict(version='V2.61')
 
 
 # enable logging

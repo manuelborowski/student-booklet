@@ -143,6 +143,8 @@ def process_data(table, paginate=True):
         search_constraints = []
         # if Offence.timestamp in column_list:
         #    search_constraints.append(Offence.timestamp.like(search_value))
+        if ExtraMeasure.note in column_list:
+            search_constraints.append(ExtraMeasure.note.like(search_value))
         if Remark.concat_measures in column_list:
             search_constraints.append(Remark.concat_measures.like(search_value))
         if Remark.concat_subjects in column_list:

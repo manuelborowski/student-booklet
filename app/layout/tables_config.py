@@ -36,7 +36,7 @@ tables_configuration = {
         'delete_message': u'Wilt u deze opmerking(en) verwijderen?',
         'template': [
             {'name': 'Datum', 'data': 'date', 'order_by': ExtraMeasure.timestamp, 'width': '12%', 'orderable': True},
-            {'name': 'Leerling', 'data': 'remark.student.full_name', 'order_by': Student.last_name, 'width': '10%',
+            {'name': 'Leerling', 'data': 'remark.student.full_name', 'order_by': Student.full_name, 'width': '10%',
              'orderable': True},
             {'name': 'KL', 'data': 'remark.grade.code', 'order_by': Grade.code, 'width': '1%', 'orderable': True},
             {'name': 'Maatregel', 'data': 'note', 'order_by': ExtraMeasure.note, 'width': '30%', 'orderable': True},
