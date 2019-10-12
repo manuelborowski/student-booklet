@@ -47,6 +47,7 @@ tables_configuration = {
         'row_detail': 'reviewed',
         'format_data': ExtraMeasure.format_data,
         'legend': '<span class="badge legend-badge" style="background-color: lightsalmon">Extra aandacht</span>',
+        'default_order': (1, 'desc')
     },
     'user': {
         'model': User,
