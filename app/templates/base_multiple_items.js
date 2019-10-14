@@ -195,8 +195,7 @@ $(document).ready(function() {
     //For an extra-measure, show the associated remarks as a sub-table
     var d_table_start = '<table cellpadding="5" cellspacing="0" border="2" style="padding-left:50px;">'
     var d_table_stop = '</table>'
-    var d_header = '<tr><td>Datum</td><td>Leerling</td><td>LKR</td><td>KL</td><td>Les</td><td>Opmerking</td><td>Maatregel</td></tr>'
-    var d_row    = '<tr><td>%s</td><td>{}</td><td>LKR</td><td>KL</td><td>Les</td><td>Opmerking</td><td>Maatregel</td></tr>'
+    var d_header = '<tr><td width="20%">Datum</td><td>Leerling</td><td>LKR</td><td>KL</td><td>Les</td><td>Opmerking</td><td>Maatregel</td></tr>'
 
     function format_row_detail(data) {
         s = d_table_start;
@@ -208,7 +207,7 @@ $(document).ready(function() {
                 } else {
                     s += '<tr>'
                 }
-                s = s + '<td>' + data[i].date + '</td>';
+                s = s + '<td width="20%">' + data[i].date + '</td>';
                 s = s + '<td>' + data[i].student.full_name + '</td>';
                 s = s + '<td>' + data[i].teacher.code + '</td>';
                 s = s + '<td>' + data[i].grade.code + '</td>';

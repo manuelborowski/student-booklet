@@ -29,10 +29,10 @@ def show():
 def get_row_detail(data):
     try:
         jd = json.loads(data)
-        remarks = db.session.query(Remark, Student, Grade, Teacher, Lesson).join(Student, Student.id == Remark.student_id) \
-            .join(Grade, Grade.id == Remark.grade_id).join(Teacher, Teacher.id == Remark.teacher_id).join(Lesson,
-                                                                                                          Lesson.id == Remark.lesson_id) \
-            .filter(Remark.extra_measure_id == jd['id']).all()
+        remarks = db.session.query(Remark, Student, Grade, Teacher, Lesson).join(Student, Student.id == Remark.student_id). \
+            join(Grade, Grade.id == Remark.grade_id).join(Teacher, Teacher.id == Remark.teacher_id).\
+            join(Lesson, Lesson.id == Remark.lesson_id) \
+            .filter(Remark.extra_measure_id == jd['id']).order_by(Remark.timestamp.desc()).all()
         details = Remark.format_data(remarks)
         return jsonify({"status": True, "details": details})
     except Exception as e:
