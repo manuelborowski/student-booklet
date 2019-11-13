@@ -91,10 +91,11 @@ app = Flask(__name__, instance_relative_config=True)
 # V2.61 : bugfix extra measures : search on student name and extra measure
 # V2.62 : extra measure : default order table on date, descending
 # V2.63 : extra measure : line details : sorted by date descending
+# V.264 : update in nginx specific files
 
 @app.context_processor
 def inject_version():
-    return dict(version='V2.63')
+    return dict(version='V2.64')
 
 
 # enable logging
