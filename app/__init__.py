@@ -93,10 +93,11 @@ app = Flask(__name__, instance_relative_config=True)
 # V2.63 : extra measure : line details : sorted by date descending
 # V.264 : update in nginx specific files
 # V2.65 : bugfix numbering
+# V2.66 : importing students : do not check on empty photo
 
 @app.context_processor
 def inject_version():
-    return dict(version='V2.65')
+    return dict(version='V2.66')
 
 
 # enable logging

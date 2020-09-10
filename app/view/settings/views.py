@@ -229,7 +229,7 @@ def upload_students(rfile):
         if classgroups:
             for s in students_file:
                 # skip empty records
-                if s['VOORNAAM'] != '' and s['NAAM'] != '' and s['LEERLINGNUMMER'] != '' and s['FOTO'] != '':
+                if s['VOORNAAM'] != '' and s['NAAM'] != '' and s['LEERLINGNUMMER'] != '':
                     # check for grade.  If it not exists, skip
                     if s['KLASGROEP'] in classgroups:
                         # add student, if not already present
