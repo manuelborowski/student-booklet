@@ -137,13 +137,13 @@ def show_generic():
 @login_required
 def save():
     if request.files:
-        if 'upload_students' in request.files:
+        if 'upload_students' in request.files and request.files['upload_students'].filename != '':
             upload_students(request.files['upload_students'])
-        elif 'upload_teachers' in request.files:
+        elif 'upload_teachers' in request.files and request.files['upload_teachers'].filename != '':
             upload_teachers(request.files['upload_teachers'])
-        elif 'upload_schedule' in request.files:
+        elif 'upload_schedule' in request.files and request.files['upload_schedule'].filename != '':
             upload_schedule(request.files['upload_schedule'])
-        elif 'upload_photos' in request.files:
+        elif 'upload_photos' in request.files and request.files['upload_photos'].filename != '':
             upload_photos(request.files['upload_photos'])
     elif request.form['save_subject'] == 'add_test_students':
         return add_test_remarks()
