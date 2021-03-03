@@ -276,15 +276,17 @@ def upload_teachers(rfile):
         log.info(u'Import teachers from : {}'.format(rfile))
         academic_year = request.form['selected_academic_year']
 
-        fieldnames = ['CODE', 'VOORNAAM', 'FAMILIENAAM', 'GROEP']
+        fieldnames = ['CODE', 'VOORNAAM', 'FAMILIENAAM', 'GROEP', 'GROEP2']
         # teachers_file=csv.DictReader(rfile,  delimiter=';', encoding='utf-8-sig')
         teachers_file = csv.DictReader(rfile, delimiter=';', fieldnames=fieldnames, encoding='latin_1')  # ansi encoding
         nbr_teachers = 0
         for t in teachers_file:
             # skip empty and not relevant records
             teacher_code = t['CODE'].upper()
-            if t['VOORNAAM'] != '' and t['FAMILIENAAM'] != '' and teacher_code != '' and t['GROEP'] in group_to_school:
-                school = group_to_school[t['GROEP']]
+            group = t['GROEP'] if t['GROEP'] in group_to_school else t['GROEP2']
+            if group not in group_to_school: continue
+            if t['VOORNAAM'] != '' and t['FAMILIENAAM'] != '' and teacher_code != '':
+                school = group_to_school[group]
                 # add teacher, if not already present
                 find_teacher = Teacher.query.filter(Teacher.code == teacher_code, Teacher.school == school).first()
                 if find_teacher:

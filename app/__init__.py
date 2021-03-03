@@ -96,10 +96,11 @@ app = Flask(__name__, instance_relative_config=True)
 # V2.66 : importing students : do not check on empty photo
 # V2.67 : import into database: bugfix
 # V2.68 : bugfix Forms: require default value
+# V2.69 : bugfix : teachers from smartschool have extra column
 
 @app.context_processor
 def inject_version():
-    return dict(version='V2.68')
+    return dict(version='V2.69')
 
 
 # enable logging
