@@ -95,10 +95,11 @@ app = Flask(__name__, instance_relative_config=True)
 # V2.65 : bugfix numbering
 # V2.66 : importing students : do not check on empty photo
 # V2.67 : import into database: bugfix
+# V2.68 : bugfix Forms: require default value
 
 @app.context_processor
 def inject_version():
-    return dict(version='V2.67')
+    return dict(version='V2.68')
 
 
 # enable logging
