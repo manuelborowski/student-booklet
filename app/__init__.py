@@ -97,10 +97,11 @@ app = Flask(__name__, instance_relative_config=True)
 # V2.67 : import into database: bugfix
 # V2.68 : bugfix Forms: require default value
 # V2.69 : bugfix : teachers from smartschool have extra column
+# V2.70: cosmetic udpate
 
 @app.context_processor
 def inject_version():
-    return dict(version='V2.69')
+    return dict(version='V2.70')
 
 
 # enable logging
