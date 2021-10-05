@@ -41,7 +41,7 @@ def load_user(user_id):
 #Simulate a filter where the teacher has changed.
 def default_grade_filter():
     try:
-        teacher_found = db_teacher.db_teacher(code=current_user.username)
+        teacher_found = db_teacher.db_teacher(code=current_user.username.upper())
         teacher_in_schedule = not not db_schedule.db_schedule_list(teacher=teacher_found) if teacher_found else False
         if teacher_in_schedule:
             teacher_id = db_teacher.db_teacher(code=current_user.username.upper()).id

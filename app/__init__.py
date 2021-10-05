@@ -98,10 +98,11 @@ app = Flask(__name__, instance_relative_config=True)
 # V2.68 : bugfix Forms: require default value
 # V2.69 : bugfix : teachers from smartschool have extra column
 # V2.70: cosmetic udpate
+# V2.71: default grade filter: use uppercase teacher code
 
 @app.context_processor
 def inject_version():
-    return dict(version='V2.70')
+    return dict(version='V2.71')
 
 
 # enable logging
