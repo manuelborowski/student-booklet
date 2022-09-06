@@ -16,7 +16,7 @@ from app.database.models import Grade, Student, Teacher, Lesson, Schedule, Remar
 import os, datetime, random
 import unicodecsv as csv
 import zipfile
-
+import app.application.sdh
 
 def get_settings_and_show():
     settings = {}
@@ -176,6 +176,14 @@ def save_generic():
         log.error(u'Cannot save help-website-url: {}'.format(e))
         utils.flash_plus(u'Kan de help website URL niet bewaren', e)
     return redirect(url_for('settings.show_generic'))
+
+
+@settings.route('/settings/import_teachers', methods=['GET', 'POST'])
+@admin_required
+@login_required
+def import_teachers():
+    app.application.sdh.get_teachers_info()
+    return redirect(url_for('settings.show_database'))
 
 
 # NO PHOTOS ARE REMOVED, PHOTOS ARE ADDED ONLY
@@ -340,9 +348,14 @@ def upload_schedule(rfile):
         nbr_grades = 0
         nbr_classgroups = 0
         grades = {g.code: g for g in db_grade.db_grade_list(in_schedule=False)}
-        classgroups = {c.code: c for c in db_classgroup.db_classgroup_list()}
+        # classgroups = {c.code: c for c in db_classgroup.db_classgroup_list()}
         lessons = {l.code: l for l in db_lesson.db_lesson_list(schedule=False)}
         teachers = {t.code: t for t in db_teacher.db_teacher_list(schedule=False)}
+        all_classgroups =  db_classgroup.db_classgroup_list(active=None)
+        classgroups = {}
+        for c in all_classgroups:
+            classgroups[c.code] = c
+            c.active = False
 
         for t in timetable_file:
             # skip empy records
@@ -366,6 +379,7 @@ def upload_schedule(rfile):
                     # check for classgroup, if not present, add
                     if classgroup_code in classgroups:
                         find_classgroup = classgroups[classgroup_code]
+                        classgroups[classgroup_code].active = True
                     else:
                         find_classgroup = Classgroup(code=classgroup_code, grade=find_grade)
                         db.session.add(find_classgroup)
@@ -385,6 +399,8 @@ def upload_schedule(rfile):
                                            , academic_year=int(academic_year), valid_from=valid_from)
                     db.session.add(classmoment)
                     nbr_classmoments += 1
+                elif t['KLAS'] == 'OKAN':
+                    log.info(u'import timetable: teacher teaches OKAN (skip): {}'.format(t['LEERKRACHT']))
                 else:
                     log.info(u'import timetable: teacher not found: {}'.format(t['LEERKRACHT']))
                     error_message += u'{} : niet gevonden<br>'.format(t['LEERKRACHT'])
@@ -414,6 +430,7 @@ def upload_schedule(rfile):
             utils.flash_plus(u'Lesrooster kan niet worden geïmporteerd', format(error_message))
 
     except Exception as e:
+        db.session.rollback()
         utils.flash_plus(u'Kan bestand niet importeren', e)
     return
 

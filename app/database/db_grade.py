@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from app.database import db_utils, db_schedule
+from app.database import db_utils, db_schedule, db_classgroup
 from app.database.db_utils import time_to_timeslot
 from app.database.models import Teacher, Schedule, Grade, Lesson, Classgroup
 from app import db
@@ -68,10 +68,11 @@ def db_filter_grade(teacher_id, dayhour_str, grade_id, lesson_id, changed_item=N
 
     #create a dummy classmoment
     schedules = []
-    classgroups = Classgroup.query.filter(Classgroup.grade == grade).all()
+    if not grade:
+        grade = Grade.query.first()
+    classgroups = Classgroup.query.filter(Classgroup.grade == grade, Classgroup.active == True).all()
     for c in classgroups:
-        schedules.append(Schedule(day=d, hour=h, school=db_utils.school(), academic_year=db_utils.academic_year(), teacher=teacher
-                          , lesson=lesson, classgroup=c))
+        schedules.append(Schedule(day=d, hour=h, school=db_utils.school(), academic_year=db_utils.academic_year(), teacher=teacher, lesson=lesson, classgroup=c))
     return schedules
 
 
@@ -92,7 +93,8 @@ def db_single_grade(schedules):
             if s.classgroup.grade != grade:
                 single_grade = False
         if single_grade:
-            classgroup_count = db.session.query(Classgroup).filter(Classgroup.grade == schedules[0].classgroup.grade).count()
+            classgroup_count = len(db_classgroup.db_classgroup_list(grade=schedules[0].classgroup.grade))
+            # classgroup_count = db.session.query(Classgroup).filter(Classgroup.grade == schedules[0].classgroup.grade).filter(Classgroup.active == True).count()
             if len(schedules) != classgroup_count:
                 single_grade = False
     if single_grade:

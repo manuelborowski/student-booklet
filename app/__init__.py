@@ -99,10 +99,13 @@ app = Flask(__name__, instance_relative_config=True)
 # V2.69 : bugfix : teachers from smartschool have extra column
 # V2.70: cosmetic udpate
 # V2.71: default grade filter: use uppercase teacher code
+# V2.72: added 'active' field to classgroups to filter out unused.  Interfered when trying to determine what classgroups belong to a grade.
+# Bugfixed issue when in the grade-page, the Klas filter showed a list of classgroups and a different vak was selected.  Added start of SDH-api
+
 
 @app.context_processor
 def inject_version():
-    return dict(version='V2.71')
+    return dict(version='V2.72')
 
 
 # enable logging
@@ -140,7 +143,7 @@ except:
     log_level = getattr(logging, 'INFO')
 log.setLevel(log_level)
 log.addFilter(MyLogFilter())
-log_handler = logging.handlers.RotatingFileHandler(LOG_FILENAME, maxBytes=10 * 1024, backupCount=5)
+log_handler = logging.handlers.RotatingFileHandler(LOG_FILENAME, maxBytes=1024 * 1024, backupCount=10)
 log_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(username)s - %(message)s')
 log_handler.setFormatter(log_formatter)
 log.addHandler(log_handler)

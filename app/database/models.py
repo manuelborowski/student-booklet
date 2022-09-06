@@ -177,6 +177,7 @@ class Classgroup(db.Model):
     grade_id = db.Column(db.Integer, db.ForeignKey('grades.id', ondelete='CASCADE'))
     students = db.relationship('Student', cascade='all, delete', backref='classgroup', lazy='dynamic')
     schedules = db.relationship('Schedule', cascade='all, delete', backref='classgroup', lazy='dynamic')
+    active = db.Column(db.Boolean, default=True)
 
     def __repr__(self):
         return '<Classgroup: {}/{}>'.format(self.id, self.code)
