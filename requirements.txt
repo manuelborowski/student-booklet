@@ -38,7 +38,7 @@ Mako==1.0.7
 MarkupSafe==1.1.0
 oauthlib==2.1.0
 packaging==20.9
-protobuf==3.15.3
+protobuf==3.18.3
 pycparser==2.19
 PyMySQL==1.0.2
 pyparsing==2.4.7
