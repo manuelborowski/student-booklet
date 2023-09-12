@@ -2,7 +2,7 @@
 
 from flask import render_template, url_for, request, redirect
 from flask_login import login_required, current_user
-import datetime
+import datetime, base64
 
 import app.database.db_utils
 from . import grade
@@ -46,6 +46,8 @@ def filter_grade():
         for s in schedules:
             students += db_student.db_student_list(classgroup=s.classgroup)
         students = sorted(students, key=lambda i: i.last_name)
+        for student in students:
+            student.photoblobbase64 = base64.b64encode(student.photoblob).decode('utf-8')
         teacher_grades = db_grade.db_grade_list(schedules[0].teacher, html_select=True)
         is_single_grade, classgroup_codes = db_grade.db_single_grade(schedules)
         teacher_lessons = db_lesson.db_lesson_list(schedules[0].teacher, html_select=True)
@@ -113,6 +115,7 @@ def action():
             for s in request.form.getlist('student_id'):
                 student = Student.query.get(s)
                 if student:
+                    student.photoblobbase64 = base64.b64encode(student.photoblob).decode('utf-8')
                     students.append(student)
             form = RemarkForm()
             prime_data = {}

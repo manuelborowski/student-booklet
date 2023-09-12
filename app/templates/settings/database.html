@@ -11,13 +11,14 @@
         <h2>Database : </h2>
         <input id="save_settings_submit" type="submit" value="Import" style="display:none" onclick="busy_indication_on();">
         <div class="container">
+            <div hidden>
             <div class="row">
-                <a class="btn btn-default" onclick="select_academic_year('upload_teachers');">1) Importeer leerkrachten</a>
+                <a class="btn btn-default" onclick="select_academic_year('upload_teachers');" >1) Importeer leerkrachten</a>
                 <input id='upload_teachers' type='file' name='upload_teachers' style="display:none" accept=".csv"
-                       onchange="$('#save_settings_submit').click();">
+                       onchange="$('#save_settings_submit').click();" >
                 <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="tooltip"
                       title="Exporteer uit Smartschool via SMT.  In SMT, selecteer volgende velden : gebruikersnaam, voornaam, naam, groep.
-                      Exporteer naar Excel.  In Excel, bewaar als CSV">
+                      Exporteer naar Excel.  In Excel, bewaar als CSV" >
 <!--                      title="Exporteer uit Wisa : Query = stdntmapje, Formaat = Text File, ANSI = aan, Schrijven in bestand = aan, Eerste lijn met veldnamen = aan,-->
                     <!--                          Scheidingsteken = ; (puntkomma), Bestand = .../leerkrachten.csv" .>-->
                     </span>
@@ -47,9 +48,20 @@
                       title="Op de suc-server, pasfoto-leerlingen.  Zip de correcte folder" .>
                     </span>
             </div>
-
+</div>
             <div class="row">
-                <a class="btn btn-default" href=" {{ url_for('settings.import_teachers') }}">1) Importeer leerkrachten uit SDH</a>
+                <a class="btn btn-default" href=" {{ url_for('settings.import_lkr_from_ss') }}">1) Importeer leerkrachten van Smartschool</a>
+            </div>
+            <div class="row">
+                <a class="btn btn-default" onclick="select_academic_year_and_valid_from('upload_schedule');">2) Importeer lesrooster</a>
+                <input id='upload_schedule' type='file' name='upload_schedule' style="display:none" accept=".csv"
+                       onchange="$('#save_settings_submit').click();">
+                <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="tooltip"
+                      title="Exporteer uit UNTIS : lesrooster.csv" .>
+                    </span>
+            </div>
+            <div class="row">
+                <a class="btn btn-default" href=" {{ url_for('settings.import_lln_from_sdh') }}">3) Importeer leerlingen/foto's van SDH</a>
             </div>
 
 

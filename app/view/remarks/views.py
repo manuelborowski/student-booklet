@@ -1,7 +1,7 @@
 from flask import render_template, url_for, request, redirect, jsonify
 from flask_login import login_required
 
-import app.database.db_utils
+import app.database.db_utils, base64
 from . import remarks
 from app import db, log
 from app.database.models import Remark, RemarkSubject, RemarkMeasure, SubjectTopic, MeasureTopic, Student
@@ -63,8 +63,7 @@ def action():
             prime_data['hour'] = h
             prime_data['date'] = remark.timestamp.strftime('%d-%m-%Y')
             prime_data['remark'] = remark
-
-
+            remark.student.photoblobbase64 = base64.b64encode(remark.student.photoblob).decode('utf-8')
             return render_template('remark/remark.html', subject='remarks', action='edit',
                                    form=form_remark, students=[remark.student], prime_data=prime_data)
         if utils.button_pressed('start-review'):

@@ -2,6 +2,7 @@ from app import db
 from flask_login import UserMixin, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import UniqueConstraint, select, event
+from sqlalchemy.dialects.mysql import MEDIUMBLOB
 from sqlalchemy.sql import func
 from sqlalchemy.orm import column_property
 
@@ -156,6 +157,7 @@ class Student(db.Model):
     remarks = db.relationship('Remark', cascade='all, delete', backref='student', lazy='dynamic')
     classgroup_id = db.Column(db.Integer, db.ForeignKey('classgroups.id', ondelete='CASCADE'))
     academic_year = db.Column(db.Integer, default=None)
+    photoblob = db.Column(MEDIUMBLOB)
     # nbr_of_remarks is a function in the database
     nbr_of_remarks = column_property(func.nbr_of_remarks(id))
     full_name = column_property(func.full_name(id))

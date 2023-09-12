@@ -186,6 +186,22 @@ def import_teachers():
     return redirect(url_for('settings.show_database'))
 
 
+@settings.route('/settings/import_lkr_from_ss', methods=['GET', 'POST'])
+@admin_required
+@login_required
+def import_lkr_from_ss():
+    app.application.sdh.import_lkr_from_ss()
+    return redirect(url_for('settings.show_database'))
+
+
+@settings.route('/settings/import_lln_from_sdh', methods=['GET', 'POST'])
+@admin_required
+@login_required
+def import_lln_from_sdh():
+    app.application.sdh.import_student_from_sdh()
+    return redirect(url_for('settings.show_database'))
+
+
 # NO PHOTOS ARE REMOVED, PHOTOS ARE ADDED ONLY
 # upload and unzip a zipfile with photos
 # if the same zipfile is uploaded with MORE photos then the additional photos are just added
@@ -334,6 +350,7 @@ def upload_schedule(rfile):
     try:
         # format csv file :
         log.info(u'Import timetable from : {}'.format(rfile))
+
         academic_year = request.form['selected_academic_year']
         valid_from = datetime.datetime.strptime(request.form['select-date-from'], '%d-%m-%Y')
 
