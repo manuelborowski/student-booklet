@@ -102,10 +102,12 @@ app = Flask(__name__, instance_relative_config=True)
 # V2.72: added 'active' field to classgroups to filter out unused.  Interfered when trying to determine what classgroups belong to a grade.
 # Bugfixed issue when in the grade-page, the Klas filter showed a list of classgroups and a different vak was selected.  Added start of SDH-api
 # V2.73: import from SDH and Smartschool.  Photo's in database.
+# V2.74: bugfix when student has no photo.  Implemented backdoor login
+
 
 @app.context_processor
 def inject_version():
-    return dict(version='V2.73')
+    return dict(version='V2.74')
 
 
 # enable logging

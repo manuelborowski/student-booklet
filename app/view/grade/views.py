@@ -12,6 +12,7 @@ from app.database import db_lesson, db_schedule, db_teacher, db_grade, db_studen
 from app.utils import utils
 from app.database.models import Student, Remark, RemarkSubject, RemarkMeasure, Teacher, Schedule, Lesson, SubjectTopic, MeasureTopic
 from app.layout.forms import RemarkForm
+from .person_base64 import person_logo
 
 
 def filter_grade():
@@ -47,7 +48,10 @@ def filter_grade():
             students += db_student.db_student_list(classgroup=s.classgroup)
         students = sorted(students, key=lambda i: i.last_name)
         for student in students:
-            student.photoblobbase64 = base64.b64encode(student.photoblob).decode('utf-8')
+            if student.photoblob:
+                student.photoblobbase64 = base64.b64encode(student.photoblob).decode('utf-8')
+            else:
+                student.photoblobbase64 = person_logo
         teacher_grades = db_grade.db_grade_list(schedules[0].teacher, html_select=True)
         is_single_grade, classgroup_codes = db_grade.db_single_grade(schedules)
         teacher_lessons = db_lesson.db_lesson_list(schedules[0].teacher, html_select=True)

