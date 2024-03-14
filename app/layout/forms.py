@@ -40,6 +40,6 @@ class RemarkForm(FlaskForm):
         self.subject.choices = db_subject_topic.db_subject_topic_list(select=True)
         self.measure.choices = db_measure_topic.db_measure_topic_list(select=True)
 
-    subject = SelectField(default='', label='Opmerking')
+    subject = SelectField(default='', label='Opmerking (dit verschijnt op de brief v/d strafstudie)')
     measure = SelectField(default='', label='Maatregel')
     id = IntegerField(default='', widget=HiddenInput())
