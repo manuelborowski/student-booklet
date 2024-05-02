@@ -119,7 +119,10 @@ def action():
             for s in request.form.getlist('student_id'):
                 student = Student.query.get(s)
                 if student:
-                    student.photoblobbase64 = base64.b64encode(student.photoblob).decode('utf-8')
+                    if student.photoblob:
+                        student.photoblobbase64 = base64.b64encode(student.photoblob).decode('utf-8')
+                    else:
+                        student.photoblobbase64 = person_logo
                     students.append(student)
             form = RemarkForm()
             prime_data = {}

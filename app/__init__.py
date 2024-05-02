@@ -104,11 +104,12 @@ app = Flask(__name__, instance_relative_config=True)
 # V2.73: import from SDH and Smartschool.  Photo's in database.
 # V2.74: bugfix when student has no photo.  Implemented backdoor login
 # 2.75: aesthetic update
+# V2.76: bugfix, use dummy photo when student with no photo is selected
 
 
 @app.context_processor
 def inject_version():
-    return dict(version='V2.75')
+    return dict(version='V2.76')
 
 
 # enable logging
