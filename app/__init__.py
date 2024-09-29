@@ -105,11 +105,12 @@ app = Flask(__name__, instance_relative_config=True)
 # V2.74: bugfix when student has no photo.  Implemented backdoor login
 # 2.75: aesthetic update
 # V2.76: bugfix, use dummy photo when student with no photo is selected
+# V2.77: updated packages
 
 
 @app.context_processor
 def inject_version():
-    return dict(version='V2.76')
+    return dict(version='V2.77')
 
 
 # enable logging
